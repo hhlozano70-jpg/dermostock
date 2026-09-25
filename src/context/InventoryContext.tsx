@@ -74,7 +74,7 @@ interface InventoryContextType {
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'dermostock_products_v1',
+  PRODUCTS: 'dermostock_products_v2',
   MOVEMENTS: 'dermostock_movements_v1',
   ORDERS: 'dermostock_orders_v1',
   TIER: 'dermostock_tier_v1',
@@ -333,10 +333,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   useEffect(() => {
     fetchFromServer(true);
 
-    // Auto-poll every 6 seconds to sync changes from PC to Phone and vice versa
+    // Auto-poll every 30 seconds to sync changes from PC to Phone and vice versa without quota burn
     const interval = setInterval(() => {
       fetchFromServer(false);
-    }, 6000);
+    }, 30000);
 
     // Also sync immediately when window/tab is focused
     const handleFocus = () => {

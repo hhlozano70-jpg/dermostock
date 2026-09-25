@@ -134,11 +134,30 @@ function writeLocalStore(data: any) {
   }
 }
 
-// Helper: Read from Firestore
+// Helper: Read from Firestore (Optimized: 1 document read to prevent quota exhaustion)
 async function readFirestoreStore() {
   if (!firestoreDb) return null;
   try {
+    // 1. Try single consolidated document (1 read operation)
+    const fullStoreDoc = await firestoreDb.collection('dermostock_config').doc('full_store').get();
+    if (fullStoreDoc.exists) {
+      const data = fullStoreDoc.data();
+      if (data && Array.isArray(data.products) && data.products.length > 0) {
+        return {
+          products: data.products,
+          movements: data.movements || [],
+          orders: data.orders || [],
+          priceTier: data.priceTier || 'comercial',
+          settings: data.settings || null,
+          lastUpdated: data.lastUpdated || new Date().toISOString(),
+        };
+      }
+    }
+
+    // 2. Fallback to individual collections if full_store not yet created
     const productsSnapshot = await firestoreDb.collection('dermostock_products').get();
+    if (productsSnapshot.empty) return null;
+
     const movementsSnapshot = await firestoreDb.collection('dermostock_movements').get();
     const ordersSnapshot = await firestoreDb.collection('dermostock_orders').get();
     const configDoc = await firestoreDb.collection('dermostock_config').doc('settings').get();
@@ -148,10 +167,6 @@ async function readFirestoreStore() {
     const orders = ordersSnapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
     const config = configDoc.exists ? configDoc.data() : null;
 
-    if (products.length === 0) {
-      return null;
-    }
-
     return {
       products,
       movements,
@@ -160,13 +175,13 @@ async function readFirestoreStore() {
       settings: config?.settings || null,
       lastUpdated: config?.lastUpdated || new Date().toISOString(),
     };
-  } catch (err) {
-    console.error('Error reading from Firestore:', err);
+  } catch (err: any) {
+    console.warn('⚠️ Firestore read error (falling back to store.json):', err?.message || err);
     return null;
   }
 }
 
-// Helper: Save to Firestore
+// Helper: Save to Firestore (Optimized: single document write saves quota)
 async function writeFirestoreStore(data: {
   products: any[];
   movements?: any[];
@@ -179,67 +194,19 @@ async function writeFirestoreStore(data: {
   try {
     const { products = [], movements = [], orders = [], priceTier = 'comercial', settings = null, lastUpdated = new Date().toISOString() } = data;
 
-    const existingProductsSnapshot = await firestoreDb.collection('dermostock_products').select().get();
-    const currentProductIds = new Set(products.map((p) => p.id));
-
-    let batch = firestoreDb.batch();
-    let opCount = 0;
-
-    const commitBatchIfNeeded = async () => {
-      if (opCount >= 400) {
-        await batch.commit();
-        batch = firestoreDb!.batch();
-        opCount = 0;
-      }
-    };
-
-    // Upsert products
-    for (const prod of products) {
-      const docRef = firestoreDb.collection('dermostock_products').doc(prod.id);
-      batch.set(docRef, prod);
-      opCount++;
-      await commitBatchIfNeeded();
-    }
-
-    // Delete products removed in frontend
-    for (const doc of existingProductsSnapshot.docs) {
-      if (!currentProductIds.has(doc.id)) {
-        batch.delete(doc.ref);
-        opCount++;
-        await commitBatchIfNeeded();
-      }
-    }
-
-    // Upsert movements
-    for (const mov of movements) {
-      const movId = mov.id || `mov-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-      const docRef = firestoreDb.collection('dermostock_movements').doc(movId);
-      batch.set(docRef, { ...mov, id: movId });
-      opCount++;
-      await commitBatchIfNeeded();
-    }
-
-    // Upsert orders
-    for (const ord of orders) {
-      const ordId = ord.id || `ord-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
-      const docRef = firestoreDb.collection('dermostock_orders').doc(ordId);
-      batch.set(docRef, { ...ord, id: ordId });
-      opCount++;
-      await commitBatchIfNeeded();
-    }
-
-    // Upsert settings
-    const configRef = firestoreDb.collection('dermostock_config').doc('settings');
-    batch.set(configRef, { priceTier, settings, lastUpdated }, { merge: true });
-    opCount++;
-
-    if (opCount > 0) {
-      await batch.commit();
-    }
+    // 1. Save single consolidated store doc (1 write operation, prevents RESOURCE_EXHAUSTED)
+    await firestoreDb.collection('dermostock_config').doc('full_store').set({
+      products,
+      movements,
+      orders,
+      priceTier,
+      settings,
+      lastUpdated,
+    });
 
     return true;
-  } catch (err) {
-    console.error('Error writing to Firestore:', err);
+  } catch (err: any) {
+    console.warn('⚠️ Firestore write error (local store.json preserved):', err?.message || err);
     return false;
   }
 }
@@ -312,15 +279,16 @@ app.post('/api/data', async (req, res) => {
   // Always keep local store as backup
   writeLocalStore(payload);
 
-  // If Firestore is available, save to Firestore
+  // If Firestore is available, attempt to save to Firestore
   if (isFirestoreAvailable) {
-    const success = await writeFirestoreStore(payload);
-    if (!success) {
-      return res.status(500).json({ error: 'Failed to write to Firestore' });
-    }
+    await writeFirestoreStore(payload);
   }
 
-  return res.json({ success: true, lastUpdated: payload.lastUpdated, storage: isFirestoreAvailable ? 'firestore' : 'local-json' });
+  return res.json({ 
+    success: true, 
+    lastUpdated: payload.lastUpdated, 
+    storage: isFirestoreAvailable ? 'firestore' : 'local-json' 
+  });
 });
 
 // ----------------------------------------------------
