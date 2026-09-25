@@ -14,7 +14,8 @@
       "minStockAlert": 2,
       "description": "Humectación profunda de 48 horas con infusión de sérum humectante profundo y aceite de almendras para piel extra seca.",
       "packagingType": "bottle",
-      "volume": "400 ml"
+      "volume": "400 ml",
+      "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
     },
     {
       "id": "prod-02",
@@ -30,7 +31,8 @@
       "minStockAlert": 2,
       "description": "Edición familiar de gran formato. Cuidado intensivo nutritivo con aceite de almendras naturales.",
       "packagingType": "large_bottle",
-      "volume": "650 ml"
+      "volume": "650 ml",
+      "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
     },
     {
       "id": "prod-03",
@@ -46,7 +48,8 @@
       "minStockAlert": 2,
       "description": "Fórmula clínicamente probada que ayuda a acelerar el proceso de regeneración de la piel extremadamente seca, irritada o agrietada.",
       "packagingType": "tube",
-      "volume": "50 g"
+      "volume": "50 g",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp45231/r/31.jpg"
     },
     {
       "id": "prod-04",
@@ -62,7 +65,8 @@
       "minStockAlert": 2,
       "description": "Fórmula 2 en 1 sin lágrimas, hipoalergénica con esencia suave y provitamina B5 para la delicada piel y cuero cabelludo de bebés.",
       "packagingType": "pump",
-      "volume": "500 ml"
+      "volume": "500 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02109/y/8.jpg"
     },
     {
       "id": "prod-05",
@@ -78,7 +82,8 @@
       "minStockAlert": 2,
       "description": "Loción de reparación intensiva para piel muy seca con ceramidas 3 y factores de humectación natural (NMFs).",
       "packagingType": "large_bottle",
-      "volume": "1000 ml"
+      "volume": "1000 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/85.jpg"
     },
     {
       "id": "prod-06",
@@ -94,7 +99,8 @@
       "minStockAlert": 2,
       "description": "Gel corporal desarrollado para hombres con piel sensible, enriquecido con extracto de bambú sin alcohol ni resequedad.",
       "packagingType": "bottle",
-      "volume": "500 ml"
+      "volume": "500 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/y/39.jpg"
     },
     {
       "id": "prod-07",
@@ -110,7 +116,8 @@
       "minStockAlert": 2,
       "description": "Alivio inmediato 3 en 1: previene, alivia y trata rozaduras causadas por el pañal con óxido de zinc enriquecido.",
       "packagingType": "tube",
-      "volume": "100 ml"
+      "volume": "100 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp02661/y/63.jpg"
     },
     {
       "id": "prod-08",
@@ -126,7 +133,8 @@
       "minStockAlert": 4,
       "description": "Fórmula hidratante con aroma a sandía y un sutil toque de brillo y color rosado natural para unos labios suaves todo el día.",
       "packagingType": "lip_balm",
-      "volume": "Pack x2 (4.8g c/u)"
+      "volume": "Pack x2 (4.8g c/u)",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02476/y/1.jpg"
     },
     {
       "id": "prod-09",
@@ -142,7 +150,8 @@
       "minStockAlert": 2,
       "description": "La crema hidratante por excelencia desde 1911. Hidratación pura con Eucerit para todo tipo de piel y zonas resecas.",
       "packagingType": "tin",
-      "volume": "60 ml"
+      "volume": "60 ml",
+      "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/a/d/3/0515723ac59542b481c4419f5049d82a-web_1010x1180_transparent_png.png"
     },
     {
       "id": "prod-10",
@@ -158,7 +167,8 @@
       "minStockAlert": 2,
       "description": "Gel de ducha cremoso con finas partículas de diamante y nutritivo aceite de argán para una piel suave y radiante.",
       "packagingType": "bottle",
-      "volume": "500 ml"
+      "volume": "500 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02611/y/1.jpg"
     },
     {
       "id": "prod-11",
@@ -174,7 +184,8 @@
       "minStockAlert": 2,
       "description": "Aroma delicado a rosas blancas con aceite nutritivo de almendras para una sensación sedosa en la ducha.",
       "packagingType": "bottle",
-      "volume": "500 ml"
+      "volume": "500 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02612/y/8.jpg"
     },
     {
       "id": "prod-12",
@@ -190,7 +201,8 @@
       "minStockAlert": 2,
       "description": "Fórmula suave con extracto de manzanilla, libre de jabón alcalino, diseñada para limpiar suavemente pieles sensibles.",
       "packagingType": "bottle",
-      "volume": "500 ml"
+      "volume": "500 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02613/y/1.jpg"
     },
     {
       "id": "prod-13",
@@ -206,7 +218,8 @@
       "minStockAlert": 2,
       "description": "Cuidado dermatológico avanzado para el cuerpo con complejo hidratante de larga duración y pH balanceado.",
       "packagingType": "bottle",
-      "volume": "500 ml"
+      "volume": "500 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02614/y/1.jpg"
     },
     {
       "id": "prod-14",
@@ -222,7 +235,8 @@
       "minStockAlert": 2,
       "description": "Fórmula con Dexpantenol que fortalece la barrera protectora de la piel y calma la resequedad y tirantez desde el primer uso.",
       "packagingType": "bottle",
-      "volume": "400 ml"
+      "volume": "400 ml",
+      "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/e/7/4/364679-screen.jpg"
     },
     {
       "id": "prod-15",
@@ -238,7 +252,8 @@
       "minStockAlert": 2,
       "description": "Doble beneficio: humectación profunda diaria combinada con protección solar FPS 15 frente a rayos UVA/UVB.",
       "packagingType": "bottle",
-      "volume": "400 ml"
+      "volume": "400 ml",
+      "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/e/7/4/364679-screen.jpg"
     },
     {
       "id": "prod-16",
@@ -254,7 +269,8 @@
       "minStockAlert": 2,
       "description": "Loción corporal suave con pH Balance System que preserva las defensas naturales de la piel y reduce la sensibilidad.",
       "packagingType": "pump",
-      "volume": "400 ml"
+      "volume": "400 ml",
+      "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/7/c/3/019f4cb0f0e17044bf0f1963277c86e8-screen.jpg"
     },
     {
       "id": "prod-17",
@@ -270,7 +286,8 @@
       "minStockAlert": 2,
       "description": "Ungüento multiusos para bebés. Alivia la resequedad provocada por babeo, clima frío y raspones leves. Recomendado por pediatras.",
       "packagingType": "tube",
-      "volume": "198 g / 7 oz"
+      "volume": "198 g / 7 oz",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/29.jpg"
     },
     {
       "id": "prod-18",
@@ -286,7 +303,8 @@
       "minStockAlert": 2,
       "description": "Bálsamo para después del afeitado con aloe vera y provitamina B5. Calma y regenera al instante la piel irritada por el afeitado.",
       "packagingType": "box",
-      "volume": "100 ml"
+      "volume": "100 ml",
+      "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/37.jpg"
     }
   ],
   "movements": [
@@ -305,5 +323,5 @@
   ],
   "orders": [],
   "priceTier": "comercial",
-  "lastUpdated": "2026-09-24T18:00:00.000Z"
+  "lastUpdated": "2026-09-25T03:31:31.534Z"
 }
