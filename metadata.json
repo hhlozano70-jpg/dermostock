@@ -1,0 +1,6 @@
+{
+  "name": "DermoStock - Tienda y Gestión de Inventarios",
+  "description": "Tienda en línea y sistema de control de inventarios dermocosméticos para Nivea, Eucerin y Aquaphor con catálogo comercial, mayorista y promoción, carrito de compras, entradas, salidas y reportes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
