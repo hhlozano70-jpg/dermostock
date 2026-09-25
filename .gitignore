@@ -9,3 +9,5 @@ coverage/
 *firebase-service-account*.json
 *service-account*.json
 *.pem
+scratch/
+https-/

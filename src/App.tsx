@@ -11,6 +11,7 @@ import { ProductQuickView } from './components/ProductQuickView';
 import { OrderReceiptModal } from './components/OrderReceiptModal';
 import { ProductEditModal } from './components/ProductEditModal';
 import { DeviceSyncModal } from './components/DeviceSyncModal';
+import { SettingsModal } from './components/SettingsModal';
 
 const MainContent: React.FC = () => {
   const { 
@@ -18,7 +19,9 @@ const MainContent: React.FC = () => {
     lastCompletedOrder, 
     setLastCompletedOrder,
     isSyncModalOpen,
-    setIsSyncModalOpen
+    setIsSyncModalOpen,
+    isSettingsModalOpen,
+    setIsSettingsModalOpen
   } = useInventory();
 
   return (
@@ -42,6 +45,10 @@ const MainContent: React.FC = () => {
       <DeviceSyncModal 
         isOpen={isSyncModalOpen} 
         onClose={() => setIsSyncModalOpen(false)} 
+      />
+      <SettingsModal 
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
       />
 
       {/* Automatic receipt popup upon completing an order */}

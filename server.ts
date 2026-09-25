@@ -157,6 +157,7 @@ async function readFirestoreStore() {
       movements,
       orders,
       priceTier: config?.priceTier || 'comercial',
+      settings: config?.settings || null,
       lastUpdated: config?.lastUpdated || new Date().toISOString(),
     };
   } catch (err) {
@@ -171,11 +172,12 @@ async function writeFirestoreStore(data: {
   movements?: any[];
   orders?: any[];
   priceTier?: string;
+  settings?: any;
   lastUpdated?: string;
 }) {
   if (!firestoreDb) return false;
   try {
-    const { products = [], movements = [], orders = [], priceTier = 'comercial', lastUpdated = new Date().toISOString() } = data;
+    const { products = [], movements = [], orders = [], priceTier = 'comercial', settings = null, lastUpdated = new Date().toISOString() } = data;
 
     const existingProductsSnapshot = await firestoreDb.collection('dermostock_products').select().get();
     const currentProductIds = new Set(products.map((p) => p.id));
@@ -228,7 +230,7 @@ async function writeFirestoreStore(data: {
 
     // Upsert settings
     const configRef = firestoreDb.collection('dermostock_config').doc('settings');
-    batch.set(configRef, { priceTier, lastUpdated });
+    batch.set(configRef, { priceTier, settings, lastUpdated }, { merge: true });
     opCount++;
 
     if (opCount > 0) {
@@ -293,7 +295,7 @@ app.get('/api/data', async (_req, res) => {
 
 // POST full synchronized state (called by client on changes)
 app.post('/api/data', async (req, res) => {
-  const { products, movements, orders, priceTier } = req.body;
+  const { products, movements, orders, priceTier, settings } = req.body;
   if (!products || !Array.isArray(products)) {
     return res.status(400).json({ error: 'Invalid payload: products array required' });
   }
@@ -303,6 +305,7 @@ app.post('/api/data', async (req, res) => {
     movements: movements || [],
     orders: orders || [],
     priceTier: priceTier || 'comercial',
+    settings: settings || null,
     lastUpdated: new Date().toISOString(),
   };
 

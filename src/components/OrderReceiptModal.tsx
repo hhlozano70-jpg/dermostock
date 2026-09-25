@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Printer, CheckCircle2, MessageCircle } from 'lucide-react';
 import { Order } from '../types/inventory';
+import { useInventory } from '../context/InventoryContext';
 
 interface OrderReceiptModalProps {
   order: Order | null;
@@ -8,22 +9,46 @@ interface OrderReceiptModalProps {
 }
 
 export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onClose }) => {
+  const { settings } = useInventory();
   if (!order) return null;
 
   const handlePrint = () => {
     window.print();
   };
 
+  const isDeliveryDomicilio = order.deliveryType === 'domicilio' || order.deliveryType === 'envio';
+  const deliveryLabel = isDeliveryDomicilio ? 'Entrega a Domicilio' : 'En un Punto Fijo a Definir';
+  const deliveryDetail = isDeliveryDomicilio 
+    ? (order.customerAddress || 'Domicilio proporcionado')
+    : (order.deliveryPoint || 'Punto fijo a coordinar');
+
   const generateWhatsAppLink = () => {
-    const phone = '5215500000000'; // placeholder business number or customer phone
+    let phone = (settings.whatsappNumber || '').replace(/[^0-9]/g, '');
+    if (phone.length === 10) {
+      phone = '52' + phone;
+    }
+
     const itemsText = order.items
       .map(
         (i) => `• ${i.quantity}x ${i.product.name} ($${i.unitPrice.toFixed(2)} c/u)`
       )
-      .join('%0A');
+      .join('\n');
 
-    const msg = `¡Hola! Confirmo mi pedido en DermoStock:%0A%0A*No. Pedido:* ${order.id}%0A*Cliente:* ${order.customerName}%0A*Teléfono:* ${order.customerPhone}%0A*Entrega:* ${order.deliveryType === 'envio' ? `Envío a domicilio (${order.customerAddress})` : 'Retiro en sucursal'}%0A*Método de Pago:* ${order.paymentMethod}%0A*Tarifa:* ${order.appliedTier.toUpperCase()}%0A%0A*Productos:*%0A${itemsText}%0A%0A*Total a Pagar:* $${order.total.toFixed(2)} MXN%0A*Ahorro Total:* $${order.discountSavings.toFixed(2)} MXN%0A%0AGracias.`;
-    return `https://wa.me/?text=${msg}`;
+    const msg = `¡Hola ${settings.businessName || 'DermoStock'}! Confirmo mi pedido:\n\n` +
+      `*No. Pedido:* #${order.id}\n` +
+      `*Cliente:* ${order.customerName}\n` +
+      `*Teléfono:* ${order.customerPhone}\n` +
+      `*Modalidad:* ${deliveryLabel}\n` +
+      `*Detalle Entrega:* ${deliveryDetail}\n` +
+      `*Método de Pago:* ${order.paymentMethod.replace('_', ' ')}\n` +
+      `*Tarifa:* ${order.appliedTier.toUpperCase()}\n\n` +
+      `*Productos:* \n${itemsText}\n\n` +
+      `*Total a Pagar:* $${order.total.toFixed(2)} MXN\n` +
+      (order.discountSavings > 0 ? `*Ahorro Total:* $${order.discountSavings.toFixed(2)} MXN\n\n` : '\n') +
+      `¡Muchas gracias!`;
+
+    const encoded = encodeURIComponent(msg);
+    return phone ? `https://wa.me/${phone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
   };
 
   return (
@@ -40,7 +65,7 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
           </div>
           <button
             onClick={onClose}
-            className="p-1 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1 rounded-md text-slate-300 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -51,7 +76,7 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
           {/* Brand header */}
           <div className="text-center pb-4 border-b border-dashed border-slate-300">
             <h2 className="text-xl font-bold font-serif tracking-tight text-slate-900">
-              DermoStock México
+              {settings.businessName || 'DermoStock México'}
             </h2>
             <p className="text-xs text-slate-500">Distribución de Dermocosméticos Originales</p>
             <p className="text-xs text-slate-400 font-mono mt-1">Nivea · Eucerin · Aquaphor</p>
@@ -61,7 +86,7 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
           <div className="py-3 border-b border-dashed border-slate-300 text-xs space-y-1">
             <div className="flex justify-between">
               <span className="text-slate-500">Folio:</span>
-              <span className="font-mono font-bold text-slate-900">{order.id}</span>
+              <span className="font-mono font-bold text-slate-900">#{order.id}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Fecha:</span>
@@ -77,14 +102,18 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Entrega:</span>
-              <span className="text-slate-700">
-                {order.deliveryType === 'envio' ? 'Envío a Domicilio' : 'Retiro en Sucursal'}
+              <span className="text-slate-700 font-medium">
+                {deliveryLabel}
               </span>
             </div>
-            {order.customerAddress && (
+            {(order.customerAddress || order.deliveryPoint) && (
               <div className="flex justify-between">
-                <span className="text-slate-500">Dirección:</span>
-                <span className="text-slate-700 max-w-[240px] text-right truncate">{order.customerAddress}</span>
+                <span className="text-slate-500">
+                  {isDeliveryDomicilio ? 'Dirección:' : 'Punto Fijo:'}
+                </span>
+                <span className="text-slate-700 max-w-[240px] text-right truncate">
+                  {isDeliveryDomicilio ? order.customerAddress : order.deliveryPoint}
+                </span>
               </div>
             )}
             <div className="flex justify-between">

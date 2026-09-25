@@ -19,6 +19,14 @@ export type Category =
 
 export type PriceTier = 'comercial' | 'mayorista' | 'promocion';
 
+export type DeliveryType = 'domicilio' | 'punto_fijo' | 'envio' | 'sucursal';
+
+export interface StoreSettings {
+  whatsappNumber: string; // e.g. "5215512345678" o "5512345678"
+  businessName: string;
+  defaultPickupPoint?: string; // e.g. "Punto de encuentro a convenir"
+}
+
 export interface Product {
   id: string;
   sku: string;
@@ -65,7 +73,8 @@ export interface Order {
   customerName: string;
   customerPhone: string;
   customerAddress?: string;
-  deliveryType: 'envio' | 'sucursal';
+  deliveryPoint?: string;
+  deliveryType: DeliveryType;
   paymentMethod: 'efectivo' | 'transferencia' | 'tarjeta' | 'contra_entrega';
   items: CartItem[];
   subtotal: number;
@@ -74,3 +83,4 @@ export interface Order {
   appliedTier: PriceTier;
   status: 'completado' | 'pendiente' | 'entregado';
 }
+

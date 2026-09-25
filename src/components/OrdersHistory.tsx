@@ -91,8 +91,10 @@ export const OrdersHistory: React.FC = () => {
                   <div className="text-[11px] text-slate-500 pl-5">
                     Tel: {order.customerPhone}
                   </div>
-                  <div className="text-[11px] text-slate-500 pl-5">
-                    {order.deliveryType === 'envio' ? 'Envío a Domicilio' : 'Retiro en Sucursal'}
+                  <div className="text-[11px] text-slate-500 pl-5 truncate" title={order.customerAddress || order.deliveryPoint || ''}>
+                    {order.deliveryType === 'domicilio' || order.deliveryType === 'envio'
+                      ? `Envío a Domicilio ${order.customerAddress ? `· ${order.customerAddress}` : ''}`
+                      : `Punto Fijo a Definir ${order.deliveryPoint ? `· ${order.deliveryPoint}` : ''}`}
                   </div>
                   <div className="text-[11px] text-slate-500 pl-5 flex items-center gap-1">
                     <CreditCard className="w-3 h-3 text-slate-400" />

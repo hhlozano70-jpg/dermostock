@@ -1717,5 +1717,10 @@
   ],
   "orders": [],
   "priceTier": "comercial",
-  "lastUpdated": "2026-09-25T03:49:23.027Z"
+  "settings": {
+    "whatsappNumber": "525512345678",
+    "businessName": "DermoStock México",
+    "defaultPickupPoint": "Punto de entrega a acordar"
+  },
+  "lastUpdated": "2026-09-25T08:27:00.000Z"
 }

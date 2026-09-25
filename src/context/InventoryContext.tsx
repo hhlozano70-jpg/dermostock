@@ -5,10 +5,17 @@ import {
   PriceTier, 
   InventoryMovement, 
   Order, 
-  MovementType 
+  MovementType,
+  StoreSettings 
 } from '../types/inventory';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
+
+export const DEFAULT_STORE_SETTINGS: StoreSettings = {
+  whatsappNumber: '525512345678',
+  businessName: 'DermoStock México',
+  defaultPickupPoint: 'Punto de entrega a acordar',
+};
 
 interface InventoryContextType {
   products: Product[];
@@ -50,6 +57,10 @@ interface InventoryContextType {
   productToEdit: Product | null;
   openProductModal: (product?: Product | null) => void;
   closeProductModal: () => void;
+  settings: StoreSettings;
+  updateSettings: (newSettings: Partial<StoreSettings>) => void;
+  isSettingsModalOpen: boolean;
+  setIsSettingsModalOpen: (open: boolean) => void;
   syncStatus: 'synced' | 'syncing' | 'offline' | 'error';
   lastSyncTime: Date | null;
   refreshFromServer: () => Promise<void>;
@@ -67,6 +78,7 @@ const STORAGE_KEYS = {
   MOVEMENTS: 'dermostock_movements_v1',
   ORDERS: 'dermostock_orders_v1',
   TIER: 'dermostock_tier_v1',
+  SETTINGS: 'dermostock_settings_v1',
 };
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -153,6 +165,33 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setProductToEdit(null);
   };
 
+  // Store Settings (WhatsApp number, business name, default pickup point)
+  const [settings, setSettings] = useState<StoreSettings>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed.whatsappNumber === 'string') return parsed;
+      }
+    } catch {}
+    return DEFAULT_STORE_SETTINGS;
+  });
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const settingsRef = React.useRef(settings);
+  settingsRef.current = settings;
+
+  const updateSettings = (newSettings: Partial<StoreSettings>) => {
+    setSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      settingsRef.current = updated;
+      try {
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(updated));
+      } catch {}
+      syncToServer(products, movements, orders, priceTier, updated);
+      return updated;
+    });
+  };
+
   // Cloud Sync State
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
@@ -165,7 +204,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     currentProducts: Product[],
     currentMovements: InventoryMovement[],
     currentOrders: Order[],
-    currentTier: PriceTier
+    currentTier: PriceTier,
+    currentSettings?: StoreSettings
   ) => {
     try {
       setSyncStatus('syncing');
@@ -178,6 +218,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           movements: currentMovements,
           orders: currentOrders,
           priceTier: currentTier,
+          settings: currentSettings || settingsRef.current,
         }),
       });
       if (res.ok) {
@@ -216,6 +257,13 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           if (Array.isArray(data.movements)) setMovements(data.movements);
           if (Array.isArray(data.orders)) setOrders(data.orders);
           if (data.priceTier) setPriceTier(data.priceTier);
+          if (data.settings && data.settings.whatsappNumber) {
+            setSettings(data.settings);
+            settingsRef.current = data.settings;
+            try {
+              localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(data.settings));
+            } catch {}
+          }
           setLastSyncTime(new Date());
           setSyncStatus('synced');
 
@@ -229,7 +277,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
       } else if (!isInitialLoadDoneRef.current) {
         // Server was empty, seed server with current client state
-        await syncToServer(products, movements, orders, priceTier);
+        await syncToServer(products, movements, orders, priceTier, settingsRef.current);
       }
       setSyncStatus('synced');
     } catch (err) {
@@ -253,7 +301,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const saveToServer = async (): Promise<boolean> => {
     try {
-      await syncToServer(products, movements, orders, priceTier);
+      await syncToServer(products, movements, orders, priceTier, settings);
       return true;
     } catch {
       return false;
@@ -661,6 +709,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         productToEdit,
         openProductModal,
         closeProductModal,
+        settings,
+        updateSettings,
+        isSettingsModalOpen,
+        setIsSettingsModalOpen,
         syncStatus,
         lastSyncTime,
         refreshFromServer,

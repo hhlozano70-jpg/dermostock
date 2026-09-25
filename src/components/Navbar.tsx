@@ -9,7 +9,8 @@ import {
   Cloud,
   CheckCircle2,
   AlertCircle,
-  BarChart3
+  BarChart3,
+  Settings
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { PriceTier } from '../types/inventory';
@@ -25,7 +26,8 @@ export const Navbar: React.FC = () => {
     syncStatus,
     lastSyncTime,
     refreshFromServer,
-    setIsSyncModalOpen
+    setIsSyncModalOpen,
+    setIsSettingsModalOpen
   } = useInventory();
 
   return (
@@ -169,6 +171,16 @@ export const Navbar: React.FC = () => {
                 Promo (-60%)
               </button>
             </div>
+
+            {/* Settings Trigger */}
+            <button
+              onClick={() => setIsSettingsModalOpen(true)}
+              className="flex items-center justify-center p-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+              title="Configuración de WhatsApp para pedidos y entregas"
+              aria-label="Abrir configuración de pedidos"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
 
             {/* Cart Trigger */}
             <button
