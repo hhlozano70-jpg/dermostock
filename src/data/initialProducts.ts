@@ -50,7 +50,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula clínicamente probada que ayuda a acelerar el proceso de regeneración de la piel extremadamente seca, irritada o agrietada.",
     "packagingType": "tube",
     "volume": "50 g",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp45231/r/31.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/7/c/3/019f4cb0f0e17044bf0f1963277c86e8-screen.jpg"
   },
   {
     "id": "prod-04",
@@ -67,7 +67,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula 2 en 1 sin lágrimas, hipoalergénica con esencia suave y provitamina B5 para la delicada piel y cuero cabelludo de bebés.",
     "packagingType": "pump",
     "volume": "500 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02109/y/8.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02109/l/1.jpg"
   },
   {
     "id": "prod-05",
@@ -84,7 +84,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Loción de reparación intensiva para piel muy seca con ceramidas 3 y factores de humectación natural (NMFs).",
     "packagingType": "large_bottle",
     "volume": "1000 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/85.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/1.jpg"
   },
   {
     "id": "prod-06",
@@ -101,7 +101,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Gel corporal desarrollado para hombres con piel sensible, enriquecido con extracto de bambú sin alcohol ni resequedad.",
     "packagingType": "bottle",
     "volume": "500 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/y/39.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/l/1.jpg"
   },
   {
     "id": "prod-07",
@@ -118,7 +118,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Alivio inmediato 3 en 1: previene, alivia y trata rozaduras causadas por el pañal con óxido de zinc enriquecido.",
     "packagingType": "tube",
     "volume": "100 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp02661/y/63.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp02661/y/1.jpg"
   },
   {
     "id": "prod-08",
@@ -186,7 +186,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Aroma delicado a rosas blancas con aceite nutritivo de almendras para una sensación sedosa en la ducha.",
     "packagingType": "bottle",
     "volume": "500 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02612/y/8.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02612/l/1.jpg"
   },
   {
     "id": "prod-12",
@@ -237,7 +237,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula con Dexpantenol que fortalece la barrera protectora de la piel y calma la resequedad y tirantez desde el primer uso.",
     "packagingType": "bottle",
     "volume": "400 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/e/7/4/364679-screen.jpg"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-15",
@@ -288,7 +288,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Ungüento multiusos para bebés. Alivia la resequedad provocada por babeo, clima frío y raspones leves. Recomendado por pediatras.",
     "packagingType": "tube",
     "volume": "198 g / 7 oz",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/29.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/1.jpg"
   },
   {
     "id": "prod-18",
@@ -305,7 +305,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Bálsamo para después del afeitado con aloe vera y provitamina B5. Calma y regenera al instante la piel irritada por el afeitado.",
     "packagingType": "box",
     "volume": "100 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/37.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/5.jpg"
   },
   {
     "id": "prod-19",
@@ -322,7 +322,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Protector solar facial para piel grasa y con tendencia acneica. Efecto anti-brillo de hasta 8 horas y textura ultraligera de rápida absorción.",
     "packagingType": "pump",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-20",
@@ -339,7 +339,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Previene y reduce visiblemente las manchas provocadas por el sol gracias al principio patentado Tiamidol y protección avanzada UVA/UVB.",
     "packagingType": "pump",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-21",
@@ -356,7 +356,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fluido solar ultraligero con complejo hidro-tecnológico para hidratación inmediata y sensación de frescura sin residuos pegajosos.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/7/1/f/90034a85b7cb444f9cd46468551057f2-screen.jpg"
   },
   {
     "id": "prod-22",
@@ -373,7 +373,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Unifica el tono de la piel al instante mientras controla el brillo y brinda máxima fotoprotección facial matificante.",
     "packagingType": "pump",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/f/7/4/35520fb0f65d460a8295409de656a194-screen.jpg"
   },
   {
     "id": "prod-23",
@@ -390,7 +390,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula no comedogénica con pigmentos minerales de cobertura media. Control de sebo por 8 horas y alta protección UVB/UVA.",
     "packagingType": "pump",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/6/0/6/115b7e2019054e31a947bb10c00564e5-screen.jpg"
   },
   {
     "id": "prod-24",
@@ -407,7 +407,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Reduce visiblemente los signos del envejecimiento prematuro y líneas de expresión causadas por la radiación solar.",
     "packagingType": "pump",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-25",
@@ -424,7 +424,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Spray corporal de rápida absorción y resistente al agua. Ideal para piel sensible y zonas corporales con vello.",
     "packagingType": "bottle",
     "volume": "200 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/85.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/0/3/0/dab7aace545e45b9aa67eb516c92ebcf-original.png"
   },
   {
     "id": "prod-26",
@@ -441,7 +441,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Protección solar pediátrica avanzada sin perfume y altamente resistente al agua para la piel delicada de bebés y niños.",
     "packagingType": "bottle",
     "volume": "200 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/85.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/0/3/0/dab7aace545e45b9aa67eb516c92ebcf-original.png"
   },
   {
     "id": "prod-27",
@@ -458,7 +458,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Dispositivo médico certificado para la prevención de la queratosis actínica y cáncer de piel no melanoma. FPS 100 UVB/UVA.",
     "packagingType": "tube",
     "volume": "80 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-28",
@@ -475,7 +475,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Rellena, estimula y protege el ácido hialurónico natural de la piel. Reduce arrugas profundas y ofrece protección UVA.",
     "packagingType": "jar",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-29",
@@ -492,7 +492,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Tratamiento nocturno regenerador con dexpantenol que apoya el proceso de renovación celular mientras descansas.",
     "packagingType": "jar",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/7/c/3/019f4cb0f0e17044bf0f1963277c86e8-screen.jpg"
   },
   {
     "id": "prod-30",
@@ -509,7 +509,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Tratamiento específico para patas de gallo y líneas de expresión en el área periocular. Oftalmológicamente probado.",
     "packagingType": "tube",
     "volume": "15 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-31",
@@ -526,7 +526,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Mejora la elasticidad, desvanece manchas de la edad y aporta luminosidad radiante a pieles maduras con Arctiina y Tiamidol.",
     "packagingType": "jar",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-32",
@@ -543,7 +543,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula nutritiva con aceite de argán que regenera profundamente las fibras de colágeno durante la noche.",
     "packagingType": "jar",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/7/c/3/019f4cb0f0e17044bf0f1963277c86e8-screen.jpg"
   },
   {
     "id": "prod-33",
@@ -560,7 +560,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Combina el potente ingrediente antimanchas Tiamidol con Ácido Hialurónico concentrado para una piel visiblemente uniforme y luminosa.",
     "packagingType": "dropper",
     "volume": "30 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-34",
@@ -577,7 +577,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Reduce la hiperpigmentación de raíz y previene su reaparición con uso continuo y protección UVA/UVB.",
     "packagingType": "pump",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-35",
@@ -594,7 +594,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Acción despigmentante nocturna intensiva con Tiamidol y Dexpantenol para un tono uniforme y descansado.",
     "packagingType": "pump",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-36",
@@ -611,7 +611,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Solución tópica de alta precisión con Tiamidol concentrado para aplicar directamente sobre pequeñas manchas oscuras.",
     "packagingType": "tube",
     "volume": "5 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-37",
@@ -628,7 +628,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Alivio inmediato por 48 horas para piel muy seca, áspera y descamada. Enriquecida con ceramidas y factores naturales de hidratación.",
     "packagingType": "pump",
     "volume": "400 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/85.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/1.jpg"
   },
   {
     "id": "prod-38",
@@ -645,7 +645,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Hidratación diaria para piel seca y tirante. Refuerza la barrera lipídica y previene la pérdida de humedad.",
     "packagingType": "pump",
     "volume": "400 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/85.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/1.jpg"
   },
   {
     "id": "prod-39",
@@ -662,7 +662,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Reparación intensiva para manos secas y agrietadas por el lavado continuo y cambios climáticos.",
     "packagingType": "tube",
     "volume": "75 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp45231/r/31.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/1.jpg"
   },
   {
     "id": "prod-40",
@@ -679,7 +679,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Suaviza talones agrietados y durezas en los pies en pocos días con 10% de urea y ceramidas reparadoras.",
     "packagingType": "tube",
     "volume": "100 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp45231/r/31.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/1.jpg"
   },
   {
     "id": "prod-41",
@@ -696,7 +696,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula sin jabón con 6% de anfóteros que limpia suavemente y elimina el exceso de sebo sin resecar la piel.",
     "packagingType": "pump",
     "volume": "400 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/85.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/1.jpg"
   },
   {
     "id": "prod-42",
@@ -713,7 +713,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Anti-imperfecciones, anti-manchas post-acné y anti-brillo. Contiene Ácido Salicílico y Tiamidol patentado.",
     "packagingType": "pump",
     "volume": "40 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-43",
@@ -730,7 +730,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Efecto matificante duradero de 8 horas con partículas absorbentes de grasa y Licochalcona A calmante.",
     "packagingType": "tube",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc00424/y/1.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-44",
@@ -747,7 +747,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Alivia la comezón y calma el enrojecimiento en brotes atópicos. Apto para bebés desde las 4 semanas de edad.",
     "packagingType": "tube",
     "volume": "40 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp45231/r/31.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/7/c/3/019f4cb0f0e17044bf0f1963277c86e8-screen.jpg"
   },
   {
     "id": "prod-45",
@@ -764,7 +764,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Cuidado básico diario para piel atópica que espacia los períodos de brotes gracias a ácidos grasos Omega-6 y Licochalcona A.",
     "packagingType": "pump",
     "volume": "400 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/85.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/euc/euc63482/y/1.jpg"
   },
   {
     "id": "prod-46",
@@ -781,7 +781,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Antitranspirante 48h enriquecido con extracto de perlas que unifica el tono de la piel y deja las axilas suaves y tersas.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/f/1/73d29ccff215413697bac3cb98011dda-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-47",
@@ -798,7 +798,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula Dual Protect con dos activos antibacteriales que garantizan axilas secas y protegidas durante 72 horas.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/f/1/73d29ccff215413697bac3cb98011dda-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-48",
@@ -815,7 +815,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Protección contra manchas blancas en ropa oscura y manchas amarillas en ropa blanca. 48h de eficacia comprobada.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/3/1/9/8e4ec3a849504872bb5bb123d95d589e-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-49",
@@ -832,7 +832,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fragancia fresca y femenina de larga duración que cuida tus prendas y previene la transpiración por 48 horas.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/3/1/9/8e4ec3a849504872bb5bb123d95d589e-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-50",
@@ -849,7 +849,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Contiene los ingredientes y el aroma único de la icónica Nivea Creme. 0% alcohol y máximo cuidado.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/a/d/3/0515723ac59542b481c4419f5049d82a-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/f/1/73d29ccff215413697bac3cb98011dda-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-51",
@@ -866,7 +866,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Sensación de frescura revitalizante durante todo el día con extractos marinos y 48 horas de protección desodorante.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/f/1/73d29ccff215413697bac3cb98011dda-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-52",
@@ -883,7 +883,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Serum antitranspirante enriquecido con 10 veces más Vitamina C pura para reparar y aclarar la piel de las axilas en 7 días.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/f/1/73d29ccff215413697bac3cb98011dda-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-53",
@@ -900,7 +900,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Probado en la vida real. Fórmula de alta potencia que combate el sudor y el mal olor hasta por 72 horas.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/y/39.jpg"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/b/8/b/232003-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-54",
@@ -917,7 +917,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "La protección antitranspirante número 1 contra manchas en ropa negra y blanca con fragancia masculina fresca.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/y/39.jpg"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/0/0/0/019f260e021f7c1789fd55c10767b285-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-55",
@@ -934,7 +934,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Formulado con carbón activo que atrapa las bacterias causantes del mal olor con fragancia a madera oscura y espresso.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/y/39.jpg"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/6/a/c/274126-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-56",
@@ -951,7 +951,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Especialmente diseñado para hombres con piel sensible o propensa a irritación. 0% alcohol y extracto de manzanilla calmante.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/37.jpg"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/b/8/b/232003-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-57",
@@ -968,7 +968,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Efecto frío instantáneo con Cool-Care formula que revitaliza y mantiene el cuerpo protegido por 48 horas.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/y/39.jpg"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/b/8/b/232003-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-58",
@@ -985,7 +985,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Los iones de plata eliminan el 99.9% de las bacterias causantes del mal olor desde la primera aplicación.",
     "packagingType": "bottle",
     "volume": "50 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/y/39.jpg"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/6/a/c/274126-web_1010x1180_transparent_png.png"
   },
   {
     "id": "prod-59",
@@ -1104,7 +1104,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Calma, reconforta y rehidrata la piel después de la exposición solar por 48 horas. Evita la descamación.",
     "packagingType": "bottle",
     "volume": "200 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/9/9/0/ec9fd0ccb9054a3ea84d8cea5ccaaae0-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/e/7/4/364679-screen.jpg"
   },
   {
     "id": "prod-66",
@@ -1257,7 +1257,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "El ingrediente patentado Luminous 630 actúa sobre la melanina para aclarar manchas solares, hormonales y de la edad en 4 semanas.",
     "packagingType": "dropper",
     "volume": "30 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/e/7/4/364679-screen.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-75",
@@ -1274,7 +1274,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Protege contra la aparición de nuevas manchas con FPS 50 mientras reduce las existentes con ácido hialurónico y Luminous 630.",
     "packagingType": "pump",
     "volume": "40 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/e/7/4/364679-screen.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/5/d/3/75dee2372f0e41ae821ab1dc2c1d5935-screen.jpg"
   },
   {
     "id": "prod-76",
@@ -1291,7 +1291,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Repara la barrera cutánea y desvanece manchas oscuras durante el descanso con células regeneradoras activas.",
     "packagingType": "jar",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/a/d/3/0515723ac59542b481c4419f5049d82a-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://i5.walmartimages.com/asr/9639cbe7-e4b5-4d93-81f2-48fc97fdfc3b.ae921e934133a9ae0f12fcbf1db9860d.jpeg"
   },
   {
     "id": "prod-77",
@@ -1308,7 +1308,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Enriquecida con coenzima Q10 100% idéntica a la de la piel y Creatina para reducir arrugas en 4 semanas.",
     "packagingType": "jar",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/a/d/3/0515723ac59542b481c4419f5049d82a-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://i5.walmartimages.com/asr/9639cbe7-e4b5-4d93-81f2-48fc97fdfc3b.ae921e934133a9ae0f12fcbf1db9860d.jpeg"
   },
   {
     "id": "prod-78",
@@ -1325,7 +1325,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Cuidado intensivo anti-arrugas que aprovecha las horas nocturnas para regenerar la elasticidad y densidad dérmica.",
     "packagingType": "jar",
     "volume": "50 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/a/d/3/0515723ac59542b481c4419f5049d82a-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://i5.walmartimages.com/asr/9639cbe7-e4b5-4d93-81f2-48fc97fdfc3b.ae921e934133a9ae0f12fcbf1db9860d.jpeg"
   },
   {
     "id": "prod-79",
@@ -1342,7 +1342,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Textura en gel no grasa que brinda 48 horas de hidratación profunda y un brillo natural gracias al agua de rosas orgánica.",
     "packagingType": "jar",
     "volume": "100 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/a/d/3/0515723ac59542b481c4419f5049d82a-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://i5.walmartimages.com/asr/9639cbe7-e4b5-4d93-81f2-48fc97fdfc3b.ae921e934133a9ae0f12fcbf1db9860d.jpeg"
   },
   {
     "id": "prod-80",
@@ -1359,7 +1359,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Nutrición intensiva sin sensación grasosa. Rápida absorción y 24 horas de hidratación para el rostro.",
     "packagingType": "jar",
     "volume": "100 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/a/d/3/0515723ac59542b481c4419f5049d82a-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://i5.walmartimages.com/asr/9639cbe7-e4b5-4d93-81f2-48fc97fdfc3b.ae921e934133a9ae0f12fcbf1db9860d.jpeg"
   },
   {
     "id": "prod-81",
@@ -1376,7 +1376,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Ayuda a prevenir manchas oscuras y brinda un tono de piel más parejo y luminoso con protección solar ligera.",
     "packagingType": "jar",
     "volume": "100 ml",
-    "imageUrl": "https://img.nivea.com/-/media/miscellaneous/media-center-items/a/d/3/0515723ac59542b481c4419f5049d82a-web_1010x1180_transparent_png.png"
+    "imageUrl": "https://i5.walmartimages.com/asr/9639cbe7-e4b5-4d93-81f2-48fc97fdfc3b.ae921e934133a9ae0f12fcbf1db9860d.jpeg"
   },
   {
     "id": "prod-82",
@@ -1393,7 +1393,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "La presentación más rendidora del ungüento reparador dermatológico número 1 recomendado por pediatras y dermatólogos.",
     "packagingType": "jar",
     "volume": "396 g",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/29.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/1.jpg"
   },
   {
     "id": "prod-83",
@@ -1410,7 +1410,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Alivia y repara labios extremadamente secos y agrietados en tan solo 60 segundos con glicerina, dexpantenol y bisabolol.",
     "packagingType": "tube",
     "volume": "10 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp45231/r/31.jpg"
+    "imageUrl": "https://images-1.eucerin.com/~/media/eucerin%20relaunch%20media/media-center-items/7/c/3/019f4cb0f0e17044bf0f1963277c86e8-screen.jpg"
   },
   {
     "id": "prod-84",
@@ -1427,7 +1427,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Primer ungüento reparador en spray para aplicar sin frotar en áreas difíciles como espalda, piernas y brazos.",
     "packagingType": "bottle",
     "volume": "250 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/29.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/1.jpg"
   },
   {
     "id": "prod-85",
@@ -1444,7 +1444,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula hipoalergénica sin fragancias ni conservadores para proteger la piel sensible del bebé contra rozaduras y resequedad.",
     "packagingType": "jar",
     "volume": "396 g",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/29.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp01946/y/1.jpg"
   },
   {
     "id": "prod-86",
@@ -1461,7 +1461,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Limpieza suave 2 en 1 enriquecida con provitamina B5 y esencia de manzanilla. No irrita los ojos.",
     "packagingType": "bottle",
     "volume": "250 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02109/y/8.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02109/l/1.jpg"
   },
   {
     "id": "prod-87",
@@ -1478,7 +1478,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "El tamaño intermedio ideal para el botiquín del hogar o la pañalera. Regenera piel agrietada y quemaduras menores.",
     "packagingType": "tube",
     "volume": "85 g",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp45231/r/31.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/aqp/aqp45231/y/1.jpg"
   },
   {
     "id": "prod-88",
@@ -1495,7 +1495,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Protege contra los 5 signos de la irritación por el afeitado: ardor, enrojecimiento, resequedad, tirantez y microcortes.",
     "packagingType": "bottle",
     "volume": "200 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/37.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/5.jpg"
   },
   {
     "id": "prod-89",
@@ -1512,7 +1512,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Prepara el vello facial y proporciona una capa protectora antibacterial para un afeitado al ras y suave.",
     "packagingType": "bottle",
     "volume": "200 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/37.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/5.jpg"
   },
   {
     "id": "prod-90",
@@ -1529,7 +1529,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula masculina no pegajosa de absorción instantánea apta para cara, cuerpo y manos.",
     "packagingType": "tin",
     "volume": "150 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/37.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/5.jpg"
   },
   {
     "id": "prod-91",
@@ -1546,7 +1546,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Limpia profundamente los poros y elimina la suciedad y grasa residual sin dejar la piel deshidratada.",
     "packagingType": "tube",
     "volume": "100 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/y/39.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/l/1.jpg"
   },
   {
     "id": "prod-92",
@@ -1563,7 +1563,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Alivia la tirantez post-afeitado y mantiene la piel del rostro hidratada con aloe vera y provitamina B5.",
     "packagingType": "tube",
     "volume": "75 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/37.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/5.jpg"
   },
   {
     "id": "prod-93",
@@ -1580,7 +1580,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     "description": "Fórmula reconfortante no grasa que refuerza la resistencia de la piel sensible masculina día tras día.",
     "packagingType": "tube",
     "volume": "75 ml",
-    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv81306/y/37.jpg"
+    "imageUrl": "https://cloudinary.images-iherb.com/image/upload/f_auto,q_auto:eco/images/niv/niv02401/l/1.jpg"
   },
   {
     "id": "prod-94",
