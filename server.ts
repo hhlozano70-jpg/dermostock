@@ -232,9 +232,11 @@ async function seedFirestoreIfEmpty() {
 // ----------------------------------------------------
 // API ROUTES
 // ----------------------------------------------------
+// Health check endpoint for uptime monitors and keep-alive pings
 app.get('/api/health', (_req, res) => {
   res.json({
     status: 'ok',
+    uptime: Math.round(process.uptime()),
     storage: isFirestoreAvailable ? 'firestore' : 'local-json',
     time: new Date().toISOString(),
   });
