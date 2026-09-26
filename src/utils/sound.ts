@@ -1,25 +1,44 @@
+// Singleton AudioContext to prevent exceeding browser limits on mobile
+let sharedAudioCtx: AudioContext | null = null;
+
+function getAudioContext(): AudioContext | null {
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+      sharedAudioCtx = new AudioContextClass();
+    }
+    if (sharedAudioCtx.state === 'suspended') {
+      sharedAudioCtx.resume().catch(() => {});
+    }
+    return sharedAudioCtx;
+  } catch {
+    return null;
+  }
+}
+
 // Synthesizer beep audio using standard Web Audio API (offline & no external audio files required)
 export const playScanBeep = (type: 'success' | 'warning' | 'error' = 'success') => {
   try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
 
     if (type === 'success') {
       // Pleasant high-pitched register beep (like POS checkout scanners)
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(1400, ctx.currentTime);
-      gain.gain.setValueAtTime(0.18, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc.frequency.setValueAtTime(1400, now);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.12);
+      osc.start(now);
+      osc.stop(now + 0.12);
     } else if (type === 'warning') {
       // Double beep for items needing attention
-      const now = ctx.currentTime;
       [0, 0.14].forEach((delay) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -37,21 +56,21 @@ export const playScanBeep = (type: 'success' | 'warning' | 'error' = 'success') 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(260, ctx.currentTime);
-      gain.gain.setValueAtTime(0.25, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.frequency.setValueAtTime(260, now);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
       osc.connect(gain);
       gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.3);
+      osc.start(now);
+      osc.stop(now + 0.25);
     }
 
     // Gentle tactile haptic feedback on mobile if supported
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
       if (type === 'success') {
-        navigator.vibrate(60);
+        navigator.vibrate(50);
       } else {
-        navigator.vibrate([100, 50, 100]);
+        navigator.vibrate(80);
       }
     }
   } catch {
