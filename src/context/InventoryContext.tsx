@@ -54,13 +54,19 @@ interface InventoryContextType {
   lastCompletedOrder: Order | null;
   setLastCompletedOrder: (order: Order | null) => void;
   isProductModalOpen: boolean;
-  productToEdit: Product | null;
-  openProductModal: (product?: Product | null) => void;
+  productToEdit: Product | Partial<Product> | null;
+  openProductModal: (product?: Product | Partial<Product> | null) => void;
   closeProductModal: () => void;
   settings: StoreSettings;
   updateSettings: (newSettings: Partial<StoreSettings>) => void;
   isSettingsModalOpen: boolean;
   setIsSettingsModalOpen: (open: boolean) => void;
+  isScannerOpen: boolean;
+  setIsScannerOpen: (open: boolean) => void;
+  scannerMode: 'store' | 'inventory' | 'lookup';
+  setScannerMode: (mode: 'store' | 'inventory' | 'lookup') => void;
+  openScanner: (mode?: 'store' | 'inventory' | 'lookup') => void;
+  closeScanner: () => void;
   syncStatus: 'synced' | 'syncing' | 'offline' | 'error';
   lastSyncTime: Date | null;
   refreshFromServer: () => Promise<void>;
@@ -153,9 +159,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Global Product Add/Edit Modal
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [productToEdit, setProductToEdit] = useState<Product | Partial<Product> | null>(null);
 
-  const openProductModal = (prod?: Product | null) => {
+  const openProductModal = (prod?: Product | Partial<Product> | null) => {
     setProductToEdit(prod || null);
     setIsProductModalOpen(true);
   };
@@ -179,6 +185,19 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const settingsRef = React.useRef(settings);
   settingsRef.current = settings;
+
+  // Barcode / QR Scanner Modal State
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [scannerMode, setScannerMode] = useState<'store' | 'inventory' | 'lookup'>('store');
+
+  const openScanner = (mode: 'store' | 'inventory' | 'lookup' = 'store') => {
+    setScannerMode(mode);
+    setIsScannerOpen(true);
+  };
+
+  const closeScanner = () => {
+    setIsScannerOpen(false);
+  };
 
   const updateSettings = (newSettings: Partial<StoreSettings>) => {
     setSettings((prev) => {
@@ -713,6 +732,12 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         updateSettings,
         isSettingsModalOpen,
         setIsSettingsModalOpen,
+        isScannerOpen,
+        setIsScannerOpen,
+        scannerMode,
+        setScannerMode,
+        openScanner,
+        closeScanner,
         syncStatus,
         lastSyncTime,
         refreshFromServer,

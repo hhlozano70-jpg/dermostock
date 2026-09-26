@@ -12,6 +12,7 @@ import { OrderReceiptModal } from './components/OrderReceiptModal';
 import { ProductEditModal } from './components/ProductEditModal';
 import { DeviceSyncModal } from './components/DeviceSyncModal';
 import { SettingsModal } from './components/SettingsModal';
+import { BarcodeScannerModal } from './components/BarcodeScannerModal';
 
 const MainContent: React.FC = () => {
   const { 
@@ -21,7 +22,10 @@ const MainContent: React.FC = () => {
     isSyncModalOpen,
     setIsSyncModalOpen,
     isSettingsModalOpen,
-    setIsSettingsModalOpen
+    setIsSettingsModalOpen,
+    isScannerOpen,
+    closeScanner,
+    scannerMode
   } = useInventory();
 
   return (
@@ -49,6 +53,11 @@ const MainContent: React.FC = () => {
       <SettingsModal 
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
+      />
+      <BarcodeScannerModal
+        isOpen={isScannerOpen}
+        onClose={closeScanner}
+        initialMode={scannerMode}
       />
 
       {/* Automatic receipt popup upon completing an order */}

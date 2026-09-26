@@ -7,7 +7,8 @@ import {
   Check, 
   AlertCircle,
   Sparkles,
-  Link as LinkIcon
+  Link as LinkIcon,
+  ScanLine
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Product, Brand, Category } from '../types/inventory';
@@ -28,6 +29,7 @@ export const ProductEditModal: React.FC = () => {
   // Form states
   const [name, setName] = useState('');
   const [sku, setSku] = useState('');
+  const [barcode, setBarcode] = useState('');
   const [presentation, setPresentation] = useState('');
   const [brand, setBrand] = useState<Brand>('Nivea');
   const [customBrand, setCustomBrand] = useState('');
@@ -54,20 +56,25 @@ export const ProductEditModal: React.FC = () => {
   const [urlInput, setUrlInput] = useState('');
   const [imageError, setImageError] = useState('');
 
+  // Check if editing an existing saved product with an ID
+  const isExisting = Boolean(productToEdit && 'id' in productToEdit && productToEdit.id);
+
   // Synchronize when productToEdit changes
   useEffect(() => {
-    if (productToEdit) {
+    if (productToEdit && 'id' in productToEdit && productToEdit.id) {
       setName(productToEdit.name ?? '');
       setSku(productToEdit.sku ?? '');
+      setBarcode(productToEdit.barcode ?? '');
       setPresentation(productToEdit.presentation ?? '');
       
       const standardBrands = ['Nivea', 'Eucerin', 'Aquaphor', 'Aquaphor Baby', 'Nivea Men', 'Aquaphor / Eucerin'];
-      if (standardBrands.includes(productToEdit.brand)) {
-        setBrand(productToEdit.brand ?? 'Nivea');
+      const editBrand = productToEdit.brand || 'Nivea';
+      if (standardBrands.includes(editBrand)) {
+        setBrand(editBrand as Brand);
         setIsCustomBrand(false);
       } else {
         setBrand('Otro');
-        setCustomBrand(productToEdit.brand ?? '');
+        setCustomBrand(editBrand);
         setIsCustomBrand(true);
       }
 
@@ -80,12 +87,13 @@ export const ProductEditModal: React.FC = () => {
         'Cuidado Masculino',
         'Protección Solar',
       ];
-      if (standardCategories.includes(productToEdit.category)) {
-        setCategory(productToEdit.category ?? 'Cuidado Corporal');
+      const editCategory = productToEdit.category || 'Cuidado Corporal';
+      if (standardCategories.includes(editCategory)) {
+        setCategory(editCategory as Category);
         setIsCustomCategory(false);
       } else {
         setCategory('Otro');
-        setCustomCategory(productToEdit.category ?? '');
+        setCustomCategory(editCategory);
         setIsCustomCategory(true);
       }
 
@@ -102,10 +110,11 @@ export const ProductEditModal: React.FC = () => {
       setImageUrl(productToEdit.imageUrl ?? '');
       setUrlInput(productToEdit.imageUrl ?? '');
     } else {
-      // New product defaults
-      setName('');
-      setSku(`SKU-${Date.now().toString().slice(-4)}`);
-      setPresentation('Botella 400 ml');
+      // New product defaults (may have pre-filled barcode from scanner)
+      setName(productToEdit?.name ?? '');
+      setSku(productToEdit?.sku ?? `SKU-${Date.now().toString().slice(-4)}`);
+      setBarcode(productToEdit?.barcode ?? '');
+      setPresentation(productToEdit?.presentation ?? 'Botella 400 ml');
       setBrand('Nivea');
       setIsCustomBrand(false);
       setCustomBrand('');
@@ -184,8 +193,9 @@ export const ProductEditModal: React.FC = () => {
 
   // Mock product object for live preview
   const previewProduct: Product = {
-    id: productToEdit ? productToEdit.id : 'preview-id',
+    id: isExisting ? (productToEdit as Product).id : 'preview-id',
     sku: sku || 'SKU-000',
+    barcode: barcode.trim() || undefined,
     name: name || 'Nombre del Producto',
     presentation: presentation || 'Presentación',
     brand: isCustomBrand ? customBrand || 'Marca' : brand,
@@ -212,15 +222,17 @@ export const ProductEditModal: React.FC = () => {
     const finalBrand = isCustomBrand ? customBrand.trim() || 'Marca General' : brand;
     const finalCategory = isCustomCategory ? customCategory.trim() || 'Cuidado Corporal' : category;
 
-    if (productToEdit) {
+    if (isExisting) {
+      const existing = productToEdit as Product;
       // Stock diff for Kardex
-      const prevStock = productToEdit.stock;
+      const prevStock = existing.stock;
       const stockDiff = stock - prevStock;
 
       const updated: Product = {
-        ...productToEdit,
+        ...existing,
         name: name.trim(),
         sku: sku.trim(),
+        barcode: barcode.trim() || undefined,
         presentation: presentation.trim(),
         brand: finalBrand,
         category: finalCategory,
@@ -250,6 +262,7 @@ export const ProductEditModal: React.FC = () => {
       addProduct({
         sku: sku.trim() || `SKU-${Date.now().toString().slice(-4)}`,
         name: name.trim(),
+        barcode: barcode.trim() || undefined,
         presentation: presentation.trim(),
         brand: finalBrand,
         category: finalCategory,
@@ -279,12 +292,12 @@ export const ProductEditModal: React.FC = () => {
         <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-lg font-bold">
-              {productToEdit ? 'Editar Producto y Modificar Imagen' : 'Agregar Nuevo Producto al Catálogo'}
+              {isExisting ? 'Editar Producto y Modificar Imagen' : 'Agregar Nuevo Producto al Catálogo'}
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              {productToEdit 
-                ? `Actualiza información, precios de mayoreo/promo y fotografía de "${productToEdit.name}"`
-                : 'Completa los campos para catalogar un nuevo artículo con foto e inventario'}
+              {isExisting 
+                ? `Actualiza información, código de barras, precios y fotografía de "${(productToEdit as Product).name}"`
+                : 'Completa los campos para catalogar un nuevo artículo con código de barras, foto e inventario'}
             </p>
           </div>
           <button
@@ -450,6 +463,23 @@ export const ProductEditModal: React.FC = () => {
                   onChange={(e) => setSku(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                 />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Código de Barras (EAN / UPC / QR)</span>
+                  <span className="text-[10px] text-slate-400 font-normal">Escaneable</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Ej. 7501001150001"
+                    value={barcode ?? ''}
+                    onChange={(e) => setBarcode(e.target.value)}
+                    className="w-full pl-3 pr-8 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                  />
+                  <ScanLine className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
               </div>
 
               <div>
@@ -735,6 +765,12 @@ export const ProductEditModal: React.FC = () => {
                 <span>SKU:</span>
                 <span className="font-mono font-bold text-slate-800">{previewProduct.sku}</span>
               </div>
+              {previewProduct.barcode && (
+                <div className="flex justify-between">
+                  <span>Código de Barras:</span>
+                  <span className="font-mono font-bold text-slate-800">{previewProduct.barcode}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span>Precio Mayoreo (-40%):</span>
                 <span className="font-mono text-blue-700 font-semibold">${previewProduct.wholesalePrice.toFixed(2)}</span>

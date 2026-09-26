@@ -19,7 +19,8 @@ import {
   LayoutGrid,
   List,
   RefreshCw,
-  BarChart3
+  BarChart3,
+  Scan
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Product, Brand, Category, MovementType } from '../types/inventory';
@@ -35,7 +36,8 @@ export const InventoryManager: React.FC = () => {
     openProductModal,
     syncStatus,
     refreshFromServer,
-    setActiveTab
+    setActiveTab,
+    openScanner
   } = useInventory();
 
   // Search & Filters
@@ -227,6 +229,15 @@ export const InventoryManager: React.FC = () => {
           </button>
 
           <button
+            onClick={() => openScanner('inventory')}
+            className="flex items-center gap-1.5 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+            title="Abrir lector de código de barras para dar entrada a mercancía"
+          >
+            <Scan className="w-4 h-4 text-emerald-400" />
+            <span>Escanear Mercancía</span>
+          </button>
+
+          <button
             onClick={() => openProductModal(null)}
             className="flex items-center gap-1.5 py-2 px-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
           >
@@ -391,11 +402,19 @@ export const InventoryManager: React.FC = () => {
           <input
             key="inventory-search-input"
             type="text"
-            placeholder="Buscar por producto, presentación, SKU..."
+            placeholder="Buscar por producto, SKU, código..."
             value={searchTerm || ''}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-9 pr-8 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <button
+            type="button"
+            onClick={() => openScanner('lookup')}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+            title="Escanear código de barras para buscar"
+          >
+            <Scan className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Filter controls */}

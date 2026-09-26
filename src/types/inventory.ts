@@ -43,6 +43,7 @@ export interface Product {
   packagingType: 'bottle' | 'large_bottle' | 'tin' | 'tube' | 'pump' | 'lip_balm' | 'box' | 'jar' | 'dropper';
   volume?: string;
   imageUrl?: string;       // Foto / Imagen personalizada (URL o Base64/DataURL)
+  barcode?: string;        // Código de barras EAN-13, UPC o Code-128
 }
 
 export interface CartItem {

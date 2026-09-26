@@ -7,14 +7,15 @@ import {
   BadgePercent, 
   HelpCircle,
   Tag,
-  Plus
+  Plus,
+  Scan
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
 import { PriceTier, Brand } from '../types/inventory';
 
 export const Storefront: React.FC = () => {
-  const { products, priceTier, setPriceTier, openProductModal } = useInventory();
+  const { products, priceTier, setPriceTier, openProductModal, openScanner } = useInventory();
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -225,6 +226,16 @@ export const Storefront: React.FC = () => {
                 className="w-full pl-9 pr-4 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-xs"
               />
             </div>
+
+            <button
+              type="button"
+              onClick={() => openScanner('store')}
+              className="flex items-center gap-1.5 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
+              title="Escanear código de barras con la cámara o lector USB"
+            >
+              <Scan className="w-3.5 h-3.5 text-blue-400" />
+              <span className="hidden sm:inline">Escanear</span>
+            </button>
 
             <button
               type="button"
