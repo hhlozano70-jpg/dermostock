@@ -88,9 +88,25 @@ export interface InventoryMovement {
   reference?: string; // ej. No. de Pedido o Factura
 }
 
+export type TrackingStatus = 'recibido' | 'en_recoleccion' | 'consolidado' | 'en_camino' | 'entregado';
+
+export interface TrackingEvent {
+  status: TrackingStatus;
+  title: string;
+  description: string;
+  timestamp: string;
+  completed: boolean;
+}
+
 export interface Order {
   id: string;
   date: string;
+  trackingCode: string; // e.g. "SLO-TRK-74921"
+  trackingStatus: TrackingStatus;
+  timeline?: TrackingEvent[];
+  courierName?: string;
+  courierPhone?: string;
+  courierVehicle?: string;
   customerName: string;
   customerPhone: string;
   customerAddress?: string;
@@ -107,4 +123,10 @@ export interface Order {
   merchantsCount: number;
   merchantsNames: string[];
   status: 'completado' | 'pendiente' | 'entregado';
+  qrData?: string;
 }
+
+export type CreateOrderInput = Omit<Order, 'id' | 'date' | 'status' | 'trackingCode' | 'trackingStatus'> & {
+  trackingCode?: string;
+  trackingStatus?: TrackingStatus;
+};

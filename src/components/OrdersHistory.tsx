@@ -13,9 +13,10 @@ import {
 import { useInventory } from '../context/InventoryContext';
 import { Order } from '../types/inventory';
 import { OrderReceiptModal } from './OrderReceiptModal';
+import { QrCode, Snowflake } from 'lucide-react';
 
 export const OrdersHistory: React.FC = () => {
-  const { orders, setActiveTab } = useInventory();
+  const { orders, setActiveTab, openTrackingModal } = useInventory();
   const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState<Order | null>(null);
 
   return (
@@ -63,22 +64,41 @@ export const OrdersHistory: React.FC = () => {
                 {/* Header card */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
                   <div>
-                    <span className="font-mono font-bold text-sm text-slate-900 block">
-                      {order.id}
-                    </span>
-                    <span className="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
-                      <Calendar className="w-3 h-3" />
-                      {new Date(order.date).toLocaleString('es-MX', {
-                        day: '2-digit',
-                        month: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="font-mono font-bold text-sm text-slate-900 block">
+                        {order.id}
+                      </span>
+                      {order.hasColdChain && (
+                        <span className="text-[10px] font-bold text-cyan-800 bg-cyan-50 px-1.5 py-0.2 rounded border border-cyan-200">
+                          ❄️ Frío
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-[10px] font-mono font-semibold text-slate-500">
+                        {order.trackingCode || 'SLO-TRK'}
+                      </span>
+                      <span className="text-[10px] text-slate-300">·</span>
+                      <span className="text-[11px] text-slate-400 flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {new Date(order.date).toLocaleString('es-MX', {
+                          day: '2-digit',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
                   </div>
 
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide bg-blue-50 text-blue-700 border border-blue-200">
-                    {order.appliedTier}
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide border ${
+                    order.trackingStatus === 'entregado'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : order.trackingStatus === 'en_camino'
+                      ? 'bg-blue-50 text-blue-700 border-blue-200'
+                      : 'bg-amber-50 text-amber-700 border-amber-200'
+                  }`}>
+                    {order.trackingStatus ? order.trackingStatus.replace('_', ' ') : 'recibido'}
                   </span>
                 </div>
 
@@ -93,7 +113,7 @@ export const OrdersHistory: React.FC = () => {
                   </div>
                   <div className="text-[11px] text-slate-500 pl-5 truncate" title={order.customerAddress || order.deliveryPoint || ''}>
                     {order.deliveryType === 'domicilio' || order.deliveryType === 'envio'
-                      ? `Envío a Domicilio ${order.customerAddress ? `· ${order.customerAddress}` : ''}`
+                      ? `Envío a Domicilio (${order.deliveryColonia || 'Silao'}) ${order.customerAddress ? `· ${order.customerAddress}` : ''}`
                       : `Punto Fijo a Definir ${order.deliveryPoint ? `· ${order.deliveryPoint}` : ''}`}
                   </div>
                   <div className="text-[11px] text-slate-500 pl-5 flex items-center gap-1">
@@ -105,7 +125,7 @@ export const OrdersHistory: React.FC = () => {
                 {/* Items summary */}
                 <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200/80 mb-3">
                   <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                    Artículos ({order.items.reduce((s, i) => s + i.quantity, 0)} pzas)
+                    Artículos ({order.items.reduce((s, i) => s + i.quantity, 0)} pzas de {order.merchantsCount || 1} comercio/s)
                   </span>
                   <ul className="text-xs space-y-1">
                     {order.items.slice(0, 3).map((item, idx) => (
@@ -128,7 +148,7 @@ export const OrdersHistory: React.FC = () => {
               </div>
 
               {/* Total & Action */}
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
                 <div>
                   <span className="text-[10px] text-slate-400 block">Total Pagado</span>
                   <span className="text-base font-bold font-mono text-slate-900 tabular-nums">
@@ -136,13 +156,25 @@ export const OrdersHistory: React.FC = () => {
                   </span>
                 </div>
 
-                <button
-                  onClick={() => setSelectedOrderForReceipt(order)}
-                  className="flex items-center gap-1 py-1.5 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium transition-colors shadow-xs"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Ver Ticket</span>
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={() => openTrackingModal(order)}
+                    className="flex items-center gap-1 py-1.5 px-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-colors shadow-xs cursor-pointer"
+                    title="Ver código QR de rastreo y estatus del traslado en tiempo real"
+                  >
+                    <QrCode className="w-3.5 h-3.5" />
+                    <span>QR & Rastreo</span>
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedOrderForReceipt(order)}
+                    className="flex items-center gap-1 py-1.5 px-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium transition-colors shadow-xs cursor-pointer"
+                    title="Ver comprobante de compra"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Ticket</span>
+                  </button>
+                </div>
               </div>
             </div>
           ))}

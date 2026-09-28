@@ -57,6 +57,11 @@ export const INITIAL_ORDERS: Order[] = [
     discountSavings: 0,
     total: 321.00,
     status: 'entregado',
+    trackingCode: 'SLO-TRK-101',
+    trackingStatus: 'entregado',
+    courierName: 'Repartidor Hub Silao (Unidad Moto 02)',
+    courierPhone: '472-722-1234',
+    courierVehicle: 'Motocicleta con caja térmica',
   },
   {
     id: 'ORD-SILAO-102',
@@ -92,6 +97,11 @@ export const INITIAL_ORDERS: Order[] = [
     discountSavings: 0,
     total: 350.00,
     status: 'entregado',
+    trackingCode: 'SLO-TRK-102',
+    trackingStatus: 'entregado',
+    courierName: 'Repartidor Hub Silao (Unidad Moto 01)',
+    courierPhone: '472-722-1234',
+    courierVehicle: 'Motocicleta con caja térmica',
   },
   {
     id: 'ORD-SILAO-103',
@@ -117,13 +127,13 @@ export const INITIAL_ORDERS: Order[] = [
         unitPrice: 580.00,
       },
       {
-        product: getProd('silao-cerveza-01'), // Six Corona Fría
+        product: getProd('silao-cer-01'), // Six Corona Fría
         quantity: 1,
         appliedTier: 'comercial',
         unitPrice: 135.00,
       },
       {
-        product: getProd('silao-cerveza-03'), // Bolsa Hielo
+        product: getProd('silao-cer-07'), // Bolsa Hielo
         quantity: 1,
         appliedTier: 'comercial',
         unitPrice: 32.00,
@@ -133,5 +143,10 @@ export const INITIAL_ORDERS: Order[] = [
     discountSavings: 0,
     total: 747.00,
     status: 'completado',
+    trackingCode: 'SLO-TRK-103',
+    trackingStatus: 'en_camino',
+    courierName: 'Repartidor Hub Silao (Unidad Moto 04)',
+    courierPhone: '472-722-1234',
+    courierVehicle: 'Motocicleta con caja térmica',
   },
 ];

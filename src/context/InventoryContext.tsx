@@ -7,7 +7,10 @@ import {
   Order, 
   MovementType,
   StoreSettings,
-  Merchant
+  Merchant,
+  TrackingStatus,
+  TrackingEvent,
+  CreateOrderInput
 } from '../types/inventory';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
@@ -40,7 +43,7 @@ interface InventoryContextType {
   cartSavings: number;
   cartTotal: number;
   orders: Order[];
-  createOrder: (orderInput: Omit<Order, 'id' | 'date' | 'status'>) => Order;
+  createOrder: (orderInput: CreateOrderInput) => Order;
   movements: InventoryMovement[];
   addStockMovement: (
     productId: string, 
@@ -62,6 +65,10 @@ interface InventoryContextType {
   setSelectedProductForQuickView: (product: Product | null) => void;
   lastCompletedOrder: Order | null;
   setLastCompletedOrder: (order: Order | null) => void;
+  activeTrackingOrder: Order | null;
+  openTrackingModal: (order: Order) => void;
+  closeTrackingModal: () => void;
+  updateOrderTrackingStatus: (orderId: string, status: TrackingStatus) => void;
   isProductModalOpen: boolean;
   productToEdit: Product | Partial<Product> | null;
   openProductModal: (product?: Product | Partial<Product> | null) => void;
@@ -89,11 +96,11 @@ interface InventoryContextType {
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'silaomarket_products_v1',
-  MOVEMENTS: 'silaomarket_movements_v1',
-  ORDERS: 'silaomarket_orders_v1',
-  TIER: 'silaomarket_tier_v1',
-  SETTINGS: 'silaomarket_settings_v1',
+  PRODUCTS: 'silaomarket_products_v2',
+  MOVEMENTS: 'silaomarket_movements_v2',
+  ORDERS: 'silaomarket_orders_v2',
+  TIER: 'silaomarket_tier_v2',
+  SETTINGS: 'silaomarket_settings_v2',
 };
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -165,10 +172,35 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ];
   });
 
-  // Navigation and Modals
   const [activeTab, setActiveTab] = useState<'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes'>('tienda');
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState<Product | null>(null);
   const [lastCompletedOrder, setLastCompletedOrder] = useState<Order | null>(null);
+  const [activeTrackingOrder, setActiveTrackingOrder] = useState<Order | null>(null);
+
+  const openTrackingModal = (order: Order) => {
+    setActiveTrackingOrder(order);
+  };
+
+  const closeTrackingModal = () => {
+    setActiveTrackingOrder(null);
+  };
+
+  const updateOrderTrackingStatus = (orderId: string, status: TrackingStatus) => {
+    setOrders((prev) =>
+      prev.map((o) => {
+        if (o.id !== orderId) return o;
+        const updated: Order = {
+          ...o,
+          trackingStatus: status,
+          status: status === 'entregado' ? 'entregado' : 'completado',
+        };
+        if (activeTrackingOrder && activeTrackingOrder.id === orderId) {
+          setActiveTrackingOrder(updated);
+        }
+        return updated;
+      })
+    );
+  };
 
   // Global Product Add/Edit Modal
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -529,19 +561,78 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const cartSavings = Math.max(0, cartSubtotal - cartTotal);
 
   // Create Order and deduct inventory
-  const createOrder = (orderInput: Omit<Order, 'id' | 'date' | 'status'>): Order => {
+  const createOrder = (orderInput: CreateOrderInput): Order => {
     const orderId = `ORD-SILAO-${Date.now().toString().slice(-5)}`;
+    const trackingCode = `SLO-TRK-${Math.floor(10000 + Math.random() * 90000)}`;
     const merchantsSet = new Set(orderInput.items.map((i) => i.product.merchantName || 'Comercio Local'));
     const hasCold = orderInput.items.some((i) => i.product.isColdChain);
+
+    const now = new Date();
+    const timeline: TrackingEvent[] = [
+      {
+        status: 'recibido',
+        title: 'Pedido Recibido en Hub Silao',
+        description: 'Orden registrada en Hub Central (Calle 5 de Mayo #45, Silao Centro)',
+        timestamp: now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+        completed: true,
+      },
+      {
+        status: 'en_recoleccion',
+        title: 'Recolectando con Comercios',
+        description: `Recolección programada en ${merchantsSet.size} comercio(s) de Silao`,
+        timestamp: 'En proceso',
+        completed: false,
+      },
+      {
+        status: 'consolidado',
+        title: 'Empaquetado y Consolidación',
+        description: hasCold ? 'Empaquetado en Hub Silao con hielera térmica de frío ❄️' : 'Empaquetado y sellado en Hub Silao',
+        timestamp: 'Pendiente',
+        completed: false,
+      },
+      {
+        status: 'en_camino',
+        title: 'En Traslado a Domicilio',
+        description: `Repartidor en ruta hacia ${orderInput.deliveryColonia || 'Silao Centro'}`,
+        timestamp: 'Pendiente',
+        completed: false,
+      },
+      {
+        status: 'entregado',
+        title: 'Entregado al Cliente',
+        description: 'Confirmación y firma de recepción en domicilio',
+        timestamp: 'Pendiente',
+        completed: false,
+      }
+    ];
+
+    const qrData = JSON.stringify({
+      app: 'Silaomarket on line',
+      orderId,
+      trackingCode,
+      customer: orderInput.customerName,
+      colonia: orderInput.deliveryColonia || 'Silao Centro',
+      total: orderInput.total,
+      coldChain: hasCold,
+      merchants: Array.from(merchantsSet),
+      hub: 'Hub Central Silao - 5 de Mayo #45'
+    });
 
     const newOrder: Order = {
       ...orderInput,
       id: orderId,
       date: new Date().toISOString(),
+      trackingCode,
+      trackingStatus: 'recibido',
+      timeline,
+      courierName: 'Repartidor Hub Silao (Unidad Moto 03)',
+      courierPhone: '472-722-1234',
+      courierVehicle: 'Motocicleta con caja térmica',
       hasColdChain: hasCold,
       merchantsCount: merchantsSet.size,
       merchantsNames: Array.from(merchantsSet),
-      status: 'completado',
+      status: 'pendiente',
+      qrData,
     };
 
     // Deduct stock and log movements
@@ -579,6 +670,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
     setLastCompletedOrder(newOrder);
+    setActiveTrackingOrder(newOrder);
     return newOrder;
   };
 
@@ -746,6 +838,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setSelectedProductForQuickView,
         lastCompletedOrder,
         setLastCompletedOrder,
+        activeTrackingOrder,
+        openTrackingModal,
+        closeTrackingModal,
+        updateOrderTrackingStatus,
         isProductModalOpen,
         productToEdit,
         openProductModal,
