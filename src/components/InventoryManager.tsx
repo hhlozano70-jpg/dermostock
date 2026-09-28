@@ -20,12 +20,115 @@ import {
   List,
   RefreshCw,
   BarChart3,
-  Scan
+  Scan,
+  Store,
+  Sparkles,
+  Snowflake,
+  Wrench,
+  Pill,
+  Hammer,
+  Dog,
+  Flower2,
+  Key,
+  ShoppingBag,
+  CheckCircle2,
+  Check
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Product, Brand, Category, MovementType } from '../types/inventory';
 import { SILAO_MERCHANTS } from '../data/silaoMarketData';
 import { ProductVisual } from './ProductVisual';
+
+export const getGiroMeta = (merchantId: string, category: string) => {
+  if (merchantId === 'merch-maret-silao') {
+    return {
+      icon: Sparkles,
+      iconColor: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      badgeColor: 'bg-blue-100 text-blue-900 border-blue-300',
+      tag: 'Tienda Propia NIVEA & Skincare',
+      accentBorder: 'border-blue-300 hover:border-blue-500'
+    };
+  }
+  if (category.includes('Cadena Fría') || category.includes('Helados') || category.includes('Cervecería')) {
+    return {
+      icon: Snowflake,
+      iconColor: 'text-cyan-600',
+      bgColor: 'bg-cyan-50',
+      badgeColor: 'bg-cyan-100 text-cyan-900 border-cyan-300',
+      tag: 'Cadena Fría Activa',
+      accentBorder: 'border-cyan-300 hover:border-cyan-500'
+    };
+  }
+  if (category.includes('Refaccionaria') || category.includes('Automotriz')) {
+    return {
+      icon: Wrench,
+      iconColor: 'text-amber-600',
+      bgColor: 'bg-amber-50',
+      badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
+      tag: 'Refacciones & Taller',
+      accentBorder: 'border-amber-300 hover:border-amber-500'
+    };
+  }
+  if (category.includes('Farmacia') || category.includes('Salud')) {
+    return {
+      icon: Pill,
+      iconColor: 'text-emerald-600',
+      bgColor: 'bg-emerald-50',
+      badgeColor: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+      tag: 'Botica & Salud',
+      accentBorder: 'border-emerald-300 hover:border-emerald-500'
+    };
+  }
+  if (category.includes('Ferretería') || category.includes('Tlapalería')) {
+    return {
+      icon: Hammer,
+      iconColor: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      badgeColor: 'bg-orange-100 text-orange-900 border-orange-300',
+      tag: 'Ferretería & Construcción',
+      accentBorder: 'border-orange-300 hover:border-orange-500'
+    };
+  }
+  if (category.includes('Mascotas') || category.includes('Veterinaria')) {
+    return {
+      icon: Dog,
+      iconColor: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      badgeColor: 'bg-purple-100 text-purple-900 border-purple-300',
+      tag: 'Veterinaria & PetShop',
+      accentBorder: 'border-purple-300 hover:border-purple-500'
+    };
+  }
+  if (category.includes('Flores') || category.includes('Regalos')) {
+    return {
+      icon: Flower2,
+      iconColor: 'text-pink-600',
+      bgColor: 'bg-pink-50',
+      badgeColor: 'bg-pink-100 text-pink-900 border-pink-300',
+      tag: 'Florería & Arreglos',
+      accentBorder: 'border-pink-300 hover:border-pink-500'
+    };
+  }
+  if (category.includes('Servicios') || category.includes('Cerrajería')) {
+    return {
+      icon: Key,
+      iconColor: 'text-indigo-600',
+      bgColor: 'bg-indigo-50',
+      badgeColor: 'bg-indigo-100 text-indigo-900 border-indigo-300',
+      tag: 'Servicios Exprés',
+      accentBorder: 'border-indigo-300 hover:border-indigo-500'
+    };
+  }
+  return {
+    icon: ShoppingBag,
+    iconColor: 'text-slate-600',
+    bgColor: 'bg-slate-50',
+    badgeColor: 'bg-slate-100 text-slate-900 border-slate-300',
+    tag: 'Abarrotes & Cremería',
+    accentBorder: 'border-slate-300 hover:border-slate-500'
+  };
+};
 
 export const InventoryManager: React.FC = () => {
   const { 
@@ -88,6 +191,32 @@ export const InventoryManager: React.FC = () => {
   const outOfStockCount = useMemo(() => {
     return products.filter((p) => p.stock === 0).length;
   }, [products]);
+
+  // Breakdown of inventory metrics by merchant / giro
+  const giroStats = useMemo(() => {
+    return merchantsList.map((m) => {
+      const mProducts = products.filter((p) => p.merchantId === m.id);
+      const pieces = mProducts.reduce((sum, p) => sum + p.stock, 0);
+      const commercialVal = mProducts.reduce((sum, p) => sum + p.commercialPrice * p.stock, 0);
+      const wholesaleVal = mProducts.reduce((sum, p) => sum + p.wholesalePrice * p.stock, 0);
+      const lowStock = mProducts.filter((p) => p.stock > 0 && p.stock <= p.minStockAlert).length;
+      const outOfStock = mProducts.filter((p) => p.stock === 0).length;
+      return {
+        ...m,
+        count: mProducts.length,
+        pieces,
+        commercialVal,
+        wholesaleVal,
+        lowStock,
+        outOfStock,
+      };
+    });
+  }, [products, merchantsList]);
+
+  const activeGiro = useMemo(() => {
+    if (merchantFilter === 'all') return null;
+    return giroStats.find((g) => g.id === merchantFilter) || null;
+  }, [merchantFilter, giroStats]);
 
   // Filtered Products
   const filteredProducts = useMemo(() => {
@@ -411,6 +540,195 @@ export const InventoryManager: React.FC = () => {
               className="py-1.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer"
             >
               {stockStatusFilter === 'low' ? 'Ver Todos' : 'Filtrar Productos'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* SECTION: Inventario por Giro / Comercio Local en Silao */}
+      <section className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <Store className="w-5 h-5 text-blue-600" />
+              <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+                Inventario por Giro / Comercio Local en Silao
+              </h2>
+              <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                10 Giros · 50 productos c/u (500 totales)
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Consulta el total de piezas disponibles, valor monetario ($ MXN) y alertas de inventario por negocio. Haz clic en cualquier comercio para filtrar sus existencias.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {merchantFilter !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setMerchantFilter('all')}
+                className="flex items-center gap-1.5 py-1.5 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold border border-blue-200 cursor-pointer transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Ver Todos los Giros ({products.length} productos)</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* 10 Giros Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {giroStats.map((giro) => {
+            const isSelected = merchantFilter === giro.id;
+            const meta = getGiroMeta(giro.id, giro.category);
+            const Icon = meta.icon;
+
+            return (
+              <div
+                key={giro.id}
+                onClick={() => setMerchantFilter(isSelected ? 'all' : giro.id)}
+                className={`relative rounded-xl p-3.5 border transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+                  isSelected
+                    ? 'border-blue-600 ring-2 ring-blue-500/30 bg-blue-50/50 shadow-sm'
+                    : 'border-slate-200 hover:border-slate-300 hover:shadow-xs bg-white'
+                }`}
+              >
+                {/* Header: Icon + Badge */}
+                <div>
+                  <div className="flex items-start justify-between gap-1.5 mb-1.5">
+                    <div className={`p-2 rounded-lg ${meta.bgColor} ${meta.iconColor}`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+
+                    <div className="text-right">
+                      {isSelected ? (
+                        <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-blue-700 bg-blue-100 px-1.5 py-0.5 rounded-full border border-blue-200">
+                          <Check className="w-3 h-3" /> Filtrado
+                        </span>
+                      ) : giro.isColdChain ? (
+                        <span className="text-[10px] font-bold text-cyan-800 bg-cyan-50 px-1.5 py-0.5 rounded-full border border-cyan-200">
+                          ❄️ Frío
+                        </span>
+                      ) : giro.id === 'merch-maret-silao' ? (
+                        <span className="text-[10px] font-bold text-blue-800 bg-blue-100 px-1.5 py-0.5 rounded-full border border-blue-200">
+                          ✨ Tienda Propia
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded-full">
+                          Local Silao
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Title & Category */}
+                  <h3 className="font-bold text-xs text-slate-900 leading-snug line-clamp-2">
+                    {giro.name}
+                  </h3>
+                  <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
+                    {giro.category}
+                  </p>
+                </div>
+
+                {/* Metrics Breakdown */}
+                <div className="bg-slate-50/80 rounded-lg p-2 border border-slate-100 space-y-1.5 text-[11px]">
+                  <div className="flex items-center justify-between text-slate-600">
+                    <span>Catálogo:</span>
+                    <strong className="font-mono text-slate-900">{giro.count} SKUs</strong>
+                  </div>
+
+                  <div className="flex items-center justify-between text-slate-600">
+                    <span>Piezas físicas:</span>
+                    <strong className="font-mono text-slate-900">{giro.pieces} pzas</strong>
+                  </div>
+
+                  <div className="flex items-center justify-between text-slate-600">
+                    <span>Valor comercial:</span>
+                    <strong className="font-mono text-emerald-700">
+                      ${giro.commercialVal.toLocaleString('es-MX', { maximumFractionDigits: 0 })}
+                    </strong>
+                  </div>
+
+                  <div className="pt-1 border-t border-slate-200/60 flex items-center justify-between">
+                    <span className="text-[10px] text-slate-500">Alertas:</span>
+                    {giro.outOfStock > 0 ? (
+                      <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">
+                        {giro.outOfStock} agotado(s)
+                      </span>
+                    ) : giro.lowStock > 0 ? (
+                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                        {giro.lowStock} bajo(s)
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-semibold text-emerald-700 flex items-center gap-0.5">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Óptimo
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Footer Action */}
+                <button
+                  type="button"
+                  className={`w-full py-1 px-2 rounded-md text-[11px] font-bold transition-colors cursor-pointer text-center ${
+                    isSelected
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                  }`}
+                >
+                  {isSelected ? 'Mostrando este Giro ✓' : 'Ver Inventario →'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Active Giro Filter Banner (when a specific giro is selected) */}
+      {activeGiro && (
+        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white rounded-xl p-4 shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-lg bg-white/10 backdrop-blur-xs">
+              <Store className="w-5 h-5 text-blue-200" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs uppercase tracking-wider font-extrabold text-blue-300">
+                  Giro Seleccionado
+                </span>
+                <span className="text-xs bg-white/20 text-white px-2 py-0.5 rounded-full font-medium">
+                  {activeGiro.badge}
+                </span>
+                {activeGiro.id === 'merch-maret-silao' && (
+                  <span className="text-xs bg-amber-400 text-slate-950 font-bold px-2 py-0.5 rounded-full">
+                    ✨ Tienda Propia NIVEA
+                  </span>
+                )}
+              </div>
+              <h3 className="text-base font-bold text-white mt-0.5">
+                {activeGiro.name} · {activeGiro.category}
+              </h3>
+              <p className="text-xs text-blue-200 mt-0.5">
+                {activeGiro.address} · {activeGiro.count} productos registrados · {activeGiro.pieces} piezas en stock · Valor inventario: ${activeGiro.commercialVal.toLocaleString('es-MX', { minimumFractionDigits: 2 })} MXN
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-end sm:self-auto">
+            <button
+              type="button"
+              onClick={() => openProductModal(null)}
+              className="py-1.5 px-3 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold rounded-lg border border-white/20 transition-colors cursor-pointer"
+            >
+              + Agregar a este Giro
+            </button>
+            <button
+              type="button"
+              onClick={() => setMerchantFilter('all')}
+              className="py-1.5 px-3 bg-white text-blue-950 hover:bg-blue-50 text-xs font-bold rounded-lg shadow-xs transition-colors cursor-pointer"
+            >
+              Ver Todos los Giros (500)
             </button>
           </div>
         </div>
@@ -751,7 +1069,26 @@ export const InventoryManager: React.FC = () => {
                       {/* Comercio Silao & Cadena Fría */}
                       <td className="py-2.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-slate-800">{prod.merchantName || 'Comercio Local'}</span>
+                          {prod.merchantId === 'merch-maret-silao' ? (
+                            <button
+                              type="button"
+                              onClick={() => setMerchantFilter('merch-maret-silao')}
+                              className="inline-flex items-center gap-1 font-bold text-blue-900 bg-blue-100 hover:bg-blue-200 px-2 py-0.5 rounded-full border border-blue-300 text-[11px] cursor-pointer transition-colors"
+                              title="Filtrar catálogo de MARET SILAO"
+                            >
+                              <Sparkles className="w-3 h-3 text-blue-600" />
+                              <span>MARET SILAO</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setMerchantFilter(prod.merchantId)}
+                              className="font-semibold text-slate-800 hover:text-blue-700 hover:underline cursor-pointer text-left"
+                              title={`Filtrar productos de ${prod.merchantName || 'este comercio'}`}
+                            >
+                              {prod.merchantName || 'Comercio Local'}
+                            </button>
+                          )}
                           {prod.isColdChain && (
                             <span className="text-[10px] font-bold text-cyan-800 bg-cyan-50 px-1.5 py-0.5 rounded border border-cyan-200" title="Requiere hielera / cadena de frío">
                               ❄️ Frío

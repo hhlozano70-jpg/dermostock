@@ -40,6 +40,7 @@ export const Storefront: React.FC = () => {
 
   const categories = [
     'all',
+    'MARET SILAO (Nivea & Cuidado Personal)',
     'Abarrotes y Cremería',
     'Cadena Fría (Aguas, Paletas, Cervezas)',
     'Refaccionaria y Automotriz',
@@ -60,7 +61,10 @@ export const Storefront: React.FC = () => {
         p.brand.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchCategory =
-        selectedCategory === 'all' || p.category === selectedCategory || p.merchantCategory === selectedCategory;
+        selectedCategory === 'all' || 
+        p.category === selectedCategory || 
+        p.merchantCategory === selectedCategory ||
+        (selectedCategory.startsWith('MARET') && (p.merchantId === 'merch-maret-silao' || p.category.includes('Belleza') || p.category.includes('Cuidado Personal')));
 
       const matchMerchant =
         selectedMerchantId === 'all' || p.merchantId === selectedMerchantId;
@@ -295,30 +299,59 @@ export const Storefront: React.FC = () => {
             {merchants.map((m) => {
               const isSelected = selectedMerchantId === m.id;
               const merchantItemCount = products.filter(p => p.merchantId === m.id).length;
+              const isMaret = m.id === 'merch-maret-silao';
+              const icon = isMaret 
+                ? '✨' 
+                : m.isColdChain 
+                ? '❄️' 
+                : m.category.includes('Refaccionaria') || m.category.includes('Automotriz')
+                ? '🔧' 
+                : m.category.includes('Farmacia') 
+                ? '💊' 
+                : m.category.includes('Ferretería') 
+                ? '🔨' 
+                : m.category.includes('Flores') 
+                ? '💐' 
+                : m.category.includes('Mascotas') 
+                ? '🐾' 
+                : m.category.includes('Servicios') || m.category.includes('Cerrajería')
+                ? '🔑' 
+                : '🧀';
+
               return (
                 <button
                   key={m.id}
                   onClick={() => setSelectedMerchantId(isSelected ? 'all' : m.id)}
                   className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                     isSelected
-                      ? 'bg-emerald-700 text-white border-emerald-700 shadow-sm'
+                      ? isMaret
+                        ? 'bg-blue-800 text-white border-blue-800 shadow-md ring-2 ring-blue-400'
+                        : 'bg-emerald-700 text-white border-emerald-700 shadow-sm'
+                      : isMaret
+                      ? 'bg-blue-50/60 text-slate-900 border-blue-300 hover:border-blue-500 hover:bg-blue-50'
                       : 'bg-white text-slate-800 border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-1">
-                    <span className="text-base">
-                      {m.isColdChain ? '❄️' : m.category.includes('Refaccionaria') ? '🔧' : m.category.includes('Farmacia') ? '💊' : m.category.includes('Ferretería') ? '🔨' : m.category.includes('Flores') ? '💐' : m.category.includes('Mascotas') ? '🐾' : '🛒'}
-                    </span>
+                    <span className="text-base">{icon}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                      isSelected ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-800'
+                      isSelected 
+                        ? 'bg-white/20 text-white' 
+                        : isMaret
+                        ? 'bg-blue-200/80 text-blue-900'
+                        : 'bg-emerald-50 text-emerald-800'
                     }`}>
                       {merchantItemCount} arts
                     </span>
                   </div>
                   <div>
-                    <strong className="text-xs block line-clamp-1">{m.name}</strong>
-                    <span className={`text-[10px] block line-clamp-1 ${isSelected ? 'text-emerald-100' : 'text-slate-400'}`}>
-                      {m.silaoZone}
+                    <strong className="text-xs block line-clamp-1">
+                      {isMaret ? '✨ MARET SILAO' : m.name}
+                    </strong>
+                    <span className={`text-[10px] block line-clamp-1 ${
+                      isSelected ? (isMaret ? 'text-blue-100' : 'text-emerald-100') : isMaret ? 'text-blue-700 font-semibold' : 'text-slate-400'
+                    }`}>
+                      {isMaret ? 'Tienda Propia NIVEA' : m.silaoZone}
                     </span>
                   </div>
                 </button>

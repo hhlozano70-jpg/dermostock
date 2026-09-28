@@ -96,11 +96,11 @@ interface InventoryContextType {
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'silaomarket_products_v2',
-  MOVEMENTS: 'silaomarket_movements_v2',
-  ORDERS: 'silaomarket_orders_v2',
-  TIER: 'silaomarket_tier_v2',
-  SETTINGS: 'silaomarket_settings_v2',
+  PRODUCTS: 'silaomarket_products_v3',
+  MOVEMENTS: 'silaomarket_movements_v3',
+  ORDERS: 'silaomarket_orders_v3',
+  TIER: 'silaomarket_tier_v3',
+  SETTINGS: 'silaomarket_settings_v3',
 };
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
