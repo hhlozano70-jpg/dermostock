@@ -18,6 +18,8 @@ import {
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
+import { SilaoEmblem } from './SilaoEmblem';
+import { SilaoLandmarksShowcase } from './SilaoLandmarksShowcase';
 
 export const Storefront: React.FC = () => {
   const { 
@@ -73,29 +75,62 @@ export const Storefront: React.FC = () => {
     <div className="space-y-10 pb-16">
       
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white py-12 md:py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+      <section className="relative overflow-hidden bg-slate-950 text-white py-12 md:py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         
+        {/* Background Image of Cerro del Cubilete & Cristo Rey Silao with dark gradient overlay */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity scale-105 pointer-events-none transition-transform duration-1000"
+          style={{
+            backgroundImage: `url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg/1280px-Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg')`
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-slate-900/90 to-slate-950/98 pointer-events-none" />
+
         {/* Glow ambient effects */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-5xl mx-auto text-center space-y-6">
           
-          {/* Header pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
-            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Mercado Local de Silao, Guanajuato</span>
-            <span aria-hidden="true">·</span>
-            <span>Un Solo Carrito</span>
+          {/* Header pill with Silao Emblem */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/90 border border-amber-500/40 text-amber-300 text-xs font-bold uppercase tracking-wider shadow-xl backdrop-blur-md">
+            <SilaoEmblem size={26} />
+            <span className="text-white">Silao de la Victoria, Guanajuato</span>
+            <span className="text-amber-500" aria-hidden="true">·</span>
+            <span className="text-emerald-400">Corazón del Bajío</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
-            Todos los Comercios de Silao en <span className="text-emerald-400">un Solo Carrito</span>
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight">
+            Todos los Comercios de Silao en <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300">un Solo Carrito</span>
           </h1>
 
           <p className="text-sm sm:text-base text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Pide en la tienda de abarrotes, refaccionaria, farmacia, ferretería, flores y negocios de cadena fría (aguas frescas, helados, paletas y cervezas bien frías). <strong>Pagas una sola vez</strong> y nuestro <strong>Hub Central en Silao</strong> consolida tu pedido y te lo entrega en una sola vuelta a tu domicilio.
+            Pide en la tienda de abarrotes, refaccionaria, farmacia, ferretería, flores y negocios de cadena fría (aguas frescas, helados, paletas y cervezas bien frías). <strong>Pagas una sola vez</strong> y nuestro <strong>Hub Central en Silao</strong> (Calle 5 de Mayo #45, Silao Centro) consolida tu pedido y te lo entrega en una sola vuelta a tu domicilio.
           </p>
+
+          {/* Silao Landmark Badges Ribbon */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-xs">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-slate-200 shadow-xs">
+              <span>⛰️</span>
+              <strong className="text-amber-300">Cerro del Cubilete</strong>
+              <span className="text-slate-400">(Cristo Rey 2,579m)</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-slate-200 shadow-xs">
+              <span>⛪</span>
+              <strong className="text-emerald-300">Santiago Apóstol</strong>
+              <span className="text-slate-400">(Silao Centro)</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-slate-200 shadow-xs">
+              <span>❄️</span>
+              <strong className="text-cyan-300">Cadena Fría</strong>
+              <span className="text-slate-400">(Hielera Activa)</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-slate-200 shadow-xs">
+              <span>🚚</span>
+              <strong className="text-white">Rastreo QR</strong>
+              <span className="text-slate-400">(Envío Local)</span>
+            </span>
+          </div>
 
           {/* Hub Logistics Step-by-Step Banner */}
           <div className="pt-3 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
@@ -203,8 +238,11 @@ export const Storefront: React.FC = () => {
       </section>
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
+        {/* SECTION: Lugares Emblemáticos & Orgullo de Silao */}
+        <SilaoLandmarksShowcase />
+
         {/* SECTION: Comercios Afiliados en Silao (Cards Carousel / Grid) */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">

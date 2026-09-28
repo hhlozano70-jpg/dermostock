@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { PriceTier } from '../types/inventory';
+import { SilaoEmblem } from './SilaoEmblem';
 
 export const Navbar: React.FC = () => {
   const { 
@@ -43,20 +44,18 @@ export const Navbar: React.FC = () => {
               onClick={() => setActiveTab('tienda')}
               className="flex items-center gap-2.5 group cursor-pointer text-left"
             >
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform shrink-0">
-                <Store className="w-5 h-5" />
-              </div>
+              <SilaoEmblem size={40} className="group-hover:scale-105 transition-transform shrink-0" />
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors leading-none">
+                  <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors leading-none">
                     Silaomarket
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-300">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-600 text-white px-1.5 py-0.5 rounded shadow-xs">
                     on line
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-500 font-medium mt-0.5 hidden xs:block">
-                  📍 Silao, Gto · Hub Consolidado
+                <span className="text-[10px] text-amber-800 font-semibold mt-0.5 hidden xs:block">
+                  ⛰️ Silao de la Victoria · Gto
                 </span>
               </div>
             </button>

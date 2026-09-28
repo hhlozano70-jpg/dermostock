@@ -14,6 +14,7 @@ import { ProductEditModal } from './components/ProductEditModal';
 import { DeviceSyncModal } from './components/DeviceSyncModal';
 import { SettingsModal } from './components/SettingsModal';
 import { BarcodeScannerModal } from './components/BarcodeScannerModal';
+import { SilaoEmblem } from './components/SilaoEmblem';
 
 const MainContent: React.FC = () => {
   const { 
@@ -96,23 +97,48 @@ const MainContent: React.FC = () => {
       />
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 mt-auto py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <div>
-            <span className="font-serif font-bold text-slate-900 text-sm">Silaomarket on line</span>
-            <span className="mx-2">·</span>
-            <span>Comercios Locales de Silao, Guanajuato · Hub Central de Consolidación</span>
+      <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 mt-auto py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-800">
+            <div className="flex items-center gap-3 text-center md:text-left">
+              <SilaoEmblem size={44} />
+              <div>
+                <h4 className="text-base font-black text-white flex items-center gap-2 justify-center md:justify-start">
+                  <span>Silaomarket on line</span>
+                  <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Silao, Gto
+                  </span>
+                </h4>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Plataforma municipal de consolidación multitienda · Hub Central Calle 5 de Mayo #45, Silao Centro
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
+              <span className="px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-300">
+                ⛰️ Cerro del Cubilete
+              </span>
+              <span className="px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-300">
+                ⛪ Santiago Apóstol
+              </span>
+              <span className="px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-300">
+                ❄️ Cadena de Frío
+              </span>
+              <span className="px-3 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-300">
+                📱 Rastreo QR en Vivo
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span>Rastreo de Pedidos con Código QR 📱</span>
-            <span>·</span>
-            <span>Cadena de Frío Garantizada ❄️</span>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <p>
+              © {new Date().getFullYear()} Silaomarket on line · Silao de la Victoria, Guanajuato, México. Todos los derechos reservados.
+            </p>
+            <p className="text-amber-400/80 font-medium">
+              Orgullo Silaoense · Corazón del Bajío
+            </p>
           </div>
-
-          <p className="text-slate-400">
-            © {new Date().getFullYear()} Silaomarket on line · Silao, Guanajuato.
-          </p>
         </div>
       </footer>
     </div>
