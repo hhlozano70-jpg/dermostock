@@ -41,9 +41,24 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setActiveTab('tienda')}
-              className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 hover:text-blue-900 transition-colors cursor-pointer text-left font-serif"
+              className="flex items-center gap-2.5 group cursor-pointer text-left"
             >
-              DermoStock
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform shrink-0">
+                <Store className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors leading-none">
+                    Silaomarket
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded border border-emerald-300">
+                    on line
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-500 font-medium mt-0.5 hidden xs:block">
+                  📍 Silao, Gto · Hub Consolidado
+                </span>
+              </div>
             </button>
 
             {/* Cloud Sync Status Indicator */}
@@ -54,14 +69,14 @@ export const Navbar: React.FC = () => {
             >
               {syncStatus === 'syncing' ? (
                 <>
-                  <RefreshCw className="w-3 h-3 text-blue-600 animate-spin" />
-                  <span className="hidden sm:inline text-blue-600 font-semibold">Sincronizando...</span>
+                  <RefreshCw className="w-3 h-3 text-emerald-600 animate-spin" />
+                  <span className="hidden sm:inline text-emerald-600 font-semibold">Sincronizando...</span>
                 </>
               ) : syncStatus === 'synced' ? (
                 <>
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="hidden sm:inline text-slate-700 font-semibold">Sincronizado</span>
-                  <Cloud className="w-3 h-3 text-blue-500 ml-0.5" />
+                  <span className="hidden sm:inline text-slate-700 font-semibold">En Línea</span>
+                  <Cloud className="w-3 h-3 text-emerald-500 ml-0.5" />
                 </>
               ) : (
                 <>
@@ -78,24 +93,24 @@ export const Navbar: React.FC = () => {
               onClick={() => setActiveTab('tienda')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'tienda'
-                  ? 'text-blue-700 bg-blue-50 font-semibold shadow-xs'
+                  ? 'text-emerald-700 bg-emerald-50 font-semibold shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               <Store className="w-4 h-4" />
-              <span>Tienda</span>
+              <span>Tienda Silao</span>
             </button>
 
             <button
               onClick={() => setActiveTab('inventario')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
                 activeTab === 'inventario'
-                  ? 'text-blue-700 bg-blue-50 font-semibold shadow-xs'
+                  ? 'text-emerald-700 bg-emerald-50 font-semibold shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               <LayoutDashboard className="w-4 h-4" />
-              <span>Inventario</span>
+              <span>Gestión & Hub</span>
             </button>
 
             <button

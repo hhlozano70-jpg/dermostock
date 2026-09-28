@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Product, Brand, Category, MovementType } from '../types/inventory';
+import { SILAO_MERCHANTS } from '../data/silaoMarketData';
 import { ProductVisual } from './ProductVisual';
 
 export const InventoryManager: React.FC = () => {
@@ -37,11 +38,16 @@ export const InventoryManager: React.FC = () => {
     syncStatus,
     refreshFromServer,
     setActiveTab,
-    openScanner
+    openScanner,
+    merchants
   } = useInventory();
+
+  const merchantsList = merchants && merchants.length > 0 ? merchants : SILAO_MERCHANTS;
 
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
+  const [merchantFilter, setMerchantFilter] = useState<string>('all');
+  const [coldChainOnly, setColdChainOnly] = useState<boolean>(false);
   const [brandFilter, setBrandFilter] = useState<string>('all');
   const [stockStatusFilter, setStockStatusFilter] = useState<'all' | 'low' | 'out' | 'normal'>('all');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
@@ -89,13 +95,18 @@ export const InventoryManager: React.FC = () => {
       const matchSearch =
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.presentation.toLowerCase().includes(searchTerm.toLowerCase());
+        p.presentation.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (p.merchantName && p.merchantName.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      const matchMerchant =
+        merchantFilter === 'all' || p.merchantId === merchantFilter;
+
+      const matchColdChain =
+        !coldChainOnly || Boolean(p.isColdChain);
 
       const matchBrand =
         brandFilter === 'all' ||
-        p.brand.toLowerCase() === brandFilter.toLowerCase() ||
-        (brandFilter === 'Aquaphor' && p.brand.includes('Aquaphor')) ||
-        (brandFilter === 'Eucerin' && p.brand.includes('Eucerin'));
+        p.brand.toLowerCase() === brandFilter.toLowerCase();
 
       const matchStock =
         stockStatusFilter === 'all' ||
@@ -103,9 +114,9 @@ export const InventoryManager: React.FC = () => {
         (stockStatusFilter === 'low' && p.stock > 0 && p.stock <= p.minStockAlert) ||
         (stockStatusFilter === 'normal' && p.stock > p.minStockAlert);
 
-      return matchSearch && matchBrand && matchStock;
+      return matchSearch && matchMerchant && matchColdChain && matchBrand && matchStock;
     });
-  }, [products, searchTerm, brandFilter, stockStatusFilter]);
+  }, [products, searchTerm, merchantFilter, coldChainOnly, brandFilter, stockStatusFilter]);
 
   // Movement Submit
   const handleMovementSubmit = (e: React.FormEvent) => {
@@ -146,7 +157,10 @@ export const InventoryManager: React.FC = () => {
     const headers = [
       'SKU',
       'Producto y Presentación',
-      'Categoría / Marca',
+      'Comercio Silao',
+      'Cadena de Frío',
+      'Categoría / Giro',
+      'Marca',
       'Precio Comercial (MXN)',
       'Precio Mayorista (-40%)',
       'Precio Promoción (-60%)',
@@ -158,6 +172,9 @@ export const InventoryManager: React.FC = () => {
     const rows = products.map((p) => [
       `"${p.sku}"`,
       `"${p.name} - ${p.presentation}"`,
+      `"${p.merchantName || 'Comercio Local'}"`,
+      p.isColdChain ? 'SÍ (Hielera)' : 'NO',
+      `"${p.category}"`,
       `"${p.brand}"`,
       p.commercialPrice.toFixed(2),
       p.wholesalePrice.toFixed(2),
@@ -176,7 +193,7 @@ export const InventoryManager: React.FC = () => {
     link.setAttribute('href', encodedUri);
     link.setAttribute(
       'download',
-      `Inventario_DermoStock_${new Date().toISOString().slice(0, 10)}.csv`
+      `Inventario_Silaomarket_${new Date().toISOString().slice(0, 10)}.csv`
     );
     document.body.appendChild(link);
     link.click();
@@ -198,11 +215,16 @@ export const InventoryManager: React.FC = () => {
       {/* Header with Title and Global Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-serif">
-            Panel de Control de Inventarios
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-serif">
+              Gestión de Inventario y Hub Central Silao
+            </h1>
+            <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+              Silao, Gto.
+            </span>
+          </div>
           <p className="text-sm text-slate-500 mt-1">
-            Gestión de stock, control de existencias, precios y movimientos del catálogo oficial.
+            Control de existencias por comercio de Silao, recepción de mercancías y consolidación de pedidos en Hub Central.
           </p>
         </div>
 
@@ -222,7 +244,7 @@ export const InventoryManager: React.FC = () => {
           <button
             onClick={() => setActiveTab('reportes')}
             className="flex items-center gap-1.5 py-2 px-3 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            title="Ver panel de control con gráficas Recharts de ventas por marca y stock crítico"
+            title="Ver panel de control con reportes de inventario y pedidos"
           >
             <BarChart3 className="w-4 h-4 text-blue-600" />
             <span>Ver Reportes</span>
@@ -267,18 +289,18 @@ export const InventoryManager: React.FC = () => {
             onClick={() => {
               if (
                 window.confirm(
-                  '¿Deseas restablecer el inventario al estado original exacto del archivo inicial (18 productos y 58 piezas)?'
+                  '¿Deseas restablecer el inventario al catálogo inicial de comercios de Silao, Guanajuato?'
                 )
               ) {
                 resetToInitial();
-                showToast('Inventario restablecido al estado original del archivo.');
+                showToast('Inventario restablecido al catálogo de comercios de Silao.');
               }
             }}
             className="flex items-center gap-1.5 py-2 px-3 bg-white border border-rose-200 hover:bg-rose-50 text-rose-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            title="Restablecer a datos del archivo PDF"
+            title="Restablecer catálogo Silao"
           >
             <RotateCcw className="w-4 h-4" />
-            <span>Restablecer Archivo</span>
+            <span>Restablecer Catálogo</span>
           </button>
         </div>
       </div>
@@ -419,23 +441,37 @@ export const InventoryManager: React.FC = () => {
 
         {/* Filter controls */}
         <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
-          {/* Brand Filter */}
+          {/* Silao Merchant Filter */}
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
             <Filter className="w-3.5 h-3.5 text-slate-400" />
-            <span>Marca:</span>
+            <span>Comercio Silao:</span>
             <select
-              value={brandFilter ?? 'all'}
-              onChange={(e) => setBrandFilter(e.target.value)}
-              className="py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={merchantFilter ?? 'all'}
+              onChange={(e) => setMerchantFilter(e.target.value)}
+              className="py-1.5 px-2.5 border border-slate-300 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-800"
             >
-              <option value="all">Todas las Marcas</option>
-              <option value="Nivea">Nivea</option>
-              <option value="Eucerin">Eucerin</option>
-              <option value="Aquaphor">Aquaphor</option>
-              <option value="Nivea Men">Nivea Men</option>
-              <option value="Aquaphor Baby">Aquaphor Baby</option>
+              <option value="all">🏪 Todos los Comercios</option>
+              {merchantsList.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.badge} {m.name}
+                </option>
+              ))}
             </select>
           </div>
+
+          {/* Cadena Fría Toggle Button */}
+          <button
+            type="button"
+            onClick={() => setColdChainOnly(!coldChainOnly)}
+            className={`py-1.5 px-2.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+              coldChainOnly
+                ? 'bg-cyan-600 text-white shadow-xs'
+                : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+            }`}
+            title="Filtrar solo productos de cadena de frío que requieren hielera"
+          >
+            <span>❄️ Solo Frío</span>
+          </button>
 
           {/* Stock Filter */}
           <div className="flex items-center gap-1.5 text-xs text-slate-600">
@@ -514,10 +550,17 @@ export const InventoryManager: React.FC = () => {
                     </button>
 
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">
-                          {prod.brand}
-                        </span>
+                      <div className="flex items-center justify-between gap-1 flex-wrap mb-1">
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-1.5 py-0.5 rounded border border-blue-200">
+                            🏪 {prod.merchantName || prod.brand}
+                          </span>
+                          {prod.isColdChain && (
+                            <span className="text-[10px] font-bold text-cyan-800 bg-cyan-50 px-1.5 py-0.5 rounded border border-cyan-200">
+                              ❄️ Frío
+                            </span>
+                          )}
+                        </div>
                         {prod.stock === 0 ? (
                           <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
                             Agotado
@@ -533,12 +576,15 @@ export const InventoryManager: React.FC = () => {
                         )}
                       </div>
 
-                      <h4 className="font-semibold text-slate-900 text-sm mt-1 leading-snug line-clamp-2">
+                      <h4 className="font-semibold text-slate-900 text-sm leading-snug line-clamp-2">
                         {prod.name}
                       </h4>
                       <p className="text-[11px] text-slate-500 font-mono mt-0.5">
                         {prod.sku} · {prod.presentation}
                       </p>
+                      <span className="text-[10px] text-slate-400 block truncate mt-0.5">
+                        {prod.category} · {prod.merchantAddress || 'Silao, Gto.'}
+                      </span>
                     </div>
                   </div>
 
@@ -655,7 +701,8 @@ export const InventoryManager: React.FC = () => {
                 <tr>
                   <th className="py-3 px-4">Foto</th>
                   <th className="py-3 px-4">Producto y Presentación</th>
-                  <th className="py-3 px-4">Categoría / Marca</th>
+                  <th className="py-3 px-4">Comercio Silao</th>
+                  <th className="py-3 px-4">Giro / Categoría</th>
                   <th className="py-3 px-4 text-right">P. Comercial</th>
                   <th className="py-3 px-4 text-right">Mayoreo (-40%)</th>
                   <th className="py-3 px-4 text-right">Promo (-60%)</th>
@@ -667,7 +714,7 @@ export const InventoryManager: React.FC = () => {
               <tbody className="divide-y divide-slate-100">
                 {filteredProducts.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="py-12 text-center text-slate-400">
+                    <td colSpan={10} className="py-12 text-center text-slate-400">
                       No se encontraron productos coincidentes con los filtros seleccionados.
                     </td>
                   </tr>
@@ -701,10 +748,25 @@ export const InventoryManager: React.FC = () => {
                         </div>
                       </td>
 
-                      {/* Brand / Category */}
+                      {/* Comercio Silao & Cadena Fría */}
                       <td className="py-2.5 px-4 whitespace-nowrap">
-                        <span className="font-medium text-slate-800 block">{prod.brand}</span>
-                        <span className="text-[10px] text-slate-500 block">{prod.category}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-slate-800">{prod.merchantName || 'Comercio Local'}</span>
+                          {prod.isColdChain && (
+                            <span className="text-[10px] font-bold text-cyan-800 bg-cyan-50 px-1.5 py-0.5 rounded border border-cyan-200" title="Requiere hielera / cadena de frío">
+                              ❄️ Frío
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-slate-500 block truncate max-w-[150px]">
+                          {prod.merchantAddress || 'Silao, Gto.'}
+                        </span>
+                      </td>
+
+                      {/* Giro / Category */}
+                      <td className="py-2.5 px-4 whitespace-nowrap">
+                        <span className="font-medium text-slate-800 block">{prod.category}</span>
+                        <span className="text-[10px] text-slate-500 block font-mono">{prod.brand}</span>
                       </td>
 
                       {/* Commercial Price */}

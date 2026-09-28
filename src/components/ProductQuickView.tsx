@@ -85,7 +85,22 @@ export const ProductQuickView: React.FC = () => {
         {/* Product Information & Contiguous Purchase Module Right Pane */}
         <div className="md:w-1/2 p-6 flex flex-col justify-between">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-blue-600 mb-1">
+            {/* Merchant and Category badge */}
+            <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+              <span className="text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                <span>🏪</span>
+                <span>{product.merchantName || 'Comercio Silao'}</span>
+              </span>
+
+              {product.isColdChain && (
+                <span className="text-xs font-bold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded-full border border-cyan-300 flex items-center gap-1">
+                  <span>❄️</span>
+                  <span>Cadena Fría</span>
+                </span>
+              )}
+            </div>
+            
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
               {product.category}
             </div>
             
@@ -95,6 +110,11 @@ export const ProductQuickView: React.FC = () => {
             
             <p className="text-xs text-slate-500 mt-1">
               Presentación: <span className="font-medium text-slate-700">{product.presentation}</span>
+              {product.merchantAddress && (
+                <span className="block text-[11px] text-slate-400 mt-0.5">
+                  📍 Ubicación del negocio: {product.merchantAddress}
+                </span>
+              )}
             </p>
 
             {/* Description */}

@@ -6,19 +6,28 @@ import {
   InventoryMovement, 
   Order, 
   MovementType,
-  StoreSettings 
+  StoreSettings,
+  Merchant
 } from '../types/inventory';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
+import { SILAO_MERCHANTS } from '../data/silaoMarketData';
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
-  whatsappNumber: '525512345678',
-  businessName: 'DermoStock México',
-  defaultPickupPoint: 'Punto de entrega a acordar',
+  whatsappNumber: '524721234567',
+  businessName: 'Silaomarket on line',
+  defaultPickupPoint: 'Hub Central Silao - Calle 5 de Mayo #45, Silao Centro',
+  city: 'Silao',
+  state: 'Guanajuato',
+  hubAddress: 'Hub Central de Consolidación Silao, Calle 5 de Mayo #45, Silao Centro',
+  deliveryCost: 25,
 };
 
 interface InventoryContextType {
   products: Product[];
+  merchants: Merchant[];
+  selectedMerchantId: string;
+  setSelectedMerchantId: (id: string) => void;
   priceTier: PriceTier;
   setPriceTier: (tier: PriceTier) => void;
   cart: CartItem[];
@@ -80,11 +89,11 @@ interface InventoryContextType {
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'dermostock_products_v2',
-  MOVEMENTS: 'dermostock_movements_v1',
-  ORDERS: 'dermostock_orders_v1',
-  TIER: 'dermostock_tier_v1',
-  SETTINGS: 'dermostock_settings_v1',
+  PRODUCTS: 'silaomarket_products_v1',
+  MOVEMENTS: 'silaomarket_movements_v1',
+  ORDERS: 'silaomarket_orders_v1',
+  TIER: 'silaomarket_tier_v1',
+  SETTINGS: 'silaomarket_settings_v1',
 };
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -112,6 +121,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch {}
     return 'comercial';
   });
+
+  // Local Silao Merchants state
+  const [merchants] = useState<Merchant[]>(SILAO_MERCHANTS);
+  const [selectedMerchantId, setSelectedMerchantId] = useState<string>('all');
 
   // Cart
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -517,11 +530,17 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Create Order and deduct inventory
   const createOrder = (orderInput: Omit<Order, 'id' | 'date' | 'status'>): Order => {
-    const orderId = `ORD-${Date.now().toString().slice(-6)}`;
+    const orderId = `ORD-SILAO-${Date.now().toString().slice(-5)}`;
+    const merchantsSet = new Set(orderInput.items.map((i) => i.product.merchantName || 'Comercio Local'));
+    const hasCold = orderInput.items.some((i) => i.product.isColdChain);
+
     const newOrder: Order = {
       ...orderInput,
       id: orderId,
       date: new Date().toISOString(),
+      hasColdChain: hasCold,
+      merchantsCount: merchantsSet.size,
+      merchantsNames: Array.from(merchantsSet),
       status: 'completado',
     };
 
@@ -696,6 +715,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     <InventoryContext.Provider
       value={{
         products,
+        merchants,
+        selectedMerchantId,
+        setSelectedMerchantId,
         priceTier,
         setPriceTier,
         cart,

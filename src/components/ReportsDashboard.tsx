@@ -339,10 +339,14 @@ export const ReportsDashboard: React.FC = () => {
 
     createOrder({
       customerName: `Cliente Prueba ${brandTarget}`,
-      customerPhone: '55 1234 5678',
-      deliveryType: 'sucursal',
+      customerPhone: '472 123 4567',
+      deliveryType: 'domicilio',
+      deliveryColonia: 'Silao Centro',
       paymentMethod: 'efectivo',
       appliedTier: 'comercial',
+      hasColdChain: Boolean(prod.isColdChain),
+      merchantsCount: 1,
+      merchantsNames: [prod.merchantName || 'Comercio Silao'],
       items: [
         {
           product: prod,

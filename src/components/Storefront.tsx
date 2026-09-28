@@ -2,37 +2,50 @@ import React, { useState, useMemo } from 'react';
 import { 
   Search, 
   Sparkles, 
-  ShieldCheck, 
   Truck, 
-  BadgePercent, 
-  HelpCircle,
-  Tag,
-  Plus,
-  Scan
+  Store, 
+  Snowflake, 
+  ShieldCheck, 
+  Plus, 
+  Scan,
+  MapPin,
+  Clock,
+  CheckCircle2,
+  PackageCheck,
+  ChevronRight,
+  Filter
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
-import { PriceTier, Brand } from '../types/inventory';
+import { SILAO_COLONIAS } from '../data/silaoMarketData';
 
 export const Storefront: React.FC = () => {
-  const { products, priceTier, setPriceTier, openProductModal, openScanner } = useInventory();
+  const { 
+    products, 
+    merchants,
+    selectedMerchantId,
+    setSelectedMerchantId,
+    priceTier, 
+    setPriceTier, 
+    openProductModal, 
+    openScanner 
+  } = useInventory();
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
-  const brands = ['all', 'Nivea', 'Eucerin', 'Aquaphor', 'Aquaphor Baby', 'Nivea Men'];
+  const [onlyColdChain, setOnlyColdChain] = useState<boolean>(false);
 
   const categories = [
     'all',
-    'Cuidado Corporal',
-    'Reparación Dermatológica',
-    'Cuidado Infantil',
-    'Cuidado Facial & Labial',
-    'Gel de Ducha',
-    'Cuidado Masculino',
-    'Protección Solar',
+    'Abarrotes y Cremería',
+    'Cadena Fría (Aguas, Paletas, Cervezas)',
+    'Refaccionaria y Automotriz',
+    'Farmacia y Salud',
+    'Ferretería y Tlapalería',
+    'Mascotas y Veterinaria',
+    'Flores y Regalos',
+    'Servicios Personalizados',
   ];
 
   const filteredProducts = useMemo(() => {
@@ -40,20 +53,21 @@ export const Storefront: React.FC = () => {
       const matchSearch =
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.presentation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.category.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchBrand =
-        selectedBrand === 'all' ||
-        p.brand.toLowerCase() === selectedBrand.toLowerCase() ||
-        (selectedBrand === 'Aquaphor' && p.brand.includes('Aquaphor')) ||
-        (selectedBrand === 'Eucerin' && p.brand.includes('Eucerin'));
+        (p.merchantName && p.merchantName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.brand.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchCategory =
-        selectedCategory === 'all' || p.category === selectedCategory;
+        selectedCategory === 'all' || p.category === selectedCategory || p.merchantCategory === selectedCategory;
 
-      return matchSearch && matchBrand && matchCategory;
+      const matchMerchant =
+        selectedMerchantId === 'all' || p.merchantId === selectedMerchantId;
+
+      const matchCold = !onlyColdChain || Boolean(p.isColdChain);
+
+      return matchSearch && matchCategory && matchMerchant && matchCold;
     });
-  }, [products, searchTerm, selectedBrand, selectedCategory]);
+  }, [products, searchTerm, selectedCategory, selectedMerchantId, onlyColdChain]);
 
   return (
     <div className="space-y-10 pb-16">
@@ -61,71 +75,114 @@ export const Storefront: React.FC = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white py-12 md:py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         
-        {/* Subtle background glow */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Glow ambient effects */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-5xl mx-auto text-center space-y-6">
           
-          {/* Subtle header label */}
-          <div className="flex items-center justify-center gap-2 text-xs font-semibold uppercase tracking-widest text-blue-400">
-            <span>Catálogo Dermocosmético Oficial</span>
+          {/* Header pill */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold uppercase tracking-wider">
+            <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Mercado Local de Silao, Guanajuato</span>
             <span aria-hidden="true">·</span>
-            <span>Precios Especiales 2026</span>
+            <span>Un Solo Carrito</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-bold tracking-tight font-serif text-white max-w-3xl mx-auto leading-tight">
-            Cuidado Dermatológico Integral al Mejor Precio
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight">
+            Todos los Comercios de Silao en <span className="text-emerald-400">un Solo Carrito</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Fórmulas líderes de Nivea, Eucerin y Aquaphor para hidratación profunda, reparación cutánea y cuidado pediátrico. Compra al menudeo o aprovecha descuentos por mayoreo y promociones especiales.
+          <p className="text-sm sm:text-base text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            Pide en la tienda de abarrotes, refaccionaria, farmacia, ferretería, flores y negocios de cadena fría (aguas frescas, helados, paletas y cervezas bien frías). <strong>Pagas una sola vez</strong> y nuestro <strong>Hub Central en Silao</strong> consolida tu pedido y te lo entrega en una sola vuelta a tu domicilio.
           </p>
 
-          {/* Price Tier Switcher Interactive Showcase */}
+          {/* Hub Logistics Step-by-Step Banner */}
+          <div className="pt-3 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
+            <div className="bg-slate-800/80 backdrop-blur-md p-4 rounded-xl border border-slate-700/80 shadow-md">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <span className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/30">
+                  1
+                </span>
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Arma Tu Carrito Mixto</h4>
+              </div>
+              <p className="text-xs text-slate-300 leading-snug">
+                Elige de varios comercios locales de Silao sin restricciones en una misma orden.
+              </p>
+            </div>
+
+            <div className="bg-slate-800/80 backdrop-blur-md p-4 rounded-xl border border-slate-700/80 shadow-md">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <span className="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs border border-cyan-500/30">
+                  2
+                </span>
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1">
+                  <span>Hub Silao + Cadena Fría</span>
+                  <Snowflake className="w-3.5 h-3.5 text-cyan-400" />
+                </h4>
+              </div>
+              <p className="text-xs text-slate-300 leading-snug">
+                El Hub Silao recolecta todo. Paletas, aguas y cervezas viajan con hielera térmica.
+              </p>
+            </div>
+
+            <div className="bg-slate-800/80 backdrop-blur-md p-4 rounded-xl border border-slate-700/80 shadow-md">
+              <div className="flex items-center gap-2.5 mb-1.5">
+                <span className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs border border-amber-500/30">
+                  3
+                </span>
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider">1 Solo Pago y Vuelta</h4>
+              </div>
+              <p className="text-xs text-slate-300 leading-snug">
+                Recibe todos tus paquetes juntos en tu puerta con entrega rápida garantizada.
+              </p>
+            </div>
+          </div>
+
+          {/* Price Tier Switcher */}
           <div className="pt-2 max-w-2xl mx-auto">
             <div className="bg-slate-800/90 backdrop-blur-md p-1.5 rounded-2xl border border-slate-700 shadow-xl grid grid-cols-3 gap-1.5">
               
               <button
                 type="button"
                 onClick={() => setPriceTier('comercial')}
-                className={`py-3 px-3 rounded-xl transition-all text-left flex flex-col justify-center cursor-pointer ${
+                className={`py-2.5 px-3 rounded-xl transition-all text-left flex flex-col justify-center cursor-pointer ${
                   priceTier === 'comercial'
-                    ? 'bg-white text-slate-900 shadow-md ring-2 ring-blue-500/50'
+                    ? 'bg-white text-slate-900 shadow-md ring-2 ring-emerald-500/50'
                     : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider">Comercial</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">Menudeo</span>
                   {priceTier === 'comercial' && (
-                    <span className="w-2 h-2 rounded-full bg-blue-600" />
+                    <span className="w-2 h-2 rounded-full bg-emerald-600" />
                   )}
                 </div>
-                <span className="text-[11px] opacity-80 mt-0.5">Precio Regular PVP</span>
+                <span className="text-[11px] opacity-80 mt-0.5">Precio Público Regular</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPriceTier('mayorista')}
-                className={`py-3 px-3 rounded-xl transition-all text-left flex flex-col justify-center cursor-pointer ${
+                className={`py-2.5 px-3 rounded-xl transition-all text-left flex flex-col justify-center cursor-pointer ${
                   priceTier === 'mayorista'
                     ? 'bg-blue-600 text-white shadow-md ring-2 ring-blue-400'
                     : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider">Mayorista</span>
+                  <span className="text-xs font-bold uppercase tracking-wider">Comercio</span>
                   <span className="text-[10px] font-extrabold bg-blue-800/80 px-1.5 py-0.5 rounded">
                     -40%
                   </span>
                 </div>
-                <span className="text-[11px] opacity-85 mt-0.5">Para revendedores</span>
+                <span className="text-[11px] opacity-80 mt-0.5">Tarifa Mayorista</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setPriceTier('promocion')}
-                className={`py-3 px-3 rounded-xl transition-all text-left flex flex-col justify-center cursor-pointer ${
+                className={`py-2.5 px-3 rounded-xl transition-all text-left flex flex-col justify-center cursor-pointer ${
                   priceTier === 'promocion'
                     ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-400'
                     : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
@@ -137,179 +194,239 @@ export const Storefront: React.FC = () => {
                     -60%
                   </span>
                 </div>
-                <span className="text-[11px] opacity-85 mt-0.5">Oferta Liquidación</span>
+                <span className="text-[11px] opacity-80 mt-0.5">Remates y Temporada</span>
               </button>
-
-            </div>
-
-            <div className="text-center text-xs text-slate-400 mt-2.5 flex items-center justify-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-blue-400" />
-              <span>
-                Tarifa activa:{' '}
-                <strong className="text-white uppercase font-mono">
-                  {priceTier === 'comercial'
-                    ? 'Comercial (Sin Descuento)'
-                    : priceTier === 'mayorista'
-                    ? 'Mayorista (-40% Directo)'
-                    : 'Promoción (-60% Directo)'}
-                </strong>
-                . Los precios de todas las fichas reflejan este régimen.
-              </span>
             </div>
           </div>
 
         </div>
-
       </section>
 
-      {/* Trust & Guarantees bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 px-6 bg-white rounded-xl border border-slate-200/80 shadow-xs text-xs text-slate-600">
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="w-5 h-5 text-blue-600 shrink-0" />
-            <div>
-              <strong className="text-slate-900 block font-semibold">100% Originales y Sellados</strong>
-              <span>Productos dermatológicos garantizados con lote verificado.</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Truck className="w-5 h-5 text-blue-600 shrink-0" />
-            <div>
-              <strong className="text-slate-900 block font-semibold">Envíos Locales y Nacionales</strong>
-              <span>Despacho ágil en menos de 24 horas hábiles.</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <BadgePercent className="w-5 h-5 text-emerald-600 shrink-0" />
-            <div>
-              <strong className="text-slate-900 block font-semibold">Precios de Mayorista y Promo</strong>
-              <span>Ahorra hasta 60% en compras de volumen o liquidación.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter and Search Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+      {/* Main Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
-        {/* Search bar & Brand chips */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          
-          {/* Brand Filter Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
-            {brands.map((brand) => (
+        {/* SECTION: Comercios Afiliados en Silao (Cards Carousel / Grid) */}
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Store className="w-5 h-5 text-emerald-600" />
+                <span>Comercios Locales en Silao Guanajuato</span>
+              </h2>
+              <p className="text-xs text-slate-500">
+                Filtra por negocio para ver exclusivamente sus productos o selecciona "Ver Todos"
+              </p>
+            </div>
+
+            {selectedMerchantId !== 'all' && (
               <button
-                key={brand}
+                onClick={() => setSelectedMerchantId('all')}
+                className="text-xs text-emerald-700 font-semibold hover:underline cursor-pointer"
+              >
+                Ver todos los comercios
+              </button>
+            )}
+          </div>
+
+          {/* Merchants Horizontal Scroll / Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            <button
+              onClick={() => setSelectedMerchantId('all')}
+              className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                selectedMerchantId === 'all'
+                  ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                  : 'bg-white text-slate-800 border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full mb-1">
+                <span className="text-base">🏪</span>
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                  selectedMerchantId === 'all' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                }`}>
+                  {products.length} arts
+                </span>
+              </div>
+              <div>
+                <strong className="text-xs block line-clamp-1">Todos los Comercios</strong>
+                <span className={`text-[10px] block line-clamp-1 ${selectedMerchantId === 'all' ? 'text-slate-300' : 'text-slate-400'}`}>
+                  Catálogo unificado Silao
+                </span>
+              </div>
+            </button>
+
+            {merchants.map((m) => {
+              const isSelected = selectedMerchantId === m.id;
+              const merchantItemCount = products.filter(p => p.merchantId === m.id).length;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setSelectedMerchantId(isSelected ? 'all' : m.id)}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-emerald-700 text-white border-emerald-700 shadow-sm'
+                      : 'bg-white text-slate-800 border-slate-200 hover:border-emerald-300 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full mb-1">
+                    <span className="text-base">
+                      {m.isColdChain ? '❄️' : m.category.includes('Refaccionaria') ? '🔧' : m.category.includes('Farmacia') ? '💊' : m.category.includes('Ferretería') ? '🔨' : m.category.includes('Flores') ? '💐' : m.category.includes('Mascotas') ? '🐾' : '🛒'}
+                    </span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      isSelected ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-800'
+                    }`}>
+                      {merchantItemCount} arts
+                    </span>
+                  </div>
+                  <div>
+                    <strong className="text-xs block line-clamp-1">{m.name}</strong>
+                    <span className={`text-[10px] block line-clamp-1 ${isSelected ? 'text-emerald-100' : 'text-slate-400'}`}>
+                      {m.silaoZone}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* SECTION: Search & Category Filters */}
+        <section className="space-y-4">
+          
+          {/* Search bar + Cold Chain Toggle */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar abarrotes, refacciones, medicamentos, flores, helados, cerveza..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-24 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-2xs"
+              />
+              
+              {/* Embedded Scanner Button */}
+              <button
                 type="button"
-                onClick={() => setSelectedBrand(brand)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
-                  selectedBrand === brand
-                    ? 'bg-slate-900 text-white shadow-xs font-semibold'
-                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
+                onClick={() => openScanner('store')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                title="Escanear código de barras con la cámara"
+              >
+                <Scan className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="hidden sm:inline">Escanear</span>
+              </button>
+            </div>
+
+            {/* Cold Chain Only Toggle Pill */}
+            <button
+              type="button"
+              onClick={() => setOnlyColdChain(!onlyColdChain)}
+              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${
+                onlyColdChain
+                  ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm'
+                  : 'bg-white text-cyan-900 border-cyan-200 hover:bg-cyan-50'
+              }`}
+            >
+              <Snowflake className={`w-4 h-4 ${onlyColdChain ? 'text-white' : 'text-cyan-600'}`} />
+              <span>Solo Cadena Fría (Aguas, Helados, Cervezas)</span>
+            </button>
+          </div>
+
+          {/* Category Chips Bar */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`py-2 px-3.5 rounded-xl text-xs font-medium whitespace-nowrap transition-colors cursor-pointer shrink-0 border ${
+                  selectedCategory === cat
+                    ? 'bg-slate-900 text-white border-slate-900 shadow-xs font-semibold'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
                 }`}
               >
-                {brand === 'all' ? 'Todas las Marcas' : brand}
+                {cat === 'all' ? '✨ Todas las Categorías' : cat}
               </button>
             ))}
           </div>
 
-          {/* Search Input & Add Product CTA */}
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <div className="relative flex-1 md:w-72 shrink-0">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                key="storefront-search-input"
-                type="text"
-                placeholder="Buscar crema, loción, bálsamo..."
-                value={searchTerm || ''}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white shadow-xs"
-              />
-            </div>
+        </section>
 
-            <button
-              type="button"
-              onClick={() => openScanner('store')}
-              className="flex items-center gap-1.5 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
-              title="Escanear código de barras con la cámara o lector USB"
-            >
-              <Scan className="w-3.5 h-3.5 text-blue-400" />
-              <span className="hidden sm:inline">Escanear</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => openProductModal(null)}
-              className="flex items-center gap-1.5 py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
-              title="Agregar un nuevo producto al catálogo"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Nuevo Producto</span>
-            </button>
+        {/* Results Info & Action Bar */}
+        <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+          <div>
+            <span>Mostrando <strong>{filteredProducts.length}</strong> productos disponibles en Silao</span>
+            {selectedMerchantId !== 'all' && (
+              <span className="ml-1 text-emerald-700 font-semibold">
+                · Filtrado por comercio
+              </span>
+            )}
+            {onlyColdChain && (
+              <span className="ml-1 text-cyan-700 font-semibold">
+                · Solo productos refrigerados/congelados
+              </span>
+            )}
           </div>
 
+          <button
+            type="button"
+            onClick={() => openProductModal(null)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold shadow-xs transition-colors cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Dar de Alta Producto</span>
+          </button>
         </div>
 
-        {/* Category Pill Sub-nav */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          <span className="text-slate-400 font-medium whitespace-nowrap">Categorías:</span>
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-2.5 py-1 rounded-md transition-colors whitespace-nowrap cursor-pointer ${
-                selectedCategory === cat
-                  ? 'bg-blue-100/80 text-blue-900 font-semibold'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-              }`}
-            >
-              {cat === 'all' ? 'Ver todo' : cat}
-            </button>
-          ))}
-        </div>
-
-        {/* Results Count & Current Filter Info */}
-        <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
-          <span>
-            Mostrando <strong>{filteredProducts.length}</strong> de <strong>{products.length}</strong> productos
-          </span>
-          {(selectedBrand !== 'all' || selectedCategory !== 'all' || searchTerm) && (
-            <button
-              onClick={() => {
-                setSelectedBrand('all');
-                setSelectedCategory('all');
-                setSearchTerm('');
-              }}
-              className="text-blue-600 hover:underline cursor-pointer"
-            >
-              Limpiar filtros
-            </button>
-          )}
-        </div>
-
-      </section>
-
-      {/* Product Cards Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {filteredProducts.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-16 text-center shadow-xs">
-            <Search className="w-10 h-10 mx-auto text-slate-300 mb-3" />
-            <h3 className="text-base font-semibold text-slate-800">
-              No encontramos productos que coincidan
-            </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-              Intenta buscar por otro término o restablece los filtros de marca y categoría.
-            </p>
-          </div>
-        ) : (
+        {/* Product Cards Grid */}
+        {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
+        ) : (
+          <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-3">
+            <Store className="w-12 h-12 text-slate-300 mx-auto" />
+            <h3 className="text-base font-bold text-slate-800">No se encontraron productos con estos filtros</h3>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              Intenta cambiar la categoría o el comercio seleccionado, o bien realiza una búsqueda diferente.
+            </p>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('all');
+                setSelectedMerchantId('all');
+                setOnlyColdChain(false);
+              }}
+              className="mt-2 px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-lg hover:bg-slate-800 cursor-pointer"
+            >
+              Restablecer Filtros
+            </button>
+          </div>
         )}
-      </section>
+
+        {/* Delivery Coverage in Silao Footer Notice */}
+        <section className="bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-200/80 rounded-2xl p-6 text-slate-800 space-y-3">
+          <div className="flex items-center gap-2 text-emerald-800">
+            <Truck className="w-5 h-5 text-emerald-700" />
+            <h3 className="text-sm font-bold uppercase tracking-wider">
+              Zonas de Cobertura y Entrega en Silao, Gto.
+            </h3>
+          </div>
+          <p className="text-xs text-slate-600 leading-relaxed">
+            Nuestro Hub Central realiza rutas continuas de consolidación y entrega en todo el municipio de Silao:
+          </p>
+          <div className="flex flex-wrap gap-2 text-xs">
+            {SILAO_COLONIAS.map((col) => (
+              <span key={col} className="bg-white/80 border border-emerald-200 px-2.5 py-1 rounded-md text-slate-700 font-medium">
+                📍 {col}
+              </span>
+            ))}
+          </div>
+        </section>
+
+      </div>
 
     </div>
   );

@@ -15,50 +15,76 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
   const [imageError, setImageError] = useState(false);
 
   const getBrandStyling = () => {
-    switch (product.brand) {
-      case 'Eucerin':
-        return {
-          bgGrad: 'from-rose-50 to-slate-100',
-          accent: '#A51C30',
-          accentText: 'text-[#A51C30]',
-          badgeBg: 'bg-rose-100/70',
-          sealText: 'DERMATOLÓGICO',
-        };
-      case 'Aquaphor':
-      case 'Aquaphor / Eucerin':
-        return {
-          bgGrad: 'from-cyan-50 to-sky-100/60',
-          accent: '#0284C7',
-          accentText: 'text-[#0284C7]',
-          badgeBg: 'bg-sky-100/70',
-          sealText: 'REPARADOR',
-        };
-      case 'Aquaphor Baby':
-        return {
-          bgGrad: 'from-amber-50/70 to-teal-50',
-          accent: '#0D9488',
-          accentText: 'text-[#0D9488]',
-          badgeBg: 'bg-teal-100/70',
-          sealText: 'PEDIÁTRICO',
-        };
-      case 'Nivea Men':
-        return {
-          bgGrad: 'from-slate-100 to-slate-200/80',
-          accent: '#0F172A',
-          accentText: 'text-[#0F172A]',
-          badgeBg: 'bg-slate-200',
-          sealText: 'MEN CARE',
-        };
-      case 'Nivea':
-      default:
-        return {
-          bgGrad: 'from-blue-50/70 to-slate-100',
-          accent: '#003274',
-          accentText: 'text-[#003274]',
-          badgeBg: 'bg-blue-100/70',
-          sealText: 'ORIGINAL',
-        };
+    if (product.isColdChain) {
+      return {
+        bgGrad: 'from-cyan-50 to-blue-100',
+        accent: '#0284C7',
+        accentText: 'text-cyan-700',
+        badgeBg: 'bg-cyan-100 text-cyan-800',
+        sealText: '❄️ CADENA FRÍA',
+      };
     }
+    if (product.category === 'Refaccionaria y Automotriz') {
+      return {
+        bgGrad: 'from-slate-100 to-amber-50',
+        accent: '#D97706',
+        accentText: 'text-amber-800',
+        badgeBg: 'bg-amber-100 text-amber-900',
+        sealText: '🔧 AUTOMOTRIZ',
+      };
+    }
+    if (product.category === 'Farmacia y Salud') {
+      return {
+        bgGrad: 'from-rose-50 to-emerald-50',
+        accent: '#059669',
+        accentText: 'text-emerald-700',
+        badgeBg: 'bg-emerald-100 text-emerald-800',
+        sealText: '💊 FARMACIA',
+      };
+    }
+    if (product.category === 'Ferretería y Tlapalería') {
+      return {
+        bgGrad: 'from-amber-50 to-slate-100',
+        accent: '#EA580C',
+        accentText: 'text-orange-700',
+        badgeBg: 'bg-orange-100 text-orange-900',
+        sealText: '🔨 FERRETERÍA',
+      };
+    }
+    if (product.category === 'Flores y Regalos') {
+      return {
+        bgGrad: 'from-pink-50 to-rose-100',
+        accent: '#E11D48',
+        accentText: 'text-rose-700',
+        badgeBg: 'bg-rose-100 text-rose-900',
+        sealText: '💐 FLORES SILAO',
+      };
+    }
+    if (product.category === 'Mascotas y Veterinaria') {
+      return {
+        bgGrad: 'from-amber-50 to-teal-50',
+        accent: '#0D9488',
+        accentText: 'text-teal-700',
+        badgeBg: 'bg-teal-100 text-teal-900',
+        sealText: '🐾 MASCOTAS',
+      };
+    }
+    if (product.category === 'Servicios Personalizados') {
+      return {
+        bgGrad: 'from-indigo-50 to-purple-50',
+        accent: '#7C3AED',
+        accentText: 'text-purple-700',
+        badgeBg: 'bg-purple-100 text-purple-900',
+        sealText: '✂️ SERVICIO',
+      };
+    }
+    return {
+      bgGrad: 'from-emerald-50/70 to-slate-100',
+      accent: '#059669',
+      accentText: 'text-emerald-800',
+      badgeBg: 'bg-emerald-100 text-emerald-900',
+      sealText: '🏪 COMERCIO LOCAL',
+    };
   };
 
   const styling = getBrandStyling();

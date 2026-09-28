@@ -11,7 +11,8 @@ import {
   ScanLine
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
-import { Product, Brand, Category } from '../types/inventory';
+import { Product, Brand, Category, MerchantCategory } from '../types/inventory';
+import { SILAO_MERCHANTS } from '../data/silaoMarketData';
 import { ProductVisual } from './ProductVisual';
 
 export const ProductEditModal: React.FC = () => {
@@ -21,9 +22,11 @@ export const ProductEditModal: React.FC = () => {
     closeProductModal, 
     updateProduct, 
     addProduct,
-    addStockMovement
+    addStockMovement,
+    merchants
   } = useInventory();
 
+  const merchantsList = merchants && merchants.length > 0 ? merchants : SILAO_MERCHANTS;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form states
@@ -31,11 +34,18 @@ export const ProductEditModal: React.FC = () => {
   const [sku, setSku] = useState('');
   const [barcode, setBarcode] = useState('');
   const [presentation, setPresentation] = useState('');
-  const [brand, setBrand] = useState<Brand>('Nivea');
+  const [brand, setBrand] = useState<Brand>('Comercio Local');
   const [customBrand, setCustomBrand] = useState('');
   const [isCustomBrand, setIsCustomBrand] = useState(false);
 
-  const [category, setCategory] = useState<Category>('Cuidado Corporal');
+  // Merchant & Cold Chain states
+  const [merchantId, setMerchantId] = useState<string>(SILAO_MERCHANTS[0].id);
+  const [merchantName, setMerchantName] = useState<string>(SILAO_MERCHANTS[0].name);
+  const [merchantCategory, setMerchantCategory] = useState<MerchantCategory>(SILAO_MERCHANTS[0].category);
+  const [merchantAddress, setMerchantAddress] = useState<string>(SILAO_MERCHANTS[0].address);
+  const [isColdChain, setIsColdChain] = useState<boolean>(false);
+
+  const [category, setCategory] = useState<Category>('Abarrotes y Cremería');
   const [customCategory, setCustomCategory] = useState('');
   const [isCustomCategory, setIsCustomCategory] = useState(false);
 
@@ -59,6 +69,18 @@ export const ProductEditModal: React.FC = () => {
   // Check if editing an existing saved product with an ID
   const isExisting = Boolean(productToEdit && 'id' in productToEdit && productToEdit.id);
 
+  const standardCategories: Category[] = [
+    'Abarrotes y Cremería',
+    'Cadena Fría (Aguas, Paletas, Cervezas)',
+    'Refaccionaria y Automotriz',
+    'Farmacia y Salud',
+    'Ferretería y Tlapalería',
+    'Mascotas y Veterinaria',
+    'Flores y Regalos',
+    'Servicios Personalizados',
+    'Cuidado Corporal'
+  ];
+
   // Synchronize when productToEdit changes
   useEffect(() => {
     if (productToEdit && 'id' in productToEdit && productToEdit.id) {
@@ -67,8 +89,16 @@ export const ProductEditModal: React.FC = () => {
       setBarcode(productToEdit.barcode ?? '');
       setPresentation(productToEdit.presentation ?? '');
       
-      const standardBrands = ['Nivea', 'Eucerin', 'Aquaphor', 'Aquaphor Baby', 'Nivea Men', 'Aquaphor / Eucerin'];
-      const editBrand = productToEdit.brand || 'Nivea';
+      // Merchant handling
+      const currentMerchant = merchantsList.find(m => m.id === productToEdit.merchantId) || merchantsList[0];
+      setMerchantId(productToEdit.merchantId || currentMerchant.id);
+      setMerchantName(productToEdit.merchantName || currentMerchant.name);
+      setMerchantCategory(productToEdit.merchantCategory || currentMerchant.category);
+      setMerchantAddress(productToEdit.merchantAddress || currentMerchant.address);
+      setIsColdChain(Boolean(productToEdit.isColdChain));
+
+      const standardBrands = ['Nivea', 'Eucerin', 'Aquaphor', 'Corona', 'La Michoacana', 'Truper', 'Gonher', 'Comercio Local'];
+      const editBrand = productToEdit.brand || 'Comercio Local';
       if (standardBrands.includes(editBrand)) {
         setBrand(editBrand as Brand);
         setIsCustomBrand(false);
@@ -78,16 +108,7 @@ export const ProductEditModal: React.FC = () => {
         setIsCustomBrand(true);
       }
 
-      const standardCategories = [
-        'Cuidado Corporal',
-        'Reparación Dermatológica',
-        'Cuidado Infantil',
-        'Cuidado Facial & Labial',
-        'Gel de Ducha',
-        'Cuidado Masculino',
-        'Protección Solar',
-      ];
-      const editCategory = productToEdit.category || 'Cuidado Corporal';
+      const editCategory = productToEdit.category || currentMerchant.category || 'Abarrotes y Cremería';
       if (standardCategories.includes(editCategory)) {
         setCategory(editCategory as Category);
         setIsCustomCategory(false);
@@ -111,14 +132,21 @@ export const ProductEditModal: React.FC = () => {
       setUrlInput(productToEdit.imageUrl ?? '');
     } else {
       // New product defaults (may have pre-filled barcode from scanner)
+      const defaultMerchant = merchantsList[0];
+      setMerchantId(defaultMerchant.id);
+      setMerchantName(defaultMerchant.name);
+      setMerchantCategory(defaultMerchant.category);
+      setMerchantAddress(defaultMerchant.address);
+      setIsColdChain(Boolean(defaultMerchant.isColdChain));
+
       setName(productToEdit?.name ?? '');
       setSku(productToEdit?.sku ?? `SKU-${Date.now().toString().slice(-4)}`);
       setBarcode(productToEdit?.barcode ?? '');
-      setPresentation(productToEdit?.presentation ?? 'Botella 400 ml');
-      setBrand('Nivea');
+      setPresentation(productToEdit?.presentation ?? 'Pieza individual');
+      setBrand('Comercio Local');
       setIsCustomBrand(false);
       setCustomBrand('');
-      setCategory('Cuidado Corporal');
+      setCategory(defaultMerchant.category);
       setIsCustomCategory(false);
       setCustomCategory('');
       setCommercialPrice(100);
@@ -129,7 +157,7 @@ export const ProductEditModal: React.FC = () => {
       setMinStockAlert(2);
       setDescription('');
       setPackagingType('bottle');
-      setVolume('400 ml');
+      setVolume('Pieza');
       setImageUrl('');
       setUrlInput('');
     }
@@ -200,6 +228,11 @@ export const ProductEditModal: React.FC = () => {
     presentation: presentation || 'Presentación',
     brand: isCustomBrand ? customBrand || 'Marca' : brand,
     category: isCustomCategory ? customCategory || 'Categoría' : category,
+    merchantId,
+    merchantName,
+    merchantCategory,
+    merchantAddress,
+    isColdChain,
     commercialPrice: commercialPrice || 0,
     wholesalePrice: wholesalePrice || 0,
     promoPrice: promoPrice || 0,
@@ -220,7 +253,7 @@ export const ProductEditModal: React.FC = () => {
     }
 
     const finalBrand = isCustomBrand ? customBrand.trim() || 'Marca General' : brand;
-    const finalCategory = isCustomCategory ? customCategory.trim() || 'Cuidado Corporal' : category;
+    const finalCategory = isCustomCategory ? customCategory.trim() || 'Abarrotes y Cremería' : category;
 
     if (isExisting) {
       const existing = productToEdit as Product;
@@ -236,6 +269,11 @@ export const ProductEditModal: React.FC = () => {
         presentation: presentation.trim(),
         brand: finalBrand,
         category: finalCategory,
+        merchantId,
+        merchantName,
+        merchantCategory,
+        merchantAddress,
+        isColdChain,
         commercialPrice: Number(commercialPrice),
         wholesalePrice: Number(wholesalePrice),
         promoPrice: Number(promoPrice),
@@ -266,6 +304,11 @@ export const ProductEditModal: React.FC = () => {
         presentation: presentation.trim(),
         brand: finalBrand,
         category: finalCategory,
+        merchantId,
+        merchantName,
+        merchantCategory,
+        merchantAddress,
+        isColdChain,
         commercialPrice: Number(commercialPrice),
         wholesalePrice: Number(wholesalePrice),
         promoPrice: Number(promoPrice),
@@ -498,13 +541,64 @@ export const ProductEditModal: React.FC = () => {
                 />
               </div>
 
+              {/* Merchant Selector (Comercio Local de Silao) */}
+              <div className="sm:col-span-2 bg-blue-50/60 p-3 rounded-xl border border-blue-200">
+                <label className="block text-xs font-bold text-blue-950 mb-1 flex items-center justify-between">
+                  <span>🏪 Comercio Asociado de Silao *</span>
+                  <span className="text-[10px] text-blue-700 font-normal">Hub Silao Central</span>
+                </label>
+                <select
+                  value={merchantId}
+                  onChange={(e) => {
+                    const selected = merchantsList.find(m => m.id === e.target.value);
+                    if (selected) {
+                      setMerchantId(selected.id);
+                      setMerchantName(selected.name);
+                      setMerchantCategory(selected.category);
+                      setMerchantAddress(selected.address);
+                      if (selected.isColdChain !== undefined) {
+                        setIsColdChain(Boolean(selected.isColdChain));
+                      }
+                      if (!isCustomCategory) {
+                        setCategory(selected.category);
+                      }
+                    }
+                  }}
+                  className="w-full px-3 py-2 text-xs sm:text-sm border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium text-slate-800"
+                >
+                  {merchantsList.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.badge} {m.name} ({m.category}) · {m.silaoZone}
+                    </option>
+                  ))}
+                </select>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2 pt-2 border-t border-blue-200/80 text-xs">
+                  <span className="text-[11px] text-slate-600">
+                    📍 <span className="font-semibold">{merchantName}</span>: {merchantAddress}
+                  </span>
+                  
+                  {/* Cold Chain Checkbox */}
+                  <label className="inline-flex items-center gap-1.5 cursor-pointer bg-white px-2.5 py-1 rounded-md border border-blue-200 shadow-xs hover:bg-blue-50 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={isColdChain}
+                      onChange={(e) => setIsColdChain(e.target.checked)}
+                      className="rounded text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-xs font-semibold text-blue-900">
+                      ❄️ Requiere Cadena de Frío (Hielera)
+                    </span>
+                  </label>
+                </div>
+              </div>
+
               {/* Brand Selector */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Marca
+                  Marca / Fabricante
                 </label>
                 <select
-                  value={isCustomBrand ? 'Otro' : (brand ?? 'Nivea')}
+                  value={isCustomBrand ? 'Otro' : (brand ?? 'Comercio Local')}
                   onChange={(e) => {
                     if (e.target.value === 'Otro') {
                       setIsCustomBrand(true);
@@ -515,13 +609,17 @@ export const ProductEditModal: React.FC = () => {
                   }}
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
+                  <option value="Comercio Local">Comercio Local (Artesanal / Propio)</option>
+                  <option value="La Michoacana">La Michoacana (Paletería)</option>
+                  <option value="Corona">Grupo Modelo / Corona</option>
+                  <option value="Truper">Truper / Pretul</option>
+                  <option value="Gonher">Gonher / Mobil</option>
+                  <option value="Bayer">Bayer / Genéricos</option>
+                  <option value="Purina">Purina / Ganador</option>
                   <option value="Nivea">Nivea</option>
                   <option value="Eucerin">Eucerin</option>
                   <option value="Aquaphor">Aquaphor</option>
-                  <option value="Aquaphor / Eucerin">Aquaphor / Eucerin</option>
-                  <option value="Aquaphor Baby">Aquaphor Baby</option>
-                  <option value="Nivea Men">Nivea Men</option>
-                  <option value="Otro">+ Otra marca personalizada...</option>
+                  <option value="Otro">+ Otra marca...</option>
                 </select>
                 {isCustomBrand && (
                   <input
@@ -542,7 +640,7 @@ export const ProductEditModal: React.FC = () => {
                   Categoría
                 </label>
                 <select
-                  value={isCustomCategory ? 'Otro' : (category || 'Cuidado Corporal')}
+                  value={isCustomCategory ? 'Otro' : (category || 'Abarrotes y Cremería')}
                   onChange={(e) => {
                     if (e.target.value === 'Otro') {
                       setIsCustomCategory(true);
@@ -553,13 +651,15 @@ export const ProductEditModal: React.FC = () => {
                   }}
                   className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                 >
-                  <option value="Cuidado Corporal">Cuidado Corporal</option>
-                  <option value="Reparación Dermatológica">Reparación Dermatológica</option>
-                  <option value="Cuidado Infantil">Cuidado Infantil</option>
-                  <option value="Cuidado Facial & Labial">Cuidado Facial & Labial</option>
-                  <option value="Gel de Ducha">Gel de Ducha</option>
-                  <option value="Cuidado Masculino">Cuidado Masculino</option>
-                  <option value="Protección Solar">Protección Solar</option>
+                  <option value="Abarrotes y Cremería">Abarrotes y Cremería</option>
+                  <option value="Cadena Fría (Aguas, Paletas, Cervezas)">Cadena Fría (Aguas, Paletas, Cervezas)</option>
+                  <option value="Refaccionaria y Automotriz">Refaccionaria y Automotriz</option>
+                  <option value="Farmacia y Salud">Farmacia y Salud</option>
+                  <option value="Ferretería y Tlapalería">Ferretería y Tlapalería</option>
+                  <option value="Mascotas y Veterinaria">Mascotas y Veterinaria</option>
+                  <option value="Flores y Regalos">Flores y Regalos</option>
+                  <option value="Servicios Personalizados">Servicios Personalizados</option>
+                  <option value="Cuidado Corporal">Cuidado Corporal y Belleza</option>
                   <option value="Otro">+ Otra categoría...</option>
                 </select>
                 {isCustomCategory && (
@@ -731,6 +831,17 @@ export const ProductEditModal: React.FC = () => {
               </div>
 
               <div className="p-4 space-y-2">
+                <div className="flex items-center justify-between gap-1">
+                  <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                    🏪 {previewProduct.merchantName || 'Comercio Silao'}
+                  </span>
+                  {previewProduct.isColdChain && (
+                    <span className="text-[10px] font-bold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded border border-cyan-200">
+                      ❄️ Cadena Fría
+                    </span>
+                  )}
+                </div>
+
                 <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
                   <span>{previewProduct.category}</span>
                   <span>·</span>

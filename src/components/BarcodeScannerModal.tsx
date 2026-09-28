@@ -21,6 +21,7 @@ import {
 import { Html5Qrcode } from 'html5-qrcode';
 import { useInventory } from '../context/InventoryContext';
 import { Product, Brand, Category } from '../types/inventory';
+import { SILAO_MERCHANTS } from '../data/silaoMarketData';
 import { playScanBeep } from '../utils/sound';
 
 interface BarcodeScannerModalProps {
@@ -418,6 +419,8 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
     const pPrice = Number((cPrice * 0.4).toFixed(2));
     const initialQty = Math.max(0, Number(quickStock) || 0);
 
+    const defaultMerchant = SILAO_MERCHANTS[0];
+
     const newProd = {
       sku: `SKU-${code.slice(-6) || Date.now().toString().slice(-4)}`,
       barcode: code,
@@ -425,6 +428,11 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
       presentation: 'Presentación Estándar',
       brand: quickBrand,
       category: quickCategory,
+      merchantId: defaultMerchant.id,
+      merchantName: defaultMerchant.name,
+      merchantCategory: defaultMerchant.category,
+      merchantAddress: defaultMerchant.address,
+      isColdChain: false,
       commercialPrice: cPrice,
       wholesalePrice: wPrice,
       promoPrice: pPrice,

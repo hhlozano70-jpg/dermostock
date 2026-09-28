@@ -1,30 +1,45 @@
-export type Brand = 
-  | 'Nivea' 
-  | 'Eucerin' 
-  | 'Aquaphor' 
-  | 'Aquaphor Baby' 
-  | 'Nivea Men' 
-  | 'Aquaphor / Eucerin'
+export type Brand = string;
+
+export type MerchantCategory = 
+  | 'Abarrotes y Cremería'
+  | 'Refaccionaria y Automotriz'
+  | 'Servicios Personalizados'
+  | 'Farmacia y Salud'
+  | 'Ferretería y Tlapalería'
+  | 'Mascotas y Veterinaria'
+  | 'Flores y Regalos'
+  | 'Cadena Fría (Aguas, Paletas, Cervezas)'
   | string;
 
-export type Category = 
-  | 'Cuidado Corporal' 
-  | 'Reparación Dermatológica' 
-  | 'Cuidado Infantil' 
-  | 'Cuidado Facial & Labial' 
-  | 'Gel de Ducha' 
-  | 'Cuidado Masculino' 
-  | 'Protección Solar'
-  | string;
+export type Category = MerchantCategory;
+
+export interface Merchant {
+  id: string;
+  name: string;
+  category: MerchantCategory;
+  address: string;
+  silaoZone: string; // e.g. "Centro", "Blvd. Raúl Bailleres", "Calzada Hidalgo", "Sopeña"
+  phone?: string;
+  rating: number;
+  reviewsCount: number;
+  isColdChain?: boolean; // Requiere hielera / cadena de frío
+  badge: string;
+  iconName: string;
+  description: string;
+}
 
 export type PriceTier = 'comercial' | 'mayorista' | 'promocion';
 
 export type DeliveryType = 'domicilio' | 'punto_fijo' | 'envio' | 'sucursal';
 
 export interface StoreSettings {
-  whatsappNumber: string; // e.g. "5215512345678" o "5512345678"
-  businessName: string;
-  defaultPickupPoint?: string; // e.g. "Punto de encuentro a convenir"
+  whatsappNumber: string; // e.g. "524721234567"
+  businessName: string;   // "Silaomarket on line"
+  defaultPickupPoint?: string; // "Hub Central Silao - Jardín Principal / 5 de Mayo"
+  city: string; // "Silao"
+  state: string; // "Guanajuato"
+  hubAddress: string; // "Hub Central de Envíos Silao, Calle 5 de Mayo #45, Silao Centro"
+  deliveryCost: number; // Costo único de envío por pedido consolidado
 }
 
 export interface Product {
@@ -32,17 +47,22 @@ export interface Product {
   sku: string;
   name: string;
   presentation: string;
-  brand: Brand;
+  brand: string;
   category: Category;
+  merchantId: string;
+  merchantName: string;
+  merchantCategory: MerchantCategory;
+  merchantAddress?: string;
+  isColdChain?: boolean; // ❄️ Requiere hielera / transporte térmico
   commercialPrice: number; // Precio Comercial (MXN)
   wholesalePrice: number;  // Precio Mayorista (-40%)
   promoPrice: number;      // Precio Promoción (-60%)
   stock: number;           // Numero de piezas
   minStockAlert: number;   // Umbral de stock bajo (default 2)
   description?: string;
-  packagingType: 'bottle' | 'large_bottle' | 'tin' | 'tube' | 'pump' | 'lip_balm' | 'box' | 'jar' | 'dropper';
+  packagingType?: 'bottle' | 'large_bottle' | 'tin' | 'tube' | 'pump' | 'lip_balm' | 'box' | 'jar' | 'dropper' | 'package' | 'cold_box' | 'service' | 'bag';
   volume?: string;
-  imageUrl?: string;       // Foto / Imagen personalizada (URL o Base64/DataURL)
+  imageUrl?: string;       // Foto / Imagen personalizada
   barcode?: string;        // Código de barras EAN-13, UPC o Code-128
 }
 
@@ -75,6 +95,7 @@ export interface Order {
   customerPhone: string;
   customerAddress?: string;
   deliveryPoint?: string;
+  deliveryColonia?: string;
   deliveryType: DeliveryType;
   paymentMethod: 'efectivo' | 'transferencia' | 'tarjeta' | 'contra_entrega';
   items: CartItem[];
@@ -82,6 +103,8 @@ export interface Order {
   discountSavings: number;
   total: number;
   appliedTier: PriceTier;
+  hasColdChain: boolean;
+  merchantsCount: number;
+  merchantsNames: string[];
   status: 'completado' | 'pendiente' | 'entregado';
 }
-
