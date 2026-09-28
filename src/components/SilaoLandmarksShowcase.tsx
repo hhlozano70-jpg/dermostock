@@ -20,7 +20,7 @@ export const SILAO_LANDMARKS: Landmark[] = [
     shortTitle: 'Cerro del Cubilete',
     category: 'Monumento Histórico y Espiritual',
     tag: '2,579 msnm · Silao, Gto',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg/1280px-Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg',
+    imageUrl: '/images/cristo_rey_silao.jpg',
     description: 'La estatua monumental de bronce de 20 metros y 80 toneladas con los brazos abiertos en la cúspide de la montaña, reconocida a nivel internacional.',
     historicalNote: 'Ubicado en el centro geográfico del país dentro del municipio de Silao. Obra arquitectónica de Nicolás Mariscal coronada en los años 40.',
     location: 'Cima del Cerro del Cubilete, Silao de la Victoria'
@@ -31,7 +31,7 @@ export const SILAO_LANDMARKS: Landmark[] = [
     shortTitle: 'Templo de Santiago Apóstol',
     category: 'Joya Colonial y Centro Histórico',
     tag: 'Siglo XVII · Cantera Rosa',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Parroquia_de_Santiago_Ap%C3%B3stol_-_Silao%2C_Guanajuato%2C_Mex.jpg/1280px-Parroquia_de_Santiago_Ap%C3%B3stol_-_Silao%2C_Guanajuato%2C_Mex.jpg',
+    imageUrl: '/images/parroquia_santiago_silao.jpg',
     description: 'Majestuosa parroquia de estilo barroco con fachada y torre de cantera, enmarcando el Jardín Principal de Silao y sus portales tradicionales.',
     historicalNote: 'Corazón histórico de Silao fundado en la época virreinal, a unos pasos de nuestro Hub de Consolidación sobre la emblemática Calle 5 de Mayo.',
     location: 'Plaza Principal s/n, Silao Centro'
@@ -42,7 +42,7 @@ export const SILAO_LANDMARKS: Landmark[] = [
     shortTitle: 'Parque Bicentenario Silao',
     category: 'Complejo Cultural y Recreativo',
     tag: '14.5 Hectáreas · Eventos & Cultura',
-    imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Panor%C3%A1mica_Parque_Expo_Bicentenario_Silao..jpg',
+    imageUrl: '/images/bicentenario_silao.jpg',
     description: 'Impresionante recinto temático de pabellones interactivos, museos de talla internacional y áreas verdes que conmemoran la historia patria.',
     historicalNote: 'Sede de festivales gastronómicos, muestras artesanales y exposiciones mundiales sobre la carretera de cuota Silao - Guanajuato.',
     location: 'Carretera Silao - Gto Km 3.8, Silao'

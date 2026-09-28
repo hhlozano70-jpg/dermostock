@@ -244,17 +244,28 @@ app.get('/api/health', (_req, res) => {
 
 // GET full synchronized state
 app.get('/api/data', async (_req, res) => {
+  const localStore = readLocalStore();
+  const localCount = localStore && Array.isArray(localStore.products) ? localStore.products.length : 0;
+
   // 1. Try Firestore if available
   if (isFirestoreAvailable) {
     const firestoreData = await readFirestoreStore();
-    if (firestoreData && Array.isArray(firestoreData.products) && firestoreData.products.length > 0) {
+    const firestoreCount = firestoreData && Array.isArray(firestoreData.products) ? firestoreData.products.length : 0;
+
+    // If Firestore has at least as many products as localStore (and has products), use Firestore
+    if (firestoreCount >= localCount && firestoreCount > 0) {
       return res.json(firestoreData);
+    }
+
+    // If localStore has more products (e.g. 500 vs 100), serve localStore and sync to Firestore!
+    if (localCount > firestoreCount && localStore) {
+      writeFirestoreStore(localStore).catch((e) => console.warn('Could not auto-upgrade Firestore:', e));
+      return res.json(localStore);
     }
   }
 
   // 2. Fallback to local store.json
-  const localStore = readLocalStore();
-  if (localStore && Array.isArray(localStore.products) && localStore.products.length > 0) {
+  if (localStore && localCount > 0) {
     return res.json(localStore);
   }
 

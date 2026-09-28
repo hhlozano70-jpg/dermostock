@@ -96,11 +96,11 @@ interface InventoryContextType {
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'silaomarket_products_v3',
-  MOVEMENTS: 'silaomarket_movements_v3',
-  ORDERS: 'silaomarket_orders_v3',
-  TIER: 'silaomarket_tier_v3',
-  SETTINGS: 'silaomarket_settings_v3',
+  PRODUCTS: 'silaomarket_products_v4',
+  MOVEMENTS: 'silaomarket_movements_v4',
+  ORDERS: 'silaomarket_orders_v4',
+  TIER: 'silaomarket_tier_v4',
+  SETTINGS: 'silaomarket_settings_v4',
 };
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -110,7 +110,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_PRODUCTS.length) return parsed;
       }
     } catch (e) {
       console.error('Error reading products from storage', e);
@@ -313,7 +313,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return;
       }
       const data = await res.json();
-      if (data && Array.isArray(data.products) && data.products.length > 0) {
+      if (data && Array.isArray(data.products) && data.products.length >= INITIAL_PRODUCTS.length) {
         // If server data is newer or force
         if (force || !isInitialLoadDoneRef.current || (data.lastUpdated && data.lastUpdated !== lastServerTimestampRef.current)) {
           lastServerTimestampRef.current = data.lastUpdated || new Date().toISOString();
@@ -339,9 +339,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             if (data.movements) localStorage.setItem(STORAGE_KEYS.MOVEMENTS, JSON.stringify(data.movements));
           } catch {}
         }
-      } else if (!isInitialLoadDoneRef.current) {
-        // Server was empty, seed server with current client state
-        await syncToServer(products, movements, orders, priceTier, settingsRef.current);
+      } else if (!isInitialLoadDoneRef.current || (data && Array.isArray(data.products) && data.products.length < INITIAL_PRODUCTS.length)) {
+        // Server was empty or has outdated smaller catalog, seed server with current master 500-product state
+        await syncToServer(INITIAL_PRODUCTS, movements, orders, priceTier, settingsRef.current);
       }
       setSyncStatus('synced');
     } catch (err) {
@@ -782,25 +782,32 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCart((prev) => prev.filter((item) => item.product.id !== id));
   };
 
-  // Reset to original document data
+  // Reset to initial Silao catalog (500 products across 10 giros)
   const resetToInitial = () => {
     setProducts(INITIAL_PRODUCTS);
     setPriceTier('comercial');
     setCart([]);
-    setMovements([
+    try {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(INITIAL_PRODUCTS));
+      localStorage.setItem(STORAGE_KEYS.TIER, 'comercial');
+    } catch {}
+    const initialPieces = INITIAL_PRODUCTS.reduce((s, p) => s + p.stock, 0);
+    const newMovements: InventoryMovement[] = [
       {
         id: `mov-reset-${Date.now()}`,
         timestamp: new Date().toISOString(),
         productId: 'ALL',
-        productName: 'Reinicio a Datos Originales del Archivo',
+        productName: 'Reinicio a Catálogo Completo Silao (500 Productos)',
         type: 'ajuste',
-        quantity: 58,
+        quantity: initialPieces,
         previousStock: products.reduce((s, p) => s + p.stock, 0),
-        newStock: 58,
-        reason: 'Restablecimiento de inventario a 18 SKUs originales',
-        reference: 'RESET-FILE',
+        newStock: initialPieces,
+        reason: 'Restablecimiento de inventario a 500 productos y 10 giros de Silao',
+        reference: 'RESET-500-SILAO',
       },
-    ]);
+    ];
+    setMovements(newMovements);
+    syncToServer(INITIAL_PRODUCTS, newMovements, orders, 'comercial', settingsRef.current);
   };
 
   return (

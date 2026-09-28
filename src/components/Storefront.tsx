@@ -81,14 +81,15 @@ export const Storefront: React.FC = () => {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-slate-950 text-white py-12 md:py-16 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
         
-        {/* Background Image of Cerro del Cubilete & Cristo Rey Silao with dark gradient overlay */}
+        {/* Background Image of Cerro del Cubilete & Cristo Rey Silao (Silao, Gto) */}
         <div 
-          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity scale-105 pointer-events-none transition-transform duration-1000"
+          className="absolute inset-0 bg-cover bg-center opacity-70 pointer-events-none scale-105 transition-transform duration-1000"
           style={{
-            backgroundImage: `url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg/1280px-Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg')`
+            backgroundImage: `url('/images/cristo_rey_silao.jpg'), url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg/1280px-Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg')`
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-slate-900/90 to-slate-950/98 pointer-events-none" />
+        {/* Balanced contrast gradient overlay that keeps Cristo Rey clearly visible behind the text */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/60 to-slate-950/90 pointer-events-none" />
 
         {/* Glow ambient effects */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none" />
