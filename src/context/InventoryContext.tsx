@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { 
   Product, 
   CartItem, 
@@ -10,7 +10,9 @@ import {
   Merchant,
   TrackingStatus,
   TrackingEvent,
-  CreateOrderInput
+  CreateOrderInput,
+  UserRole,
+  MerchantSettlement
 } from '../types/inventory';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
@@ -59,8 +61,8 @@ interface InventoryContextType {
   resetToInitial: () => void;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
-  activeTab: 'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes';
-  setActiveTab: (tab: 'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes') => void;
+  activeTab: 'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios';
+  setActiveTab: (tab: 'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios') => void;
   selectedProductForQuickView: Product | null;
   setSelectedProductForQuickView: (product: Product | null) => void;
   lastCompletedOrder: Order | null;
@@ -91,6 +93,43 @@ interface InventoryContextType {
   importFullBackup: (data: any) => boolean;
   isSyncModalOpen: boolean;
   setIsSyncModalOpen: (open: boolean) => void;
+
+  // Role & Access Control
+  userRole: UserRole;
+  setUserRole: (role: UserRole) => void;
+  loggedMerchantId: string | null;
+  loggedMerchant: Merchant | null;
+  loginRole: (role: UserRole, merchantId?: string, pin?: string) => { success: boolean; message?: string };
+  logoutRole: () => void;
+  adminPin: string;
+  setAdminPin: (pin: string) => void;
+  isAuthModalOpen: boolean;
+  setIsAuthModalOpen: (open: boolean) => void;
+
+  // Merchant Management
+  addMerchant: (merchantData: Omit<Merchant, 'id'>) => string;
+  updateMerchant: (id: string, updated: Partial<Merchant>) => void;
+  deleteMerchant: (id: string) => void;
+  isMerchantManagerOpen: boolean;
+  setIsMerchantManagerOpen: (open: boolean) => void;
+
+  // Financials & Settlements
+  settlements: MerchantSettlement[];
+  recordSettlement: (
+    merchantId: string, 
+    period: string, 
+    grossSales: number, 
+    commissionRate: number, 
+    commissionAmount: number, 
+    netAmount: number, 
+    orderIds: string[], 
+    notes?: string
+  ) => void;
+  markSettlementPaid: (settlementId: string, reference?: string) => void;
+
+  // Brochure Modal
+  isBrochureModalOpen: boolean;
+  setIsBrochureModalOpen: (open: boolean) => void;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -101,6 +140,11 @@ const STORAGE_KEYS = {
   ORDERS: 'silaomarket_orders_v4',
   TIER: 'silaomarket_tier_v4',
   SETTINGS: 'silaomarket_settings_v4',
+  MERCHANTS: 'silaomarket_merchants_v4',
+  SETTLEMENTS: 'silaomarket_settlements_v4',
+  ROLE: 'silaomarket_role_v4',
+  LOGGED_MERCHANT: 'silaomarket_logged_merchant_v4',
+  ADMIN_PIN: 'silaomarket_admin_pin_v4',
 };
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -129,9 +173,236 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return 'comercial';
   });
 
-  // Local Silao Merchants state
-  const [merchants] = useState<Merchant[]>(SILAO_MERCHANTS);
+  // Access Control & Roles: 'cliente' | 'negocio' | 'admin'
+  const [userRole, setUserRoleState] = useState<UserRole>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.ROLE);
+      if (stored === 'cliente' || stored === 'negocio' || stored === 'admin') return stored;
+    } catch {}
+    return 'cliente';
+  });
+
+  const [loggedMerchantId, setLoggedMerchantIdState] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.LOGGED_MERCHANT) || null;
+    } catch {}
+    return null;
+  });
+
+  const [adminPin, setAdminPinState] = useState<string>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.ADMIN_PIN) || '1234';
+    } catch {}
+    return '1234';
+  });
+
+  const setUserRole = (role: UserRole) => {
+    setUserRoleState(role);
+    try {
+      localStorage.setItem(STORAGE_KEYS.ROLE, role);
+    } catch {}
+  };
+
+  const setLoggedMerchantId = (id: string | null) => {
+    setLoggedMerchantIdState(id);
+    try {
+      if (id) localStorage.setItem(STORAGE_KEYS.LOGGED_MERCHANT, id);
+      else localStorage.removeItem(STORAGE_KEYS.LOGGED_MERCHANT);
+    } catch {}
+  };
+
+  const setAdminPin = (pin: string) => {
+    setAdminPinState(pin);
+    try {
+      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, pin);
+    } catch {}
+  };
+
+  // Modals for Auth, Brochure, and Merchant Management
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isBrochureModalOpen, setIsBrochureModalOpen] = useState(false);
+  const [isMerchantManagerOpen, setIsMerchantManagerOpen] = useState(false);
+
+  // Local Silao Merchants state (reactive with local & server persistence)
+  const [merchants, setMerchants] = useState<Merchant[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.MERCHANTS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return SILAO_MERCHANTS;
+  });
+  const merchantsRef = React.useRef(merchants);
+  merchantsRef.current = merchants;
+
   const [selectedMerchantId, setSelectedMerchantId] = useState<string>('all');
+
+  // Settlements state (7-day payments to merchants)
+  const [settlements, setSettlements] = useState<MerchantSettlement[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SETTLEMENTS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
+  });
+  const settlementsRef = React.useRef(settlements);
+  settlementsRef.current = settlements;
+
+  const loggedMerchant = useMemo(() => {
+    if (!loggedMerchantId) return null;
+    return merchants.find(m => m.id === loggedMerchantId) || null;
+  }, [loggedMerchantId, merchants]);
+
+  // Auth / Role switcher handlers
+  const loginRole = (role: UserRole, merchantId?: string, pin?: string): { success: boolean; message?: string } => {
+    if (role === 'cliente') {
+      setUserRole('cliente');
+      setLoggedMerchantId(null);
+      setActiveTab('tienda');
+      return { success: true };
+    }
+
+    if (role === 'admin') {
+      if (pin && pin.trim() === adminPin.trim()) {
+        setUserRole('admin');
+        setLoggedMerchantId(null);
+        setActiveTab('finanzas');
+        return { success: true };
+      }
+      return { success: false, message: 'PIN de Administrador incorrecto (Por defecto: 1234)' };
+    }
+
+    if (role === 'negocio') {
+      if (!merchantId) {
+        return { success: false, message: 'Selecciona tu negocio para continuar.' };
+      }
+      const target = merchants.find(m => m.id === merchantId);
+      if (!target) {
+        return { success: false, message: 'Comercio no encontrado en el sistema.' };
+      }
+      const targetPin = target.pin || '1234';
+      if (pin && pin.trim() === targetPin.trim()) {
+        setUserRole('negocio');
+        setLoggedMerchantId(merchantId);
+        setActiveTab('mi_negocio');
+        return { success: true };
+      }
+      return { success: false, message: `PIN incorrecto para ${target.name}. (Por defecto: 1234)` };
+    }
+
+    return { success: false, message: 'Rol no reconocido.' };
+  };
+
+  const logoutRole = () => {
+    setUserRole('cliente');
+    setLoggedMerchantId(null);
+    setActiveTab('tienda');
+  };
+
+  // CRUD for Merchants
+  const addMerchant = (merchantData: Omit<Merchant, 'id'>): string => {
+    const newId = `merch-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const newMerchant: Merchant = {
+      ...merchantData,
+      id: newId,
+      rating: merchantData.rating || 5.0,
+      reviewsCount: merchantData.reviewsCount || 1,
+      badge: merchantData.badge || 'Nuevo Comercio Silao',
+      iconName: merchantData.iconName || 'Store',
+      commissionRate: merchantData.commissionRate || 10,
+      type: merchantData.type || 'Producto',
+      pin: merchantData.pin || '1234'
+    };
+
+    const updatedList = [...merchants, newMerchant];
+    setMerchants(updatedList);
+    merchantsRef.current = updatedList;
+    try {
+      localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(updatedList));
+    } catch {}
+    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlements);
+    return newId;
+  };
+
+  const updateMerchant = (id: string, updated: Partial<Merchant>) => {
+    const updatedList = merchants.map(m => m.id === id ? { ...m, ...updated } : m);
+    setMerchants(updatedList);
+    merchantsRef.current = updatedList;
+    try {
+      localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(updatedList));
+    } catch {}
+    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlements);
+  };
+
+  const deleteMerchant = (id: string) => {
+    const updatedList = merchants.filter(m => m.id !== id);
+    setMerchants(updatedList);
+    merchantsRef.current = updatedList;
+    try {
+      localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(updatedList));
+    } catch {}
+    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlements);
+  };
+
+  // Financial settlements management
+  const recordSettlement = (
+    merchantId: string, 
+    period: string, 
+    grossSales: number, 
+    commissionRate: number, 
+    commissionAmount: number, 
+    netAmount: number, 
+    orderIds: string[], 
+    notes?: string
+  ) => {
+    const target = merchants.find(m => m.id === merchantId);
+    const newSettlement: MerchantSettlement = {
+      id: `liq-${Date.now()}-${Math.random().toString(36).substring(2, 5)}`,
+      merchantId,
+      merchantName: target?.name || 'Comercio Silao',
+      period,
+      orderIds,
+      grossSales,
+      commissionRate,
+      commissionAmount,
+      netAmount,
+      status: 'pagado',
+      settledDate: new Date().toISOString(),
+      paymentReference: `TRANSF-SILAO-${Math.floor(100000 + Math.random() * 900000)}`,
+      notes: notes || 'Liquidación semanal de ventas consolidada'
+    };
+
+    const updated = [newSettlement, ...settlements];
+    setSettlements(updated);
+    settlementsRef.current = updated;
+    try {
+      localStorage.setItem(STORAGE_KEYS.SETTLEMENTS, JSON.stringify(updated));
+    } catch {}
+    syncToServer(products, movements, orders, priceTier, settingsRef.current, merchants, updated);
+  };
+
+  const markSettlementPaid = (settlementId: string, reference?: string) => {
+    const updated = settlements.map(s => {
+      if (s.id !== settlementId) return s;
+      return {
+        ...s,
+        status: 'pagado' as const,
+        settledDate: new Date().toISOString(),
+        paymentReference: reference || `TRANSF-SILAO-${Math.floor(100000 + Math.random() * 900000)}`
+      };
+    });
+    setSettlements(updated);
+    settlementsRef.current = updated;
+    try {
+      localStorage.setItem(STORAGE_KEYS.SETTLEMENTS, JSON.stringify(updated));
+    } catch {}
+    syncToServer(products, movements, orders, priceTier, settingsRef.current, merchants, updated);
+  };
 
   // Cart
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -172,7 +443,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ];
   });
 
-  const [activeTab, setActiveTab] = useState<'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes'>('tienda');
+  const [activeTab, setActiveTab] = useState<'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios'>('tienda');
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState<Product | null>(null);
   const [lastCompletedOrder, setLastCompletedOrder] = useState<Order | null>(null);
   const [activeTrackingOrder, setActiveTrackingOrder] = useState<Order | null>(null);
@@ -269,7 +540,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     currentMovements: InventoryMovement[],
     currentOrders: Order[],
     currentTier: PriceTier,
-    currentSettings?: StoreSettings
+    currentSettings?: StoreSettings,
+    currentMerchants?: Merchant[],
+    currentSettlements?: MerchantSettlement[]
   ) => {
     try {
       setSyncStatus('syncing');
@@ -283,6 +556,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           orders: currentOrders,
           priceTier: currentTier,
           settings: currentSettings || settingsRef.current,
+          merchants: currentMerchants || merchantsRef.current,
+          settlements: currentSettlements || settlementsRef.current,
         }),
       });
       if (res.ok) {
@@ -328,6 +603,20 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(data.settings));
             } catch {}
           }
+          if (Array.isArray(data.merchants) && data.merchants.length > 0) {
+            setMerchants(data.merchants);
+            merchantsRef.current = data.merchants;
+            try {
+              localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(data.merchants));
+            } catch {}
+          }
+          if (Array.isArray(data.settlements)) {
+            setSettlements(data.settlements);
+            settlementsRef.current = data.settlements;
+            try {
+              localStorage.setItem(STORAGE_KEYS.SETTLEMENTS, JSON.stringify(data.settlements));
+            } catch {}
+          }
           setLastSyncTime(new Date());
           setSyncStatus('synced');
 
@@ -341,7 +630,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
       } else if (!isInitialLoadDoneRef.current || (data && Array.isArray(data.products) && data.products.length < INITIAL_PRODUCTS.length)) {
         // Server was empty or has outdated smaller catalog, seed server with current master 500-product state
-        await syncToServer(INITIAL_PRODUCTS, movements, orders, priceTier, settingsRef.current);
+        await syncToServer(INITIAL_PRODUCTS, movements, orders, priceTier, settingsRef.current, merchantsRef.current, settlementsRef.current);
       }
       setSyncStatus('synced');
     } catch (err) {
@@ -871,6 +1160,26 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         importFullBackup,
         isSyncModalOpen,
         setIsSyncModalOpen,
+        userRole,
+        setUserRole,
+        loggedMerchantId,
+        loggedMerchant,
+        loginRole,
+        logoutRole,
+        adminPin,
+        setAdminPin,
+        isAuthModalOpen,
+        setIsAuthModalOpen,
+        addMerchant,
+        updateMerchant,
+        deleteMerchant,
+        isMerchantManagerOpen,
+        setIsMerchantManagerOpen,
+        settlements,
+        recordSettlement,
+        markSettlementPaid,
+        isBrochureModalOpen,
+        setIsBrochureModalOpen,
       }}
     >
       {children}

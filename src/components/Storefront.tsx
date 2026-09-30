@@ -13,7 +13,10 @@ import {
   CheckCircle2,
   PackageCheck,
   ChevronRight,
-  Filter
+  Filter,
+  FileText,
+  Building2,
+  DollarSign
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
@@ -30,7 +33,9 @@ export const Storefront: React.FC = () => {
     priceTier, 
     setPriceTier, 
     openProductModal, 
-    openScanner 
+    openScanner,
+    setIsBrochureModalOpen,
+    setIsAuthModalOpen
   } = useInventory();
 
   // Filters
@@ -97,12 +102,26 @@ export const Storefront: React.FC = () => {
 
         <div className="relative max-w-5xl mx-auto text-center space-y-6">
           
-          {/* Header pill with Silao Logo */}
+          {/* Logo Principal Prominente Silaomarket */}
+          <div className="flex flex-col items-center justify-center pt-2">
+            <div className="relative group cursor-pointer" onClick={() => setIsBrochureModalOpen(true)}>
+              <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-emerald-400 via-amber-300 to-teal-400 opacity-70 blur-lg group-hover:opacity-100 transition-opacity animate-pulse"></div>
+              <img 
+                src="/images/silaomarket_logo.jpg" 
+                alt="SILAOMARKET ON LINE Logo Oficial" 
+                className="relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-3xl object-contain shadow-2xl border-4 border-white/90 bg-white p-1.5 transition-transform duration-300 group-hover:scale-105" 
+              />
+              <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 bg-amber-400 text-emerald-950 text-[11px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md whitespace-nowrap border border-white/60">
+                Silao · Gto
+              </span>
+            </div>
+          </div>
+
+          {/* Header pill with Silao Location */}
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/90 border border-amber-500/40 text-amber-300 text-xs font-bold uppercase tracking-wider shadow-xl backdrop-blur-md">
-            <img src="/images/silaomarket_logo.jpg" alt="Logo" className="w-6 h-6 rounded-full object-cover border border-amber-400/60 shadow-xs" />
-            <span className="text-white">Silao de la Victoria, Guanajuato</span>
+            <span>⛰️ Silao de la Victoria, Guanajuato</span>
             <span className="text-amber-500" aria-hidden="true">·</span>
-            <span className="text-emerald-400">Corazón del Bajío</span>
+            <span className="text-emerald-400 font-extrabold">Hub de Comercio Local</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white max-w-4xl mx-auto leading-tight">
@@ -245,6 +264,52 @@ export const Storefront: React.FC = () => {
       {/* Main Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
+        {/* BANNER OFICIAL DE AFILIACIÓN COMERCIAL SEGÚN FOLLETO */}
+        <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-emerald-500/30">
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400 text-emerald-950 text-xs font-black uppercase tracking-wider">
+                <span>0% Entrada</span>
+                <span>•</span>
+                <span>Liquidación a 7 Días</span>
+                <span>•</span>
+                <span>8% a 18% Comisión</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                ¿Tienes un Negocio en Silao? Únete a <span className="text-amber-300">SILAOMARKET ON LINE</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                Vende tus productos a toda la ciudad sin pagar rentas ni mensualidades. Los clientes compran de varios comercios en un solo carrito, pagan una sola vez con un envío de <strong>$25</strong>, el Hub Central consolida y entrega, y tú recibes tus ganancias netas <strong>cada 7 días</strong> directo en tu cuenta bancaria.
+              </p>
+              
+              <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-amber-200">
+                <span>✉️ Contacto Oficial: <strong className="text-white underline">hhlozano70@hotmail.com</strong></span>
+                <span>📍 Silao de la Victoria, Gto.</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+              <button
+                onClick={() => setIsBrochureModalOpen(true)}
+                className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-emerald-950 font-black text-xs sm:text-sm shadow-lg shadow-amber-400/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Ver Folleto Oficial y Tasas</span>
+              </button>
+
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <Building2 className="w-4 h-4 text-emerald-300" />
+                <span>Portal para Negocios Afiliados</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* SECTION: Lugares Emblemáticos & Orgullo de Silao */}
         <SilaoLandmarksShowcase />
 

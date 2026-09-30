@@ -31,7 +31,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": false,
     "badge": "Frescura Local",
     "iconName": "Store",
-    "description": "Quesos de rancho, crema fresca, huevo de campo, tortillas de comal y despensa completa de primera necesidad en Silao."
+    "description": "Quesos de rancho, crema fresca, huevo de campo, tortillas de comal y despensa completa de primera necesidad en Silao.",
+    "commissionRate": 8,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "BBVA CLABE 012215000000001450",
+    "ownerName": "Don José Providencia",
+    "email": "providencia.silao@gmail.com"
   },
   {
     "id": "merch-cadena-fria",
@@ -45,7 +51,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": true,
     "badge": "❄️ Cadena de Frío Garantizada",
     "iconName": "IceCream",
-    "description": "Paletas artesanales de crema y agua, botes de helado tradicional y aguas frescas del día entregadas con hielera térmica."
+    "description": "Paletas artesanales de crema y agua, botes de helado tradicional y aguas frescas del día entregadas con hielera térmica.",
+    "commissionRate": 12,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "Santander CLABE 014215000000005512",
+    "ownerName": "María Luisa Michoacana",
+    "email": "michoacana.silao@gmail.com"
   },
   {
     "id": "merch-cerveceria",
@@ -59,7 +71,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": true,
     "badge": "❄️ Cerveza Bien Helada",
     "iconName": "Beer",
-    "description": "Cerveza fría de marca, caguamas, six packs, bolsas de hielo en cubos y refrescos de fiesta entregados con transporte frío."
+    "description": "Cerveza fría de marca, caguamas, six packs, bolsas de hielo en cubos y refrescos de fiesta entregados con transporte frío.",
+    "commissionRate": 12,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "Banorte CLABE 072215000000008800",
+    "ownerName": "Carlos El Bajío",
+    "email": "cerveceria.bajio.silao@gmail.com"
   },
   {
     "id": "merch-refacciones",
@@ -73,7 +91,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": false,
     "badge": "Autopartes y Aceites",
     "iconName": "Wrench",
-    "description": "Aceites multigrado y sintéticos, balatas, bujías, aditivos, anticongelante, filtros y refacciones mecánicas para tu auto."
+    "description": "Aceites multigrado y sintéticos, balatas, bujías, aditivos, anticongelante, filtros y refacciones mecánicas para tu auto.",
+    "commissionRate": 10,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "Citibanamex CLABE 002215000000003890",
+    "ownerName": "Manuel El Güero",
+    "email": "refacciones.guero.silao@gmail.com"
   },
   {
     "id": "merch-farmacia",
@@ -87,7 +111,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": false,
     "badge": "Salud y Botiquín",
     "iconName": "Pill",
-    "description": "Medicamentos genéricos y de patente, sueros Electrolit, analgésicos, curación y artículos de botiquín y cuidado familiar."
+    "description": "Medicamentos genéricos y de patente, sueros Electrolit, analgésicos, curación y artículos de botiquín y cuidado familiar.",
+    "commissionRate": 10,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "BBVA CLABE 012215000000000941",
+    "ownerName": "Lic. Farmacéutico Juan",
+    "email": "farmacia.sanjuan.silao@gmail.com"
   },
   {
     "id": "merch-ferreteria",
@@ -101,7 +131,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": false,
     "badge": "Hogar y Construcción",
     "iconName": "Hammer",
-    "description": "Herramientas Truper, focos LED ahorradores, pegamentos, extensiones, candados y material eléctrico y de plomería."
+    "description": "Herramientas Truper, focos LED ahorradores, pegamentos, extensiones, candados y material eléctrico y de plomería.",
+    "commissionRate": 10,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "HSBC CLABE 021215000000006723",
+    "ownerName": "Ing. Roberto Tornillo",
+    "email": "ferreteria.tornillo.silao@gmail.com"
   },
   {
     "id": "merch-mascotas",
@@ -115,7 +151,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": false,
     "badge": "Alimento y Accesorios",
     "iconName": "Dog",
-    "description": "Croquetas por bulto para perro y gato, arenas aglutinantes, premios de carnaza, desparasitantes y juguetes de calidad."
+    "description": "Croquetas por bulto para perro y gato, arenas aglutinantes, premios de carnaza, desparasitantes y juguetes de calidad.",
+    "commissionRate": 14,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "Santander CLABE 014215000000009901",
+    "ownerName": "Dra. Andrea Huellitas",
+    "email": "huellitas.silao@gmail.com"
   },
   {
     "id": "merch-flores",
@@ -129,7 +171,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": false,
     "badge": "Arreglos Frescos",
     "iconName": "Flower2",
-    "description": "Ramos de rosas de invernadero, girasoles del bajío, orquídeas vivas, arreglos florales, chocolates y peluches para regalo."
+    "description": "Ramos de rosas de invernadero, girasoles del bajío, orquídeas vivas, arreglos florales, chocolates y peluches para regalo.",
+    "commissionRate": 18,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "BanCoppel CLABE 137215000000004418",
+    "ownerName": "Rosa Elena Flores",
+    "email": "rosadeoro.silao@gmail.com"
   },
   {
     "id": "merch-servicios",
@@ -143,7 +191,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": false,
     "badge": "Citas y Entregas",
     "iconName": "Sparkles",
-    "description": "Duplicado de llaves a domicilio, llaves automotrices con chip, tintorería por docena, y afilado profesional de cuchillos."
+    "description": "Duplicado de llaves a domicilio, llaves automotrices con chip, tintorería por docena, y afilado profesional de cuchillos.",
+    "commissionRate": 15,
+    "type": "Servicio",
+    "pin": "1234",
+    "bankAccount": "BBVA CLABE 012215000000001122",
+    "ownerName": "Maestro Cerrajerías Exprés",
+    "email": "servicios.expres.silao@gmail.com"
   },
   {
     "id": "merch-maret-silao",
@@ -157,7 +211,13 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "isColdChain": false,
     "badge": "Tienda Propia NIVEA & Belleza",
     "iconName": "Sparkles",
-    "description": "Tienda propia oficial en Silao con toda la gama NIVEA, Eucerin, Aquaphor, protectores solares, cremas corporales y faciales."
+    "description": "Tienda propia oficial en Silao con toda la gama NIVEA, Eucerin, Aquaphor, protectores solares, cremas corporales y faciales.",
+    "commissionRate": 15,
+    "type": "Producto",
+    "pin": "1234",
+    "bankAccount": "BBVA CLABE 012215000000007788",
+    "ownerName": "MARET SILAO Central",
+    "email": "contacto@maretsilao.com"
   }
 ];
 

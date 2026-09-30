@@ -149,6 +149,8 @@ async function readFirestoreStore() {
           orders: data.orders || [],
           priceTier: data.priceTier || 'comercial',
           settings: data.settings || null,
+          merchants: data.merchants || null,
+          settlements: data.settlements || [],
           lastUpdated: data.lastUpdated || new Date().toISOString(),
         };
       }
@@ -173,6 +175,8 @@ async function readFirestoreStore() {
       orders,
       priceTier: config?.priceTier || 'comercial',
       settings: config?.settings || null,
+      merchants: config?.merchants || null,
+      settlements: config?.settlements || [],
       lastUpdated: config?.lastUpdated || new Date().toISOString(),
     };
   } catch (err: any) {
@@ -188,11 +192,22 @@ async function writeFirestoreStore(data: {
   orders?: any[];
   priceTier?: string;
   settings?: any;
+  merchants?: any[];
+  settlements?: any[];
   lastUpdated?: string;
 }) {
   if (!firestoreDb) return false;
   try {
-    const { products = [], movements = [], orders = [], priceTier = 'comercial', settings = null, lastUpdated = new Date().toISOString() } = data;
+    const { 
+      products = [], 
+      movements = [], 
+      orders = [], 
+      priceTier = 'comercial', 
+      settings = null, 
+      merchants = null,
+      settlements = [],
+      lastUpdated = new Date().toISOString() 
+    } = data;
 
     // 1. Save single consolidated store doc (1 write operation, prevents RESOURCE_EXHAUSTED)
     await firestoreDb.collection('dermostock_config').doc('full_store').set({
@@ -201,6 +216,8 @@ async function writeFirestoreStore(data: {
       orders,
       priceTier,
       settings,
+      merchants,
+      settlements,
       lastUpdated,
     });
 
@@ -275,7 +292,7 @@ app.get('/api/data', async (_req, res) => {
 
 // POST full synchronized state (called by client on changes)
 app.post('/api/data', async (req, res) => {
-  const { products, movements, orders, priceTier, settings } = req.body;
+  const { products, movements, orders, priceTier, settings, merchants, settlements } = req.body;
   if (!products || !Array.isArray(products)) {
     return res.status(400).json({ error: 'Invalid payload: products array required' });
   }
@@ -286,6 +303,8 @@ app.post('/api/data', async (req, res) => {
     orders: orders || [],
     priceTier: priceTier || 'comercial',
     settings: settings || null,
+    merchants: merchants || [],
+    settlements: settlements || [],
     lastUpdated: new Date().toISOString(),
   };
 

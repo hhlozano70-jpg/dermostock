@@ -1,5 +1,7 @@
 export type Brand = string;
 
+export type UserRole = 'cliente' | 'negocio' | 'admin';
+
 export type MerchantCategory = 
   | 'Abarrotes y Cremería'
   | 'Refaccionaria y Automotriz'
@@ -9,9 +11,37 @@ export type MerchantCategory =
   | 'Mascotas y Veterinaria'
   | 'Flores y Regalos'
   | 'Cadena Fría (Aguas, Paletas, Cervezas)'
+  | 'Restaurantes y Comida'
+  | 'Belleza y Cuidado Personal'
   | string;
 
 export type Category = MerchantCategory;
+
+export interface GiroCommissionRate {
+  giro: string;
+  commission: number; // e.g. 8, 10, 12, 14, 15, 18
+  type: 'Producto' | 'Servicio';
+}
+
+export const BROCHURE_COMMISSIONS: GiroCommissionRate[] = [
+  { giro: 'Restaurantes y comida preparada', commission: 18, type: 'Producto' },
+  { giro: 'Farmacias', commission: 10, type: 'Producto' },
+  { giro: 'Abarrotes y mini-súper', commission: 8, type: 'Producto' },
+  { giro: 'Fruterías y verdulerías', commission: 9, type: 'Producto' },
+  { giro: 'Botanas y dulcería', commission: 12, type: 'Producto' },
+  { giro: 'Ferretería y materiales', commission: 10, type: 'Producto' },
+  { giro: 'Tortillerías y panaderías', commission: 8, type: 'Producto' },
+  { giro: 'Mascotas (alimento y accesorios)', commission: 14, type: 'Producto' },
+  { giro: 'Papelería y oficina', commission: 12, type: 'Producto' },
+  { giro: 'Flores y regalos', commission: 18, type: 'Producto' },
+  { giro: 'Limpieza y hogar', commission: 14, type: 'Producto' },
+  { giro: 'Belleza y cuidado personal', commission: 15, type: 'Producto' },
+  { giro: 'Ropa y calzado', commission: 15, type: 'Producto' },
+  { giro: 'Limpieza del hogar', commission: 18, type: 'Servicio' },
+  { giro: 'Plomería y electricidad', commission: 15, type: 'Servicio' },
+  { giro: 'Lavandería', commission: 15, type: 'Servicio' },
+  { giro: 'Estética a domicilio', commission: 18, type: 'Servicio' },
+];
 
 export interface Merchant {
   id: string;
@@ -26,6 +56,28 @@ export interface Merchant {
   badge: string;
   iconName: string;
   description: string;
+  commissionRate?: number; // % de comisión según giro (8% - 18%)
+  type?: 'Producto' | 'Servicio';
+  pin?: string; // PIN de acceso (default "1234")
+  bankAccount?: string; // CLABE o banco para liquidación semanal
+  ownerName?: string;
+  email?: string;
+}
+
+export interface MerchantSettlement {
+  id: string;
+  merchantId: string;
+  merchantName: string;
+  period: string; // ej. "Semana 39 (22-28 Sep 2026)"
+  orderIds: string[];
+  grossSales: number;
+  commissionRate: number;
+  commissionAmount: number;
+  netAmount: number;
+  status: 'pendiente' | 'pagado';
+  settledDate?: string;
+  paymentReference?: string;
+  notes?: string;
 }
 
 export type PriceTier = 'comercial' | 'mayorista' | 'promocion';
