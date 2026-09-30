@@ -44,7 +44,13 @@ export const Navbar: React.FC = () => {
               onClick={() => setActiveTab('tienda')}
               className="flex items-center gap-2.5 group cursor-pointer text-left"
             >
-              <SilaoEmblem size={40} className="group-hover:scale-105 transition-transform shrink-0" />
+              <div className="relative group-hover:scale-105 transition-transform shrink-0">
+                <img 
+                  src="/images/silaomarket_logo.jpg" 
+                  alt="Silaomarket Logo" 
+                  className="w-10 h-10 rounded-xl object-contain bg-white shadow-xs border border-slate-200 p-0.5" 
+                />
+              </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1.5">
                   <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors leading-none">

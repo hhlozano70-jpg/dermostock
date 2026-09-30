@@ -97,9 +97,9 @@ export const Storefront: React.FC = () => {
 
         <div className="relative max-w-5xl mx-auto text-center space-y-6">
           
-          {/* Header pill with Silao Emblem */}
+          {/* Header pill with Silao Logo */}
           <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-slate-900/90 border border-amber-500/40 text-amber-300 text-xs font-bold uppercase tracking-wider shadow-xl backdrop-blur-md">
-            <SilaoEmblem size={26} />
+            <img src="/images/silaomarket_logo.jpg" alt="Logo" className="w-6 h-6 rounded-full object-cover border border-amber-400/60 shadow-xs" />
             <span className="text-white">Silao de la Victoria, Guanajuato</span>
             <span className="text-amber-500" aria-hidden="true">·</span>
             <span className="text-emerald-400">Corazón del Bajío</span>
