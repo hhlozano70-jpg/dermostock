@@ -281,7 +281,7 @@ export const Storefront: React.FC = () => {
                 ¿Tienes un Negocio en Silao? Únete a <span className="text-amber-300">SILAOMARKET ON LINE</span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                Vende tus productos a toda la ciudad sin pagar rentas ni mensualidades. Los clientes compran de varios comercios en un solo carrito, pagan una sola vez con un envío de <strong>$25</strong>, el Hub Central consolida y entrega, y tú recibes tus ganancias netas <strong>cada 7 días</strong> directo en tu cuenta bancaria.
+                Vende tus productos a toda la ciudad sin pagar rentas ni mensualidades. Los clientes compran de varios comercios en un solo carrito, pagan una sola vez con un envío consolidado de <strong>$25 a $40</strong> (ajustado de forma justa según comercios y volumen de artículos), el Hub Central consolida y entrega, y tú recibes tus ganancias netas <strong>cada 7 días</strong> directo en tu cuenta bancaria.
               </p>
               
               <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-amber-200">

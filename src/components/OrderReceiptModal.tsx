@@ -171,6 +171,15 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
               </div>
             )}
 
+            {order.deliveryType === 'domicilio' && (
+              <div className="flex justify-between text-slate-600">
+                <span>Envío Consolidado Hub Silao:</span>
+                <span className="font-mono tabular-nums">
+                  ${(order.deliveryFee ?? (order.total - (order.subtotal - order.discountSavings) > 0 ? order.total - (order.subtotal - order.discountSavings) : 25)).toFixed(2)} MXN
+                </span>
+              </div>
+            )}
+
             <div className="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-300">
               <span>Total Pagado / Por Cobrar:</span>
               <span className="font-mono tabular-nums text-lg">${order.total.toFixed(2)} MXN</span>

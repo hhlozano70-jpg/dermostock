@@ -218,7 +218,7 @@ export const BrochureModal: React.FC = () => {
                       ¿Por qué a la gente le encanta SILAOMARKET ON LINE?
                     </h3>
                     <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl">
-                      Un cliente en Silao puede pedir <strong>leche de la abarrotera</strong>, <strong>medicina de la farmacia</strong>, <strong>paletas de La Michoacana</strong> y <strong>un foco de la ferretería</strong> en un solo pedido. Paga una sola vez, paga un único costo de envío consolidado (<span className="text-amber-300 font-bold">$25</span>), y nuestro <strong className="text-white">Hub de Repartidores</strong> recoge de cada negocio y entrega todo junto a su puerta con rastreo QR.
+                      Un cliente en Silao puede pedir <strong>leche de la abarrotera</strong>, <strong>medicina de la farmacia</strong>, <strong>paletas de La Michoacana</strong> y <strong>un foco de la ferretería</strong> en un solo pedido. Paga una sola vez, paga un envío consolidado justo (<span className="text-amber-300 font-bold">$25 a $40</span> según comercios y piezas), y nuestro <strong className="text-white">Hub de Repartidores</strong> recoge de cada negocio y entrega todo junto a su puerta con rastreo QR.
                     </p>
                   </div>
                 </div>

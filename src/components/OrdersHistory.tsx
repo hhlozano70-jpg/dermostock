@@ -150,7 +150,9 @@ export const OrdersHistory: React.FC = () => {
               {/* Total & Action */}
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
                 <div>
-                  <span className="text-[10px] text-slate-400 block">Total Pagado</span>
+                  <span className="text-[10px] text-slate-400 block">
+                    Total Pagado {order.deliveryFee ? `(Inc. envío $${order.deliveryFee.toFixed(2)})` : ''}
+                  </span>
                   <span className="text-base font-bold font-mono text-slate-900 tabular-nums">
                     ${order.total.toFixed(2)} MXN
                   </span>

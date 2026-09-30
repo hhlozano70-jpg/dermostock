@@ -298,7 +298,7 @@ export const MerchantPortal: React.FC = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Costo de Envío al Cliente:</span>
-                  <strong className="text-emerald-700">$25.00 (Cubierto por el cliente para el repartidor Hub)</strong>
+                  <strong className="text-emerald-700">$25.00 a $40.00 (Cubierto por el cliente para el repartidor Hub según comercios y piezas)</strong>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Costo de Afiliación / Mensualidad:</span>

@@ -170,6 +170,7 @@ export interface Order {
   subtotal: number;
   discountSavings: number;
   total: number;
+  deliveryFee?: number;
   appliedTier: PriceTier;
   hasColdChain: boolean;
   merchantsCount: number;

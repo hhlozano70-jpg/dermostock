@@ -19,6 +19,7 @@ import {
 import { useInventory } from '../context/InventoryContext';
 import { DeliveryType, CartItem } from '../types/inventory';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
+import { calculateDynamicDeliveryFee } from '../utils/deliveryFee';
 
 export const CartDrawer: React.FC = () => {
   const { 
@@ -79,7 +80,17 @@ export const CartDrawer: React.FC = () => {
     return cart.some((i) => i.product.isColdChain);
   }, [cart]);
 
-  const deliveryFee = deliveryType === 'domicilio' ? (settings.deliveryCost ?? 25) : 0;
+  // Total items quantity (piezas totales)
+  const totalItemsQuantity = useMemo(() => {
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  }, [cart]);
+
+  // Cálculo dinámico del envío consolidado de $25 a $40 pesos
+  const deliveryFeeCalc = useMemo(() => {
+    return calculateDynamicDeliveryFee(totalItemsQuantity, groupedCartByMerchant.length);
+  }, [totalItemsQuantity, groupedCartByMerchant.length]);
+
+  const deliveryFee = deliveryType === 'domicilio' ? deliveryFeeCalc.fee : 0;
   const finalOrderTotal = cartTotal + deliveryFee;
 
   if (!isCartOpen) return null;
@@ -131,6 +142,7 @@ export const CartDrawer: React.FC = () => {
       items: cart,
       subtotal: cartSubtotal,
       discountSavings: cartSavings,
+      deliveryFee,
       total: finalOrderTotal,
       appliedTier: priceTier,
       hasColdChain: hasColdChainItems,
@@ -170,7 +182,7 @@ export const CartDrawer: React.FC = () => {
         (orderNotes ? `📝 *Notas del cliente:* ${orderNotes.trim()}\n` : '') +
         `\n*DETALLE DE COMPRA:*${merchantsText}\n` +
         `*Subtotal Productos:* $${cartTotal.toFixed(2)} MXN\n` +
-        (deliveryFee > 0 ? `*Costo de Envío Consolidado Hub Silao:* $${deliveryFee.toFixed(2)} MXN\n` : `*Envío:* GRATIS\n`) +
+        (deliveryFee > 0 ? `*Costo de Envío Consolidado Hub Silao:* $${deliveryFee.toFixed(2)} MXN (${deliveryFeeCalc.description})\n` : `*Envío:* GRATIS (Recolección en Hub)\n`) +
         `*TOTAL A PAGAR (UN SOLO PAGO):* $${finalOrderTotal.toFixed(2)} MXN\n\n` +
         `¿Me confirman de recibido en el Hub Silao para preparar el pedido? ¡Gracias!`;
 
@@ -391,7 +403,7 @@ export const CartDrawer: React.FC = () => {
                       <span>A Domicilio en Silao</span>
                     </div>
                     <span className="text-[11px] text-slate-500">
-                      Ruta consolidada en una sola vuelta (${settings.deliveryCost ?? 25} MXN)
+                      Ruta consolidada Hub: <strong className="text-slate-800">${deliveryFeeCalc.fee.toFixed(2)} MXN</strong> ($25 a $40 según comercios y piezas)
                     </span>
                   </button>
 
@@ -539,14 +551,33 @@ export const CartDrawer: React.FC = () => {
             {/* Totals Breakdown */}
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between text-slate-600">
-                <span>Subtotal productos ({cart.length} arts en {groupedCartByMerchant.length} tiendas):</span>
+                <span>Subtotal productos ({totalItemsQuantity} piezas en {groupedCartByMerchant.length} tienda{groupedCartByMerchant.length > 1 ? 's' : ''}):</span>
                 <span className="font-mono font-medium">${cartTotal.toFixed(2)}</span>
               </div>
 
               {checkoutStep === 'checkout' && deliveryType === 'domicilio' && (
-                <div className="flex justify-between text-slate-600">
-                  <span>Envío consolidado Hub Silao (una sola vuelta):</span>
-                  <span className="font-mono font-medium">${deliveryFee.toFixed(2)}</span>
+                <div className="bg-emerald-50/80 p-2.5 rounded-xl border border-emerald-200 space-y-1">
+                  <div className="flex justify-between items-center text-slate-800 font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <Truck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Envío Consolidado Hub Silao:</span>
+                    </span>
+                    <span className="font-mono font-black text-emerald-800 text-sm">${deliveryFee.toFixed(2)} MXN</span>
+                  </div>
+                  <div className="text-[10px] text-slate-600 flex items-center justify-between">
+                    <span>Ajuste por {groupedCartByMerchant.length} comercio(s) y {totalItemsQuantity} piezas:</span>
+                    <span className="font-bold text-emerald-700">{deliveryFeeCalc.description}</span>
+                  </div>
+                </div>
+              )}
+
+              {checkoutStep === 'cart' && (
+                <div className="flex justify-between items-center text-[11px] text-slate-600 bg-slate-100/80 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                  <span className="flex items-center gap-1.5">
+                    <Truck className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Envío a domicilio estimado ($25 a $40):</span>
+                  </span>
+                  <span className="font-mono font-bold text-slate-800">${deliveryFeeCalc.fee.toFixed(2)} MXN</span>
                 </div>
               )}
 

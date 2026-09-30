@@ -172,21 +172,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
               <Truck className="w-3.5 h-3.5 text-amber-600" />
-              <span>Costo Único de Envío Consolidado en Silao (MXN)</span>
+              <span>Costo Base de Envío Consolidado en Silao (MXN)</span>
             </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-mono text-xs">$</span>
               <input
                 type="number"
-                min="0"
-                step="5"
+                min="25"
+                max="40"
+                step="1"
                 value={deliveryCost}
-                onChange={(e) => setDeliveryCost(parseFloat(e.target.value) || 0)}
+                onChange={(e) => setDeliveryCost(parseFloat(e.target.value) || 25)}
                 className="w-full pl-7 pr-3 py-2 text-sm border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
               />
             </div>
-            <p className="text-[11px] text-slate-400">
-              Costo fijo que paga el cliente por llevarle productos de múltiples comercios en un solo viaje.
+            <p className="text-[11px] text-slate-500">
+              Tarifa base de $25 pesos, la cual se ajusta de forma automática hasta $40 pesos en el carrito según la cantidad de comercios y piezas ordenadas.
             </p>
           </div>
 

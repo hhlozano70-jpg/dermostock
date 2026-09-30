@@ -163,7 +163,7 @@ export const FinancialDashboard: React.FC = () => {
             Finanzas y Liquidaciones a Negocios
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-            Control de comisiones (8% al 18%), fondo de envíos ($25/pedido) y pagos semanales directos a comercios de Silao de la Victoria.
+            Control de comisiones (8% al 18%), fondo de envíos ($25 a $40 por pedido según comercios y piezas) y pagos semanales directos a comercios de Silao de la Victoria.
           </p>
         </div>
 
@@ -234,7 +234,7 @@ export const FinancialDashboard: React.FC = () => {
           </div>
           <div className="mt-2">
             <span className="text-2xl font-black text-amber-700">${totalDeliveryFund.toFixed(2)}</span>
-            <p className="text-xs text-slate-500 mt-1">$25.00 por orden a repartidores</p>
+            <p className="text-xs text-slate-500 mt-1">$25 a $40 por orden a repartidores</p>
           </div>
         </div>
 

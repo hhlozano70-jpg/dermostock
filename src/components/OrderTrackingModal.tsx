@@ -301,7 +301,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                   Comercios Consolidados ({order.merchantsCount || 1})
                 </h4>
                 <span className="text-xs font-mono font-bold text-slate-900">
-                  Total: ${order.total.toFixed(2)} MXN
+                  Total: ${order.total.toFixed(2)} MXN {order.deliveryFee ? `(Envío Hub: $${order.deliveryFee.toFixed(2)})` : ''}
                 </span>
               </div>
 

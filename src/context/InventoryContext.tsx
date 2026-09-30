@@ -17,6 +17,7 @@ import {
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
 import { SILAO_MERCHANTS } from '../data/silaoMarketData';
+import { calculateDynamicDeliveryFee } from '../utils/deliveryFee';
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   whatsappNumber: '524721234567',
@@ -907,6 +908,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       hub: 'Hub Central Silao - 5 de Mayo #45'
     });
 
+    const totalItemsCount = orderInput.items.reduce((s, i) => s + i.quantity, 0);
+    const dynamicDeliveryFee = orderInput.deliveryType === 'domicilio'
+      ? (orderInput.deliveryFee ?? calculateDynamicDeliveryFee(totalItemsCount, merchantsSet.size).fee)
+      : 0;
+
     const newOrder: Order = {
       ...orderInput,
       id: orderId,
@@ -920,6 +926,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       hasColdChain: hasCold,
       merchantsCount: merchantsSet.size,
       merchantsNames: Array.from(merchantsSet),
+      deliveryFee: dynamicDeliveryFee,
       status: 'pendiente',
       qrData,
     };
