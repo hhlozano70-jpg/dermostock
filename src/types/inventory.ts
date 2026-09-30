@@ -19,28 +19,30 @@ export type Category = MerchantCategory;
 
 export interface GiroCommissionRate {
   giro: string;
+  category: string; // Alias for giro
   commission: number; // e.g. 8, 10, 12, 14, 15, 18
+  rate: number; // Alias for commission
   type: 'Producto' | 'Servicio';
 }
 
 export const BROCHURE_COMMISSIONS: GiroCommissionRate[] = [
-  { giro: 'Restaurantes y comida preparada', commission: 18, type: 'Producto' },
-  { giro: 'Farmacias', commission: 10, type: 'Producto' },
-  { giro: 'Abarrotes y mini-súper', commission: 8, type: 'Producto' },
-  { giro: 'Fruterías y verdulerías', commission: 9, type: 'Producto' },
-  { giro: 'Botanas y dulcería', commission: 12, type: 'Producto' },
-  { giro: 'Ferretería y materiales', commission: 10, type: 'Producto' },
-  { giro: 'Tortillerías y panaderías', commission: 8, type: 'Producto' },
-  { giro: 'Mascotas (alimento y accesorios)', commission: 14, type: 'Producto' },
-  { giro: 'Papelería y oficina', commission: 12, type: 'Producto' },
-  { giro: 'Flores y regalos', commission: 18, type: 'Producto' },
-  { giro: 'Limpieza y hogar', commission: 14, type: 'Producto' },
-  { giro: 'Belleza y cuidado personal', commission: 15, type: 'Producto' },
-  { giro: 'Ropa y calzado', commission: 15, type: 'Producto' },
-  { giro: 'Limpieza del hogar', commission: 18, type: 'Servicio' },
-  { giro: 'Plomería y electricidad', commission: 15, type: 'Servicio' },
-  { giro: 'Lavandería', commission: 15, type: 'Servicio' },
-  { giro: 'Estética a domicilio', commission: 18, type: 'Servicio' },
+  { giro: 'Restaurantes y comida preparada', category: 'Restaurantes y comida preparada', commission: 18, rate: 18, type: 'Producto' },
+  { giro: 'Farmacias', category: 'Farmacias', commission: 10, rate: 10, type: 'Producto' },
+  { giro: 'Abarrotes y mini-súper', category: 'Abarrotes y mini-súper', commission: 8, rate: 8, type: 'Producto' },
+  { giro: 'Fruterías y verdulerías', category: 'Fruterías y verdulerías', commission: 9, rate: 9, type: 'Producto' },
+  { giro: 'Botanas y dulcería', category: 'Botanas y dulcería', commission: 12, rate: 12, type: 'Producto' },
+  { giro: 'Ferretería y materiales', category: 'Ferretería y materiales', commission: 10, rate: 10, type: 'Producto' },
+  { giro: 'Tortillerías y panaderías', category: 'Tortillerías y panaderías', commission: 8, rate: 8, type: 'Producto' },
+  { giro: 'Mascotas (alimento y accesorios)', category: 'Mascotas (alimento y accesorios)', commission: 14, rate: 14, type: 'Producto' },
+  { giro: 'Papelería y oficina', category: 'Papelería y oficina', commission: 12, rate: 12, type: 'Producto' },
+  { giro: 'Flores y regalos', category: 'Flores y regalos', commission: 18, rate: 18, type: 'Producto' },
+  { giro: 'Limpieza y hogar', category: 'Limpieza y hogar', commission: 14, rate: 14, type: 'Producto' },
+  { giro: 'Belleza y cuidado personal', category: 'Belleza y cuidado personal', commission: 15, rate: 15, type: 'Producto' },
+  { giro: 'Ropa y calzado', category: 'Ropa y calzado', commission: 15, rate: 15, type: 'Producto' },
+  { giro: 'Limpieza del hogar', category: 'Limpieza del hogar', commission: 18, rate: 18, type: 'Servicio' },
+  { giro: 'Plomería y electricidad', category: 'Plomería y electricidad', commission: 15, rate: 15, type: 'Servicio' },
+  { giro: 'Lavandería', category: 'Lavandería', commission: 15, rate: 15, type: 'Servicio' },
+  { giro: 'Estética a domicilio', category: 'Estética a domicilio', commission: 18, rate: 18, type: 'Servicio' },
 ];
 
 export interface Merchant {

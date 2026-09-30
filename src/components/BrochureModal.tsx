@@ -310,34 +310,40 @@ export const BrochureModal: React.FC = () => {
 
                 {/* Grid de Comisiones */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 my-6">
-                  {BROCHURE_COMMISSIONS.map((item, idx) => (
-                    <div 
-                      key={idx}
-                      className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-emerald-300 hover:bg-emerald-50/40 transition-all bg-slate-50/50"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-xs font-black text-slate-600 shadow-xs">
-                          {idx + 1}
-                        </span>
-                        <div>
-                          <h5 className="font-bold text-slate-900 text-xs sm:text-sm leading-tight">
-                            {item.category}
-                          </h5>
-                          <span className={`text-[10px] uppercase font-semibold px-1.5 py-0.2 rounded ${
-                            item.type === 'servicio' ? 'bg-purple-100 text-purple-700' : 'bg-slate-200 text-slate-700'
-                          }`}>
-                            {item.type}
+                  {BROCHURE_COMMISSIONS.map((item, idx) => {
+                    const categoryName = item.category || item.giro || 'Giro Comercial';
+                    const commissionRate = typeof item.rate === 'number' ? item.rate : (typeof item.commission === 'number' ? item.commission : 10);
+                    const itemType = item.type || 'Producto';
+
+                    return (
+                      <div 
+                        key={idx}
+                        className="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 hover:border-emerald-300 hover:bg-emerald-50/40 transition-all bg-slate-50/50"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="w-7 h-7 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-xs font-black text-slate-600 shadow-xs">
+                            {idx + 1}
+                          </span>
+                          <div>
+                            <h5 className="font-bold text-slate-900 text-xs sm:text-sm leading-tight">
+                              {categoryName}
+                            </h5>
+                            <span className={`text-[10px] uppercase font-semibold px-1.5 py-0.2 rounded ${
+                              itemType.toLowerCase() === 'servicio' ? 'bg-purple-100 text-purple-700' : 'bg-slate-200 text-slate-700'
+                            }`}>
+                              {itemType}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <span className="text-base sm:text-lg font-black text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200 shadow-xs">
+                            {commissionRate}%
                           </span>
                         </div>
                       </div>
-
-                      <div className="text-right">
-                        <span className="text-base sm:text-lg font-black text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200 shadow-xs">
-                          {item.rate}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Resumen de Beneficios Comerciales */}
@@ -393,30 +399,38 @@ export const BrochureModal: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
-                    {BROCHURE_COMMISSIONS.map((c, i) => (
-                      <tr key={i} className="hover:bg-slate-50">
-                        <td className="py-3 px-4 text-slate-400 font-bold">{i + 1}</td>
-                        <td className="py-3 px-4 font-bold text-slate-900">{c.category}</td>
-                        <td className="py-3 px-4">
-                          <span className={`text-xs px-2 py-0.5 rounded-full capitalize font-semibold ${
-                            c.type === 'servicio' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-                          }`}>
-                            {c.type}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <span className="font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                            {c.rate}%
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-center text-xs text-slate-600">
-                          Recibes <strong className="text-slate-900">${(100 - (100 * c.rate / 100)).toFixed(2)}</strong> (Comisión: ${(100 * c.rate / 100).toFixed(2)})
-                        </td>
-                        <td className="py-3 px-4 text-xs font-semibold text-slate-600">
-                          Cada 7 días
-                        </td>
-                      </tr>
-                    ))}
+                    {BROCHURE_COMMISSIONS.map((c, i) => {
+                      const categoryName = c.category || c.giro || 'Giro Comercial';
+                      const rate = typeof c.rate === 'number' ? c.rate : (typeof c.commission === 'number' ? c.commission : 10);
+                      const commissionAmount = (100 * rate) / 100;
+                      const merchantReceives = 100 - commissionAmount;
+                      const itemType = c.type || 'Producto';
+
+                      return (
+                        <tr key={i} className="hover:bg-slate-50">
+                          <td className="py-3 px-4 text-slate-400 font-bold">{i + 1}</td>
+                          <td className="py-3 px-4 font-bold text-slate-900">{categoryName}</td>
+                          <td className="py-3 px-4">
+                            <span className={`text-xs px-2 py-0.5 rounded-full capitalize font-semibold ${
+                              itemType.toLowerCase() === 'servicio' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
+                            }`}>
+                              {itemType}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                              {rate}%
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center text-xs text-slate-600">
+                            Recibes <strong className="text-slate-900">${merchantReceives.toFixed(2)}</strong> (Comisión: ${commissionAmount.toFixed(2)})
+                          </td>
+                          <td className="py-3 px-4 text-xs font-semibold text-slate-600">
+                            Cada 7 días
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -486,11 +500,15 @@ export const BrochureModal: React.FC = () => {
                         onChange={e => setRegistroForm({...registroForm, giro: e.target.value})}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
                       >
-                        {BROCHURE_COMMISSIONS.map((item, i) => (
-                          <option key={i} value={item.category}>
-                            {item.category} ({item.rate}% comisión)
-                          </option>
-                        ))}
+                        {BROCHURE_COMMISSIONS.map((item, i) => {
+                          const name = item.category || item.giro || 'Giro Comercial';
+                          const rate = typeof item.rate === 'number' ? item.rate : (typeof item.commission === 'number' ? item.commission : 10);
+                          return (
+                            <option key={i} value={name}>
+                              {name} ({rate}% comisión)
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
 

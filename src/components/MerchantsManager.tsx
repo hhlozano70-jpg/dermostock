@@ -135,11 +135,14 @@ export const MerchantsManager: React.FC = () => {
 
   // Cuando cambia el giro, pre-asignar la tasa sugerida del folleto
   const handleCategoryChange = (category: string) => {
-    const match = BROCHURE_COMMISSIONS.find(b => b.category.toLowerCase().includes(category.toLowerCase()));
+    const match = BROCHURE_COMMISSIONS.find(b => 
+      (b.category && b.category.toLowerCase().includes(category.toLowerCase())) ||
+      (b.giro && b.giro.toLowerCase().includes(category.toLowerCase()))
+    );
     setFormData(prev => ({
       ...prev,
       category,
-      commissionRate: match ? match.rate : prev.commissionRate,
+      commissionRate: match ? (typeof match.rate === 'number' ? match.rate : (typeof match.commission === 'number' ? match.commission : prev.commissionRate)) : prev.commissionRate,
       type: match ? match.type : prev.type
     }));
   };
@@ -221,11 +224,15 @@ export const MerchantsManager: React.FC = () => {
                   onChange={e => handleCategoryChange(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
                 >
-                  {BROCHURE_COMMISSIONS.map((item, idx) => (
-                    <option key={idx} value={item.category}>
-                      {item.category} ({item.rate}% comisión)
-                    </option>
-                  ))}
+                  {BROCHURE_COMMISSIONS.map((item, idx) => {
+                    const name = item.category || item.giro || 'Giro Comercial';
+                    const rate = typeof item.rate === 'number' ? item.rate : (typeof item.commission === 'number' ? item.commission : 10);
+                    return (
+                      <option key={idx} value={name}>
+                        {name} ({rate}% comisión)
+                      </option>
+                    );
+                  })}
                   <option value="General">Otro Giro Comercial</option>
                 </select>
               </div>
