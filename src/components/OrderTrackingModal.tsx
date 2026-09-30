@@ -20,6 +20,7 @@ import {
 import { Order, TrackingStatus } from '../types/inventory';
 import { OrderQRCode } from './OrderQRCode';
 import { useInventory } from '../context/InventoryContext';
+import { calculateCollectionLeadTime } from '../utils/collectionTime';
 
 interface OrderTrackingModalProps {
   order: Order | null;
@@ -72,6 +73,7 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
   if (!isOpen || !order) return null;
 
   const currentStatusIndex = STATUS_ORDER.indexOf(order.trackingStatus || 'recibido');
+  const leadTime = calculateCollectionLeadTime(order);
 
   const handleAdvanceStatus = (nextStatus: TrackingStatus) => {
     updateOrderTrackingStatus(order.id, nextStatus);
@@ -86,6 +88,8 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
       `*Código de Rastreo:* ${order.trackingCode}\n` +
       `*Estado actual:* ${order.trackingStatus ? order.trackingStatus.toUpperCase() : 'RECIBIDO'}\n` +
       `*Destino:* ${order.deliveryColonia || 'Silao Centro'}, Silao, Gto.\n` +
+      `⏱️ *Tiempo de Recolección en Tiendas:* ${leadTime.hoursFormatted} (${leadTime.minutes} min antes)\n` +
+      `🎯 *Entrega Estimada:* ${leadTime.targetDeliveryTimeStr}\n` +
       `*Total:* $${order.total.toFixed(2)} MXN\n\n` +
       `Puedes seguir tu pedido y ver tu código QR aquí:\n${trackingUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
@@ -172,6 +176,26 @@ export const OrderTrackingModal: React.FC<OrderTrackingModalProps> = ({
                   </span>
                 </div>
               )}
+            </div>
+
+            {/* Collection Lead Time Box */}
+            <div className="p-3.5 bg-indigo-50/80 rounded-xl border border-indigo-200 space-y-1.5 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-indigo-950 flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-indigo-600" />
+                  <span>Recolección en Comercios:</span>
+                </span>
+                <span className="font-mono font-black text-indigo-900 bg-indigo-200/70 px-2 py-0.5 rounded-full text-[11px]">
+                  {leadTime.hoursFormatted} ({leadTime.minutes} min)
+                </span>
+              </div>
+              <p className="text-[11px] text-indigo-900 leading-relaxed">
+                Ruta calculada: {leadTime.breakdown}. El repartidor inicia con {leadTime.hoursLabel} para visitar los <strong>{order.merchantsCount || 1} comercio(s)</strong> y consolidar en el Hub.
+              </p>
+              <div className="flex items-center justify-between pt-1 border-t border-indigo-200/60 text-[11px]">
+                <span className="text-slate-600">Inicio recolección: <strong>{leadTime.pickupStartTimeStr}</strong></span>
+                <span className="text-emerald-700 font-bold">Entrega estimada: {leadTime.targetDeliveryTimeStr}</span>
+              </div>
             </div>
 
             {/* Status Change Simulator for Couriers & Staff */}

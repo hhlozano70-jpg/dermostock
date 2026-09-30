@@ -1,7 +1,8 @@
 import React from 'react';
-import { X, Printer, CheckCircle2, MessageCircle } from 'lucide-react';
+import { X, Printer, CheckCircle2, MessageCircle, Clock } from 'lucide-react';
 import { Order } from '../types/inventory';
 import { useInventory } from '../context/InventoryContext';
+import { calculateCollectionLeadTime } from '../utils/collectionTime';
 
 interface OrderReceiptModalProps {
   order: Order | null;
@@ -11,6 +12,8 @@ interface OrderReceiptModalProps {
 export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onClose }) => {
   const { settings } = useInventory();
   if (!order) return null;
+
+  const leadTime = calculateCollectionLeadTime(order);
 
   const handlePrint = () => {
     window.print();
@@ -41,7 +44,8 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
       `*Modalidad:* ${deliveryLabel}\n` +
       `*Detalle Entrega:* ${deliveryDetail}\n` +
       `*Método de Pago:* ${order.paymentMethod.replace('_', ' ')}\n` +
-      `*Tarifa:* ${order.appliedTier.toUpperCase()}\n\n` +
+      `*Tarifa:* ${order.appliedTier.toUpperCase()}\n` +
+      `*Recolección en Comercios:* ${leadTime.hoursFormatted} (${leadTime.minutes} min antes de entrega)\n\n` +
       `*Productos:* \n${itemsText}\n\n` +
       `*Total a Pagar:* $${order.total.toFixed(2)} MXN\n` +
       (order.discountSavings > 0 ? `*Ahorro Total:* $${order.discountSavings.toFixed(2)} MXN\n\n` : '\n') +
@@ -183,6 +187,15 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
             <div className="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-300">
               <span>Total Pagado / Por Cobrar:</span>
               <span className="font-mono tabular-nums text-lg">${order.total.toFixed(2)} MXN</span>
+            </div>
+
+            {/* Logística de Recolección en Comercios */}
+            <div className="mt-2.5 p-2 bg-indigo-50/70 rounded-lg border border-indigo-100 text-[11px] text-indigo-900 flex items-center justify-between">
+              <span className="flex items-center gap-1 font-semibold">
+                <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Recolección previa en comercios ({order.merchantsCount || 1} tiendas):</span>
+              </span>
+              <span className="font-mono font-bold text-indigo-950">{leadTime.hoursFormatted} antes</span>
             </div>
           </div>
 

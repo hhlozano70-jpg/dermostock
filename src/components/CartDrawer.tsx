@@ -23,6 +23,7 @@ import { DeliveryType, CartItem } from '../types/inventory';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
 import { calculateDynamicDeliveryFee } from '../utils/deliveryFee';
 import { checkOperatingHours, checkHourCapacity } from '../utils/operatingHours';
+import { calculateCollectionLeadTime } from '../utils/collectionTime';
 
 export const CartDrawer: React.FC = () => {
   const { 
@@ -103,6 +104,15 @@ export const CartDrawer: React.FC = () => {
   const deliveryFeeCalc = useMemo(() => {
     return calculateDynamicDeliveryFee(totalItemsQuantity, groupedCartByMerchant.length);
   }, [totalItemsQuantity, groupedCartByMerchant.length]);
+
+  // Cálculo del tiempo de recolección previa (1 a 2 horas) según comercios y productos
+  const collectionLeadTime = useMemo(() => {
+    return calculateCollectionLeadTime({
+      merchantsCount: groupedCartByMerchant.length,
+      items: cart,
+      hasColdChain: hasColdChainItems,
+    });
+  }, [groupedCartByMerchant.length, cart, hasColdChainItems]);
 
   const deliveryFee = deliveryType === 'domicilio' ? deliveryFeeCalc.fee : 0;
   const finalOrderTotal = cartTotal + deliveryFee;
@@ -199,6 +209,8 @@ export const CartDrawer: React.FC = () => {
         `${deliveryInfo}\n` +
         `*Método de Pago:* ${paymentLabels[paymentMethod] || paymentMethod}\n` +
         `*Comercios involucrados:* ${groupedCartByMerchant.length} negocios de Silao\n` +
+        `⏱️ *Tiempo de Recolección Previa:* ${collectionLeadTime.hoursFormatted} (${collectionLeadTime.minutes} min antes de entrega)\n` +
+        `📋 *Logística Hub Silao:* ${collectionLeadTime.breakdown}\n` +
         (hasColdChainItems ? `❄️ *ATENCIÓN HUB:* Este pedido incluye productos de Cadena Fría (Aguas/Helados/Paletas/Cerveza). Despachar con hielera térmica.\n` : '') +
         (orderNotes ? `📝 *Notas del cliente:* ${orderNotes.trim()}\n` : '') +
         `\n*DETALLE DE COMPRA:*${merchantsText}\n` +
@@ -568,6 +580,22 @@ export const CartDrawer: React.FC = () => {
                     <option value="tarjeta">💳 Tarjeta Débito / Crédito al entregar</option>
                     <option value="contra_entrega">🤝 Pago Contra Entrega</option>
                   </select>
+                </div>
+
+                {/* Tiempo de Recolección en Comercios (1h a 2h) */}
+                <div className="p-3 bg-indigo-50/80 rounded-xl border border-indigo-200 text-xs space-y-1">
+                  <div className="flex items-center justify-between font-bold text-indigo-950">
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>Recolección previa en comercios:</span>
+                    </span>
+                    <span className="font-mono font-black text-indigo-900 bg-indigo-200/60 px-2 py-0.5 rounded-md">
+                      {collectionLeadTime.hoursFormatted} ({collectionLeadTime.minutes} min)
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-indigo-900 leading-relaxed">
+                    El chofer inicia recolección {collectionLeadTime.hoursLabel} para visitar los <strong>{groupedCartByMerchant.length} comercios</strong> y verificar tus <strong>{totalItemsQuantity} piezas</strong> antes de la entrega.
+                  </p>
                 </div>
 
                 {/* Additional Notes */}

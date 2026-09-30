@@ -27,6 +27,7 @@ import {
 import { useInventory } from '../context/InventoryContext';
 import { Order, TrackingStatus, Driver } from '../types/inventory';
 import { checkOperatingHours, checkHourCapacity, getOperatingHoursDistribution } from '../utils/operatingHours';
+import { calculateCollectionLeadTime } from '../utils/collectionTime';
 
 export const HubOrdersManager: React.FC = () => {
   const { 
@@ -90,6 +91,27 @@ export const HubOrdersManager: React.FC = () => {
     });
   }, [orders, activeFilter, searchTerm]);
 
+  // Tiempos de recolección previa (1 a 2 horas)
+  const avgCollectionLeadTime = useMemo(() => {
+    if (orders.length === 0) return '1h 30m';
+    const totalMinutes = orders.reduce((sum, o) => {
+      const lt = calculateCollectionLeadTime(o);
+      return sum + lt.minutes;
+    }, 0);
+    const avg = Math.round(totalMinutes / orders.length);
+    const h = Math.floor(avg / 60);
+    const m = avg % 60;
+    return m === 0 ? `${h}h` : `${h}h ${m}m`;
+  }, [orders]);
+
+  const urgentPickupsCount = useMemo(() => {
+    return orders.filter(o => {
+      if (o.trackingStatus === 'entregado' || o.status === 'entregado') return false;
+      const lt = calculateCollectionLeadTime(o);
+      return lt.urgency === 'urgente' || lt.urgency === 'proximo';
+    }).length;
+  }, [orders]);
+
   // Generador de enlace de WhatsApp con QR y GPS para el Driver
   const handleSendToDriver = (order: Order, driver: Driver) => {
     const origin = typeof window !== 'undefined' ? window.location.origin : 'https://silaomarket-online.onrender.com';
@@ -102,6 +124,7 @@ export const HubOrdersManager: React.FC = () => {
     const gpsUrl = `https://www.google.com/maps/search/?api=1&query=${destinationQuery}`;
 
     const storesList = order.merchantsNames?.map(m => `   🏪 ${m}`).join('\n') || '   🏪 Comercios Centro Silao';
+    const leadTime = calculateCollectionLeadTime(order);
 
     const text = 
       `🛵 *DESPACHO DE PEDIDO HUB SILAO*\n` +
@@ -111,6 +134,10 @@ export const HubOrdersManager: React.FC = () => {
       `*Cliente:* ${order.customerName}\n` +
       `*Teléfono:* ${order.customerPhone}\n` +
       `*Dirección:* ${order.customerAddress || order.deliveryColonia || 'Silao, Gto'}\n\n` +
+      `⏱️ *TIEMPO DE RECOLECCIÓN PREVIA:* ${leadTime.hoursFormatted} (${leadTime.minutes} min antes)\n` +
+      `🕒 *HORA RECOMENDADA DE INICIO EN TIENDAS:* ${leadTime.pickupStartTimeStr}\n` +
+      `🎯 *HORA ESTIMADA DE ENTREGA:* ${leadTime.targetDeliveryTimeStr}\n` +
+      `📋 *Cálculo Logístico:* ${leadTime.breakdown}\n\n` +
       `🗺️ *GUIAR POR GPS (Google Maps / Waze):*\n${gpsUrl}\n\n` +
       `📱 *QR DE ENTREGA AL CLIENTE:*\n${qrUrl}\n\n` +
       `🛒 *COMERCIOS A RECOLECTAR EN SILAO:*\n${storesList}\n\n` +
@@ -152,8 +179,8 @@ export const HubOrdersManager: React.FC = () => {
           </div>
         </div>
 
-        {/* 2 Badges de Monitoreo en Tiempo Real (Horario Comercial + Anti-Saturación) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-white/10">
+        {/* 3 Badges de Monitoreo en Tiempo Real (Horario Comercial + Anti-Saturación + Tiempos de Recolección) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-white/10">
           
           {/* Tarjeta Horario 8am - 8pm */}
           <div className={`p-4 rounded-2xl border flex items-center justify-between ${
@@ -169,10 +196,10 @@ export const HubOrdersManager: React.FC = () => {
               </div>
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-wider block opacity-80">
-                  Horario de Pedidos Silao (8:00 AM - 8:00 PM)
+                  Horario de Pedidos Silao (8am - 8pm)
                 </span>
                 <span className="text-sm font-black text-white">
-                  {operatingStatus.isOpen ? '🟢 Hub Abierto y Recibiendo' : '🌙 Hub Fuera de Horario'}
+                  {operatingStatus.isOpen ? '🟢 Hub Abierto' : '🌙 Fuera de Horario'}
                 </span>
                 <span className="text-xs block opacity-90 mt-0.5">
                   {operatingStatus.message}
@@ -181,7 +208,7 @@ export const HubOrdersManager: React.FC = () => {
             </div>
             <div className="text-right hidden sm:block">
               <span className="text-xs font-mono font-bold bg-black/40 px-2 py-1 rounded">
-                Hora: {operatingStatus.currentHour.toString().padStart(2, '0')}:{operatingStatus.currentMinute.toString().padStart(2, '0')}
+                {operatingStatus.currentHour.toString().padStart(2, '0')}:{operatingStatus.currentMinute.toString().padStart(2, '0')}
               </span>
             </div>
           </div>
@@ -203,7 +230,7 @@ export const HubOrdersManager: React.FC = () => {
                   Capacidad de Envíos en esta Hora
                 </span>
                 <span className="text-sm font-black text-white">
-                  {capacityStatus.currentHourOrders} de {capacityStatus.maxAllowed} envíos permitidos
+                  {capacityStatus.currentHourOrders} de {capacityStatus.maxAllowed} envíos
                 </span>
                 <span className="text-xs block opacity-90 mt-0.5">
                   {capacityStatus.isSaturated ? 'Capacidad máxima alcanzada' : `${capacityStatus.remainingSlots} turnos disponibles`}
@@ -212,7 +239,7 @@ export const HubOrdersManager: React.FC = () => {
             </div>
 
             {/* Barra de progreso de saturación */}
-            <div className="w-24 text-right">
+            <div className="w-20 text-right">
               <span className="text-xs font-mono font-bold">{capacityStatus.saturationPercentage}%</span>
               <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden mt-1">
                 <div 
@@ -223,7 +250,31 @@ export const HubOrdersManager: React.FC = () => {
                 />
               </div>
             </div>
+          </div>
 
+          {/* Tarjeta Ventana de Recolección (1 a 2 horas antes) */}
+          <div className="p-4 rounded-2xl border bg-indigo-950/40 border-indigo-500/30 text-indigo-200 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-500 text-slate-950 flex items-center justify-center font-bold">
+                <Clock className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider block opacity-80">
+                  Recolección en Comercios
+                </span>
+                <span className="text-sm font-black text-white">
+                  1 a 2 Horas Previas
+                </span>
+                <span className="text-xs block opacity-90 mt-0.5">
+                  Promedio: <strong>{avgCollectionLeadTime}</strong> por ruta ({urgentPickupsCount} en ventana activa)
+                </span>
+              </div>
+            </div>
+            <div className="text-right hidden sm:block">
+              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 px-2 py-0.5 rounded font-bold">
+                Silao Hub
+              </span>
+            </div>
           </div>
 
         </div>
@@ -465,6 +516,8 @@ export const HubOrdersManager: React.FC = () => {
             {filteredOrders.map((order) => {
               const currentDriverId = selectedDriverMap[order.id] || order.driverId || drivers[0]?.id;
               const assignedDriver = drivers.find(d => d.id === (order.driverId || currentDriverId)) || drivers[0];
+              const leadTime = calculateCollectionLeadTime(order);
+              const totalPieces = order.items.reduce((sum, i) => sum + i.quantity, 0);
 
               return (
                 <div 
@@ -499,7 +552,7 @@ export const HubOrdersManager: React.FC = () => {
                           )}
                         </div>
                         <span className="text-xs text-slate-500">
-                          {new Date(order.date).toLocaleString('es-MX')} · {order.items.length} artículos en {order.merchantsCount || 1} comercio(s)
+                          {new Date(order.date).toLocaleString('es-MX')} · {totalPieces} pieza(s) en {order.merchantsCount || 1} comercio(s)
                         </span>
                       </div>
                     </div>
@@ -511,6 +564,52 @@ export const HubOrdersManager: React.FC = () => {
                       <span className="text-[11px] text-slate-500">
                         Envío: <strong>${(order.deliveryFee || 25).toFixed(2)} MXN</strong> ({order.paymentMethod})
                       </span>
+                    </div>
+                  </div>
+
+                  {/* Banner de Tiempo de Recolección Previa (1h a 2h antes) */}
+                  <div className={`p-3 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs ${
+                    leadTime.urgency === 'urgente'
+                      ? 'bg-rose-50/90 border-rose-200 text-rose-950'
+                      : leadTime.urgency === 'proximo'
+                        ? 'bg-amber-50/90 border-amber-200 text-amber-950'
+                        : 'bg-indigo-50/70 border-indigo-200 text-indigo-950'
+                  }`}>
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        leadTime.urgency === 'urgente'
+                          ? 'bg-rose-600 text-white animate-pulse'
+                          : leadTime.urgency === 'proximo'
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-indigo-600 text-white'
+                      }`}>
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="font-bold text-xs">
+                            ⏱️ Recolección Previa: <strong className="text-indigo-950 font-black">{leadTime.hoursFormatted}</strong> ({leadTime.minutes} min antes)
+                          </span>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full border ${leadTime.urgencyBadgeColor}`}>
+                            {leadTime.urgencyLabel}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 mt-0.5">
+                          {leadTime.breakdown} · Requiere visitar {order.merchantsCount || 1} negocio(s) y recolectar {totalPieces} artículo(s).
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-right shrink-0">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Iniciar Recolección</span>
+                        <span className="font-mono font-black text-indigo-950 text-xs">{leadTime.pickupStartTimeStr}</span>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 hidden sm:block" />
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-slate-500 block">Entrega al Cliente</span>
+                        <span className="font-mono font-black text-emerald-800 text-xs">{leadTime.targetDeliveryTimeStr}</span>
+                      </div>
                     </div>
                   </div>
 
