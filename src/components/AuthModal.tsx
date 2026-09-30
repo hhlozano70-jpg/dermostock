@@ -84,10 +84,7 @@ export const AuthModal: React.FC = () => {
 
   const handleLogout = () => {
     logoutRole();
-    setSuccessMessage('Sesión cerrada. Ahora estás como Cliente.');
-    setMerchantPin('');
-    setAdminPin('');
-    setSelectedRole('cliente');
+    setIsAuthModalOpen(false);
   };
 
   return (
@@ -345,9 +342,18 @@ export const AuthModal: React.FC = () => {
             <ArrowRight className="w-4 h-4" />
           </button>
 
-          {/* Enlace al Folleto */}
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>¿Aún no estás registrado como negocio?</span>
+          {/* Enlace al Folleto y Regreso a Puerta de Acceso */}
+          <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+            <button
+              type="button"
+              onClick={() => {
+                logoutRole();
+                setIsAuthModalOpen(false);
+              }}
+              className="text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1 cursor-pointer"
+            >
+              <span>↩️ Salir a Pantalla de Acceso Inicial</span>
+            </button>
             <button
               type="button"
               onClick={() => {
@@ -357,7 +363,7 @@ export const AuthModal: React.FC = () => {
               className="font-bold text-emerald-700 hover:underline flex items-center gap-1 cursor-pointer"
             >
               <FileText className="w-3.5 h-3.5" />
-              <span>Ver Folleto y Comisiones</span>
+              <span>Ver Folleto Oficial (0% Entrada)</span>
             </button>
           </div>
 

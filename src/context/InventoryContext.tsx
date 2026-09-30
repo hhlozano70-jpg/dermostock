@@ -104,6 +104,8 @@ interface InventoryContextType {
   setUserRole: (role: UserRole) => void;
   loggedMerchantId: string | null;
   loggedMerchant: Merchant | null;
+  hasAccessSelected: boolean;
+  setHasAccessSelected: (selected: boolean) => void;
   loginRole: (role: UserRole, merchantId?: string, pin?: string) => { success: boolean; message?: string };
   logoutRole: () => void;
   adminPin: string;
@@ -153,9 +155,25 @@ const STORAGE_KEYS = {
   ROLE: 'silaomarket_role_v4',
   LOGGED_MERCHANT: 'silaomarket_logged_merchant_v4',
   ADMIN_PIN: 'silaomarket_admin_pin_v4',
+  ACCESS_SELECTED: 'silaomarket_access_selected_v1',
 };
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Access Gate state (requires selecting role upfront before accessing main views)
+  const [hasAccessSelected, setHasAccessSelectedState] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEYS.ACCESS_SELECTED) === 'true';
+    } catch {}
+    return false;
+  });
+
+  const setHasAccessSelected = (selected: boolean) => {
+    setHasAccessSelectedState(selected);
+    try {
+      if (selected) localStorage.setItem(STORAGE_KEYS.ACCESS_SELECTED, 'true');
+      else localStorage.removeItem(STORAGE_KEYS.ACCESS_SELECTED);
+    } catch {}
+  };
   // Load products from localStorage or default
   const [products, setProducts] = useState<Product[]>(() => {
     try {
@@ -271,6 +289,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     if (role === 'cliente') {
       setUserRole('cliente');
       setLoggedMerchantId(null);
+      setHasAccessSelected(true);
       setActiveTab('tienda');
       return { success: true };
     }
@@ -279,7 +298,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (pin && pin.trim() === adminPin.trim()) {
         setUserRole('admin');
         setLoggedMerchantId(null);
-        setActiveTab('finanzas');
+        setHasAccessSelected(true);
+        setActiveTab('inventario');
         return { success: true };
       }
       return { success: false, message: 'PIN de Administrador incorrecto (Por defecto: 1234)' };
@@ -297,6 +317,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (pin && pin.trim() === targetPin.trim()) {
         setUserRole('negocio');
         setLoggedMerchantId(merchantId);
+        setHasAccessSelected(true);
         setActiveTab('mi_negocio');
         return { success: true };
       }
@@ -309,6 +330,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const logoutRole = () => {
     setUserRole('cliente');
     setLoggedMerchantId(null);
+    setHasAccessSelected(false);
     setActiveTab('tienda');
   };
 
@@ -1259,6 +1281,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setUserRole,
         loggedMerchantId,
         loggedMerchant,
+        hasAccessSelected,
+        setHasAccessSelected,
         loginRole,
         logoutRole,
         adminPin,

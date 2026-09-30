@@ -171,20 +171,18 @@ export const Navbar: React.FC = () => {
               </button>
             )}
 
-            {/* Inventario / Gestión Tab */}
-            {(userRole === 'negocio' || userRole === 'admin') && (
-              <button
-                onClick={() => setActiveTab('inventario')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
-                  activeTab === 'inventario'
-                    ? 'text-emerald-700 bg-emerald-50 font-bold shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                }`}
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>{userRole === 'negocio' ? 'Mi Inventario' : 'Inventario'}</span>
-              </button>
-            )}
+            {/* Inventario / Consulta Tab */}
+            <button
+              onClick={() => setActiveTab('inventario')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                activeTab === 'inventario'
+                  ? 'text-emerald-700 bg-emerald-50 font-bold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span>{userRole === 'negocio' ? 'Mi Inventario' : userRole === 'cliente' ? 'Inventarios' : 'Inventario'}</span>
+            </button>
 
             {/* Pedidos Tab */}
             <button
@@ -327,6 +325,18 @@ export const Navbar: React.FC = () => {
           <Store className="w-4 h-4 mb-0.5" />
           <span className="text-[10px]">Tienda</span>
         </button>
+
+        {userRole === 'cliente' && (
+          <button
+            onClick={() => setActiveTab('inventario')}
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-lg text-xs transition-colors cursor-pointer ${
+              activeTab === 'inventario' ? 'text-emerald-700 font-bold' : 'text-slate-500'
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4 mb-0.5" />
+            <span className="text-[10px]">Inventarios</span>
+          </button>
+        )}
 
         {(userRole === 'negocio' || userRole === 'admin') && (
           <button

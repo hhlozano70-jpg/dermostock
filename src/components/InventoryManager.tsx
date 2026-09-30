@@ -32,7 +32,9 @@ import {
   Key,
   ShoppingBag,
   CheckCircle2,
-  Check
+  Check,
+  Eye,
+  ShoppingCart
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Product, Brand, Category, MovementType } from '../types/inventory';
@@ -146,7 +148,11 @@ export const InventoryManager: React.FC = () => {
     userRole,
     loggedMerchantId,
     loggedMerchant,
-    setIsAuthModalOpen
+    setIsAuthModalOpen,
+    addToCart,
+    setSelectedProductForQuickView,
+    setIsCartOpen,
+    cartCount
   } = useInventory();
 
   const merchantsList = merchants && merchants.length > 0 ? merchants : SILAO_MERCHANTS;
@@ -351,40 +357,7 @@ export const InventoryManager: React.FC = () => {
     showToast('Reporte CSV de inventario generado.');
   };
 
-  if (userRole === 'cliente') {
-    return (
-      <div className="max-w-2xl mx-auto my-16 p-8 bg-white rounded-3xl border border-slate-200 shadow-xl text-center space-y-5">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center mx-auto border border-emerald-200">
-          <ShoppingBag className="w-8 h-8" />
-        </div>
-        <span className="inline-block text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100/70 px-3 py-1 rounded-full">
-          Acceso de Clientes
-        </span>
-        <h2 className="text-2xl font-black text-slate-900 font-serif">
-          Catálogo Multitienda de Silao
-        </h2>
-        <p className="text-sm text-slate-600 leading-relaxed">
-          Como <strong>Cliente</strong>, tienes acceso completo para ver, comparar y comprar de <strong>todas las tiendas y negocios de Silao</strong> en un solo pedido consolidado.
-          El panel de inventario y existencias de almacén es de acceso exclusivo para los comercios afiliados y administradores.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <button
-            onClick={() => setActiveTab('tienda')}
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
-          >
-            <Store className="w-4 h-4" />
-            <span>Ver Tienda Silao (Todos los productos)</span>
-          </button>
-          <button
-            onClick={() => setIsAuthModalOpen(true)}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm transition-all cursor-pointer border border-slate-200"
-          >
-            Acceder como Negocio o Administrador
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Remove blocking check - client now has read-only view with order abilities
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -394,6 +367,38 @@ export const InventoryManager: React.FC = () => {
         <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg border border-slate-700 flex items-center gap-2 text-sm animate-bounce">
           <CheckCircle className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Cliente Access Banner */}
+      {userRole === 'cliente' && (
+        <div className="p-4 bg-emerald-50/90 rounded-2xl border border-emerald-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-center gap-3">
+            <span className="p-2.5 rounded-xl bg-emerald-600 text-white text-lg shrink-0">🛍️</span>
+            <div>
+              <p className="font-bold text-emerald-950 text-sm">
+                Consulta de Inventarios de Silao (Perfil Cliente)
+              </p>
+              <p className="text-emerald-800 mt-0.5">
+                👁️ <strong>Modo Lectura y Pedidos:</strong> Consulta existencias y precios en tiempo real de todos los comercios afiliados de Silao y pide directamente. No tienes permisos para editar catálogo ni modificar existencias.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setActiveTab('tienda')}
+              className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-xs cursor-pointer flex items-center gap-1.5"
+            >
+              <Store className="w-4 h-4" />
+              <span>Ver Tienda</span>
+            </button>
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-semibold cursor-pointer"
+            >
+              Cambiar Rol
+            </button>
+          </div>
         </div>
       )}
 
@@ -427,6 +432,8 @@ export const InventoryManager: React.FC = () => {
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-serif">
               {userRole === 'negocio'
                 ? `Inventario de ${loggedMerchant?.name || 'Mi Comercio'}`
+                : userRole === 'cliente'
+                ? 'Consulta de Inventarios de Silao'
                 : 'Gestión de Inventario y Hub Central Silao'}
             </h1>
             <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
@@ -436,85 +443,129 @@ export const InventoryManager: React.FC = () => {
           <p className="text-sm text-slate-500 mt-1">
             {userRole === 'negocio'
               ? 'Control de existencias y precios de tus productos para venta en la plataforma multitienda de Silao.'
+              : userRole === 'cliente'
+              ? 'Consulta existencias en tiempo real de todos los comercios afiliados de Silao y pide directamente.'
               : 'Control de existencias por comercio de Silao, recepción de mercancías y consolidación de pedidos en Hub Central.'}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={async () => {
-              await refreshFromServer();
-              showToast('Datos sincronizados correctamente con la nube.');
-            }}
-            className="flex items-center gap-1.5 py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            title="Sincronizar datos y fotos con el servidor para que coincidan en PC y Celular"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${syncStatus === 'syncing' ? 'animate-spin text-blue-600' : 'text-slate-600'}`} />
-            <span>{syncStatus === 'syncing' ? 'Sincronizando...' : 'Sincronizar Nube'}</span>
-          </button>
+          {userRole === 'cliente' ? (
+            <>
+              <button
+                onClick={() => setActiveTab('tienda')}
+                className="flex items-center gap-1.5 py-2 px-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <Store className="w-4 h-4" />
+                <span>Ir a Tienda Silao</span>
+              </button>
 
-          <button
-            onClick={() => setActiveTab('reportes')}
-            className="flex items-center gap-1.5 py-2 px-3 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            title="Ver panel de control con reportes de inventario y pedidos"
-          >
-            <BarChart3 className="w-4 h-4 text-blue-600" />
-            <span>Ver Reportes</span>
-          </button>
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="flex items-center gap-1.5 py-2 px-3.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <ShoppingCart className="w-4 h-4 text-emerald-400" />
+                <span>Mi Carrito ({cartCount})</span>
+              </button>
 
-          <button
-            onClick={() => openScanner('inventory')}
-            className="flex items-center gap-1.5 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            title="Abrir lector de código de barras para dar entrada a mercancía"
-          >
-            <Scan className="w-4 h-4 text-emerald-400" />
-            <span>Escanear Mercancía</span>
-          </button>
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center gap-1.5 py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                title="Descargar lista de existencias en Excel / CSV"
+              >
+                <Download className="w-4 h-4" />
+                <span>Exportar CSV</span>
+              </button>
 
-          <button
-            onClick={() => openProductModal(null)}
-            className="flex items-center gap-1.5 py-2 px-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Nuevo Producto</span>
-          </button>
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-1.5 py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                title="Imprimir existencias"
+              >
+                <Printer className="w-4 h-4" />
+                <span>Imprimir</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={async () => {
+                  await refreshFromServer();
+                  showToast('Datos sincronizados correctamente con la nube.');
+                }}
+                className="flex items-center gap-1.5 py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                title="Sincronizar datos y fotos con el servidor para que coincidan en PC y Celular"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncStatus === 'syncing' ? 'animate-spin text-blue-600' : 'text-slate-600'}`} />
+                <span>{syncStatus === 'syncing' ? 'Sincronizando...' : 'Sincronizar Nube'}</span>
+              </button>
 
-          <button
-            onClick={handleExportCSV}
-            className="flex items-center gap-1.5 py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            title="Exportar inventario a Excel / CSV"
-          >
-            <Download className="w-4 h-4" />
-            <span>Exportar CSV</span>
-          </button>
+              {userRole === 'admin' && (
+                <button
+                  onClick={() => setActiveTab('reportes')}
+                  className="flex items-center gap-1.5 py-2 px-3 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                  title="Ver panel de control con reportes de inventario y pedidos"
+                >
+                  <BarChart3 className="w-4 h-4 text-blue-600" />
+                  <span>Ver Reportes</span>
+                </button>
+              )}
 
-          <button
-            onClick={() => window.print()}
-            className="flex items-center gap-1.5 py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-            title="Imprimir reporte de existencias"
-          >
-            <Printer className="w-4 h-4" />
-            <span>Imprimir</span>
-          </button>
+              <button
+                onClick={() => openScanner('inventory')}
+                className="flex items-center gap-1.5 py-2 px-3 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                title="Abrir lector de código de barras para dar entrada a mercancía"
+              >
+                <Scan className="w-4 h-4 text-emerald-400" />
+                <span>Escanear Mercancía</span>
+              </button>
 
-          {userRole === 'admin' && (
-            <button
-              onClick={() => {
-                if (
-                  window.confirm(
-                    '¿Deseas restablecer el inventario al catálogo inicial de comercios de Silao, Guanajuato?'
-                  )
-                ) {
-                  resetToInitial();
-                  showToast('Inventario restablecido al catálogo de comercios de Silao.');
-                }
-              }}
-              className="flex items-center gap-1.5 py-2 px-3 bg-white border border-rose-200 hover:bg-rose-50 text-rose-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
-              title="Restablecer catálogo Silao (Solo Administrador)"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Restablecer Catálogo</span>
-            </button>
+              <button
+                onClick={() => openProductModal(null)}
+                className="flex items-center gap-1.5 py-2 px-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Nuevo Producto</span>
+              </button>
+
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center gap-1.5 py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                title="Exportar inventario a Excel / CSV"
+              >
+                <Download className="w-4 h-4" />
+                <span>Exportar CSV</span>
+              </button>
+
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-1.5 py-2 px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                title="Imprimir reporte de existencias"
+              >
+                <Printer className="w-4 h-4" />
+                <span>Imprimir</span>
+              </button>
+
+              {userRole === 'admin' && (
+                <button
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        '¿Deseas restablecer el inventario al catálogo inicial de comercios de Silao, Guanajuato?'
+                      )
+                    ) {
+                      resetToInitial();
+                      showToast('Inventario restablecido al catálogo de comercios de Silao.');
+                    }
+                  }}
+                  className="flex items-center gap-1.5 py-2 px-3 bg-white border border-rose-200 hover:bg-rose-50 text-rose-700 rounded-lg text-xs font-semibold shadow-xs transition-colors cursor-pointer"
+                  title="Restablecer catálogo Silao (Solo Administrador)"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>Restablecer Catálogo</span>
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -957,13 +1008,19 @@ export const InventoryManager: React.FC = () => {
                   <div className="flex gap-3 items-start">
                     <button
                       type="button"
-                      onClick={() => openProductModal(prod)}
-                      className="group relative w-16 h-16 shrink-0 rounded-lg bg-slate-50 border border-slate-200 hover:border-blue-500 flex items-center justify-center p-1 overflow-hidden transition-all shadow-xs cursor-pointer"
-                      title="Clic para cambiar fotografía o editar producto"
+                      onClick={() => {
+                        if (userRole === 'cliente') {
+                          setSelectedProductForQuickView(prod);
+                        } else {
+                          openProductModal(prod);
+                        }
+                      }}
+                      className="group relative w-16 h-16 shrink-0 rounded-lg bg-slate-50 border border-slate-200 hover:border-emerald-500 flex items-center justify-center p-1 overflow-hidden transition-all shadow-xs cursor-pointer"
+                      title={userRole === 'cliente' ? 'Clic para ver detalles' : 'Clic para cambiar fotografía o editar producto'}
                     >
                       <ProductVisual product={prod} size="sm" className="h-14 w-14 border-0" />
                       <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
-                        <Edit3 className="w-4 h-4" />
+                        {userRole === 'cliente' ? <Eye className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
                       </div>
                     </button>
 
@@ -1028,72 +1085,111 @@ export const InventoryManager: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Stock Stepper & Quick Actions */}
+                  {/* Stock & Quick Actions */}
                   <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-medium text-slate-600">Stock:</span>
-                      <div className="inline-flex items-center gap-1 border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (prod.stock > 0) quickAdjustStock(prod.id, -1);
-                          }}
-                          disabled={prod.stock <= 0}
-                          className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:text-rose-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm font-bold cursor-pointer"
-                          title="Restar 1 pieza"
-                        >
-                          -
-                        </button>
-                        <span className="font-mono font-bold text-sm text-slate-900 px-2 min-w-[32px] text-center tabular-nums">
-                          {prod.stock}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => quickAdjustStock(prod.id, 1)}
-                          className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-mono text-sm font-bold cursor-pointer"
-                          title="Sumar 1 pieza"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
+                    {userRole === 'cliente' ? (
+                      <>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium text-slate-600">Disponibilidad:</span>
+                          <span className={`font-mono font-bold text-xs px-2.5 py-1 rounded-lg border ${
+                            prod.stock > 0 
+                              ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                              : 'bg-rose-50 text-rose-800 border-rose-200'
+                          }`}>
+                            {prod.stock > 0 ? `${prod.stock} piezas` : 'Agotado'}
+                          </span>
+                        </div>
 
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => openMovementForProduct(prod, 'entrada')}
-                        className="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg border border-slate-200 cursor-pointer"
-                        title="Registrar Entrada (+)"
-                      >
-                        <ArrowDownLeft className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => openMovementForProduct(prod, 'salida')}
-                        disabled={prod.stock <= 0}
-                        className="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg border border-slate-200 disabled:opacity-30 cursor-pointer"
-                        title="Registrar Salida (-)"
-                      >
-                        <ArrowUpRight className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => openProductModal(prod)}
-                        className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg border border-slate-200 cursor-pointer"
-                        title="Editar Producto y Foto"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (window.confirm(`¿Eliminar "${prod.name}" del catálogo?`)) {
-                            deleteProduct(prod.id);
-                            showToast(`Producto ${prod.name} eliminado.`);
-                          }
-                        }}
-                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 cursor-pointer"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => setSelectedProductForQuickView(prod)}
+                            className="p-2 text-slate-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg border border-slate-200 cursor-pointer"
+                            title="Ver Ficha Detallada"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              addToCart(prod, 1);
+                              showToast(`Agregado al carrito: ${prod.name}`);
+                            }}
+                            disabled={prod.stock <= 0}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                            title="Pedir y agregar al carrito"
+                          >
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>Pedir</span>
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-medium text-slate-600">Stock:</span>
+                          <div className="inline-flex items-center gap-1 border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (prod.stock > 0) quickAdjustStock(prod.id, -1);
+                              }}
+                              disabled={prod.stock <= 0}
+                              className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:text-rose-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-sm font-bold cursor-pointer"
+                              title="Restar 1 pieza"
+                            >
+                              -
+                            </button>
+                            <span className="font-mono font-bold text-sm text-slate-900 px-2 min-w-[32px] text-center tabular-nums">
+                              {prod.stock}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => quickAdjustStock(prod.id, 1)}
+                              className="w-7 h-7 flex items-center justify-center rounded text-slate-600 hover:text-emerald-600 hover:bg-slate-100 font-mono text-sm font-bold cursor-pointer"
+                              title="Sumar 1 pieza"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => openMovementForProduct(prod, 'entrada')}
+                            className="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg border border-slate-200 cursor-pointer"
+                            title="Registrar Entrada (+)"
+                          >
+                            <ArrowDownLeft className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => openMovementForProduct(prod, 'salida')}
+                            disabled={prod.stock <= 0}
+                            className="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-lg border border-slate-200 disabled:opacity-30 cursor-pointer"
+                            title="Registrar Salida (-)"
+                          >
+                            <ArrowUpRight className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => openProductModal(prod)}
+                            className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg border border-slate-200 cursor-pointer"
+                            title="Editar Producto y Foto"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (window.confirm(`¿Eliminar "${prod.name}" del catálogo?`)) {
+                                deleteProduct(prod.id);
+                                showToast(`Producto ${prod.name} eliminado.`);
+                              }
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg border border-slate-200 cursor-pointer"
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                 </div>
@@ -1139,17 +1235,23 @@ export const InventoryManager: React.FC = () => {
                 ) : (
                   filteredProducts.map((prod) => (
                     <tr key={prod.id} className="hover:bg-slate-50/80 transition-colors">
-                      {/* Visual / Foto con botón de edición rápida */}
+                      {/* Visual / Foto con botón de edición rápida o quickview */}
                       <td className="py-2.5 px-4 w-16">
                         <button
                           type="button"
-                          onClick={() => openProductModal(prod)}
-                          className="group relative w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 hover:border-blue-500 flex items-center justify-center p-0.5 overflow-hidden transition-all shadow-xs cursor-pointer"
-                          title="Clic para cambiar fotografía o editar producto"
+                          onClick={() => {
+                            if (userRole === 'cliente') {
+                              setSelectedProductForQuickView(prod);
+                            } else {
+                              openProductModal(prod);
+                            }
+                          }}
+                          className="group relative w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 hover:border-emerald-500 flex items-center justify-center p-0.5 overflow-hidden transition-all shadow-xs cursor-pointer"
+                          title={userRole === 'cliente' ? 'Clic para ver detalles del producto' : 'Clic para cambiar fotografía o editar producto'}
                         >
                           <ProductVisual product={prod} size="sm" className="h-10 w-10 border-0" />
                           <div className="absolute inset-0 bg-slate-900/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white">
-                            <Edit3 className="w-3.5 h-3.5" />
+                            {userRole === 'cliente' ? <Eye className="w-3.5 h-3.5" /> : <Edit3 className="w-3.5 h-3.5" />}
                           </div>
                         </button>
                       </td>
@@ -1221,34 +1323,44 @@ export const InventoryManager: React.FC = () => {
                         ${prod.promoPrice.toFixed(2)}
                       </td>
 
-                      {/* Stock with quick adjusters */}
+                      {/* Stock with quick adjusters (or static badge for cliente) */}
                       <td className="py-2.5 px-4 text-center whitespace-nowrap">
-                        <div className="inline-flex items-center gap-1 border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (prod.stock > 0) quickAdjustStock(prod.id, -1);
-                            }}
-                            disabled={prod.stock <= 0}
-                            className="w-5 h-5 flex items-center justify-center rounded text-slate-500 hover:text-rose-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-xs font-bold cursor-pointer"
-                            title="Restar 1 pieza"
-                          >
-                            -
-                          </button>
-
-                          <span className="font-mono font-bold text-sm text-slate-900 px-2 min-w-[28px] text-center tabular-nums">
-                            {prod.stock}
+                        {userRole === 'cliente' ? (
+                          <span className={`inline-block font-mono font-bold text-xs px-2.5 py-1 rounded-lg border ${
+                            prod.stock > 0 
+                              ? 'bg-slate-100 text-slate-800 border-slate-200' 
+                              : 'bg-rose-50 text-rose-800 border-rose-200'
+                          }`}>
+                            {prod.stock > 0 ? `${prod.stock} pzas` : 'Agotado'}
                           </span>
+                        ) : (
+                          <div className="inline-flex items-center gap-1 border border-slate-200 rounded-lg p-1 bg-white shadow-xs">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (prod.stock > 0) quickAdjustStock(prod.id, -1);
+                              }}
+                              disabled={prod.stock <= 0}
+                              className="w-5 h-5 flex items-center justify-center rounded text-slate-500 hover:text-rose-600 hover:bg-slate-100 disabled:opacity-30 disabled:cursor-not-allowed font-mono text-xs font-bold cursor-pointer"
+                              title="Restar 1 pieza"
+                            >
+                              -
+                            </button>
 
-                          <button
-                            type="button"
-                            onClick={() => quickAdjustStock(prod.id, 1)}
-                            className="w-5 h-5 flex items-center justify-center rounded text-slate-500 hover:text-emerald-600 hover:bg-slate-100 font-mono text-xs font-bold cursor-pointer"
-                            title="Sumar 1 pieza"
-                          >
-                            +
-                          </button>
-                        </div>
+                            <span className="font-mono font-bold text-sm text-slate-900 px-2 min-w-[28px] text-center tabular-nums">
+                              {prod.stock}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => quickAdjustStock(prod.id, 1)}
+                              className="w-5 h-5 flex items-center justify-center rounded text-slate-500 hover:text-emerald-600 hover:bg-slate-100 font-mono text-xs font-bold cursor-pointer"
+                              title="Sumar 1 pieza"
+                            >
+                              +
+                            </button>
+                          </div>
+                        )}
                       </td>
 
                       {/* Stock Status Badge */}
@@ -1270,45 +1382,69 @@ export const InventoryManager: React.FC = () => {
 
                       {/* Actions */}
                       <td className="py-2.5 px-4 text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-1">
-                          <button
-                            onClick={() => openMovementForProduct(prod, 'entrada')}
-                            className="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition-colors cursor-pointer"
-                            title="Registrar Entrada de Mercancía (+)"
-                          >
-                            <ArrowDownLeft className="w-4 h-4" />
-                          </button>
+                        {userRole === 'cliente' ? (
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => setSelectedProductForQuickView(prod)}
+                              className="p-1.5 text-blue-700 hover:bg-blue-50 rounded-lg border border-slate-200 cursor-pointer"
+                              title="Ver Ficha Detallada"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                addToCart(prod, 1);
+                                showToast(`Agregado al carrito: ${prod.name}`);
+                              }}
+                              disabled={prod.stock <= 0}
+                              className="flex items-center gap-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                              title="Agregar al Carrito de Silao"
+                            >
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                              <span>Pedir</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => openMovementForProduct(prod, 'entrada')}
+                              className="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded-md transition-colors cursor-pointer"
+                              title="Registrar Entrada de Mercancía (+)"
+                            >
+                              <ArrowDownLeft className="w-4 h-4" />
+                            </button>
 
-                          <button
-                            onClick={() => openMovementForProduct(prod, 'salida')}
-                            disabled={prod.stock <= 0}
-                            className="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-md transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-                            title="Registrar Salida / Merma (-)"
-                          >
-                            <ArrowUpRight className="w-4 h-4" />
-                          </button>
+                            <button
+                              onClick={() => openMovementForProduct(prod, 'salida')}
+                              disabled={prod.stock <= 0}
+                              className="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded-md transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                              title="Registrar Salida / Merma (-)"
+                            >
+                              <ArrowUpRight className="w-4 h-4" />
+                            </button>
 
-                          <button
-                            onClick={() => openProductModal(prod)}
-                            className="p-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
-                            title="Editar Producto, Precios y Fotografía"
-                          >
-                            <Edit3 className="w-4 h-4" />
-                          </button>
+                            <button
+                              onClick={() => openProductModal(prod)}
+                              className="p-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors cursor-pointer"
+                              title="Editar Producto, Precios y Fotografía"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
 
-                          <button
-                            onClick={() => {
-                              if (window.confirm(`¿Seguro que deseas eliminar "${prod.name}" del catálogo?`)) {
-                                deleteProduct(prod.id);
-                                showToast(`Producto ${prod.name} eliminado.`);
-                              }
-                            }}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
-                            title="Eliminar Producto"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
+                            <button
+                              onClick={() => {
+                                if (window.confirm(`¿Seguro que deseas eliminar "${prod.name}" del catálogo?`)) {
+                                  deleteProduct(prod.id);
+                                  showToast(`Producto ${prod.name} eliminado.`);
+                                }
+                              }}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors cursor-pointer"
+                              title="Eliminar Producto"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                       </td>
 
                     </tr>

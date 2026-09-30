@@ -21,6 +21,7 @@ import { MerchantPortal } from './components/MerchantPortal';
 import { FinancialDashboard } from './components/FinancialDashboard';
 import { MerchantsManager } from './components/MerchantsManager';
 import { HubOrdersManager } from './components/HubOrdersManager';
+import { InitialAccessGate } from './components/InitialAccessGate';
 
 const MainContent: React.FC = () => {
   const { 
@@ -40,7 +41,8 @@ const MainContent: React.FC = () => {
     scannerMode,
     setIsBrochureModalOpen,
     setIsAuthModalOpen,
-    userRole
+    userRole,
+    hasAccessSelected
   } = useInventory();
 
   // If page was loaded via QR scan link (e.g., /?rastreo=SLO-TRK-101), open tracking modal automatically
@@ -59,6 +61,16 @@ const MainContent: React.FC = () => {
       }
     }
   }, [orders, openTrackingModal]);
+
+  // Initial access gateway before entering main application
+  if (!hasAccessSelected) {
+    return (
+      <>
+        <InitialAccessGate />
+        <BrochureModal />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8F9FA] text-[#1E293B]">
