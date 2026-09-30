@@ -23,7 +23,10 @@ export const ProductEditModal: React.FC = () => {
     updateProduct, 
     addProduct,
     addStockMovement,
-    merchants
+    merchants,
+    userRole,
+    loggedMerchant,
+    loggedMerchantId
   } = useInventory();
 
   const merchantsList = merchants && merchants.length > 0 ? merchants : SILAO_MERCHANTS;
@@ -83,6 +86,14 @@ export const ProductEditModal: React.FC = () => {
 
   // Synchronize when productToEdit changes
   useEffect(() => {
+    if (userRole === 'negocio' && productToEdit && 'id' in productToEdit && productToEdit.id) {
+      if (productToEdit.merchantId && loggedMerchantId && productToEdit.merchantId !== loggedMerchantId) {
+        alert('Acceso restringido: Solo puedes gestionar y modificar los productos pertenecientes a tu propio negocio.');
+        closeProductModal();
+        return;
+      }
+    }
+
     if (productToEdit && 'id' in productToEdit && productToEdit.id) {
       setName(productToEdit.name ?? '');
       setSku(productToEdit.sku ?? '');
@@ -132,7 +143,11 @@ export const ProductEditModal: React.FC = () => {
       setUrlInput(productToEdit.imageUrl ?? '');
     } else {
       // New product defaults (may have pre-filled barcode from scanner)
-      const defaultMerchant = merchantsList[0];
+      const defaultMerchant = (userRole === 'negocio' && loggedMerchant)
+        ? loggedMerchant
+        : (userRole === 'negocio' && loggedMerchantId)
+          ? (merchantsList.find(m => m.id === loggedMerchantId) || merchantsList[0])
+          : merchantsList[0];
       setMerchantId(defaultMerchant.id);
       setMerchantName(defaultMerchant.name);
       setMerchantCategory(defaultMerchant.category);
@@ -255,6 +270,15 @@ export const ProductEditModal: React.FC = () => {
     const finalBrand = isCustomBrand ? customBrand.trim() || 'Marca General' : brand;
     const finalCategory = isCustomCategory ? customCategory.trim() || 'Abarrotes y Cremería' : category;
 
+    // Ensure that if userRole is negocio, it strictly writes under their loggedMerchant
+    const effectiveMerchantId = (userRole === 'negocio' && loggedMerchantId) ? loggedMerchantId : merchantId;
+    const effectiveMerchant = (userRole === 'negocio' && loggedMerchant) 
+      ? loggedMerchant 
+      : (merchantsList.find(m => m.id === effectiveMerchantId) || merchantsList[0]);
+    const effectiveMerchantName = effectiveMerchant.name;
+    const effectiveMerchantCategory = effectiveMerchant.category;
+    const effectiveMerchantAddress = effectiveMerchant.address;
+
     if (isExisting) {
       const existing = productToEdit as Product;
       // Stock diff for Kardex
@@ -269,10 +293,10 @@ export const ProductEditModal: React.FC = () => {
         presentation: presentation.trim(),
         brand: finalBrand,
         category: finalCategory,
-        merchantId,
-        merchantName,
-        merchantCategory,
-        merchantAddress,
+        merchantId: effectiveMerchantId,
+        merchantName: effectiveMerchantName,
+        merchantCategory: effectiveMerchantCategory,
+        merchantAddress: effectiveMerchantAddress,
         isColdChain,
         commercialPrice: Number(commercialPrice),
         wholesalePrice: Number(wholesalePrice),
@@ -304,10 +328,10 @@ export const ProductEditModal: React.FC = () => {
         presentation: presentation.trim(),
         brand: finalBrand,
         category: finalCategory,
-        merchantId,
-        merchantName,
-        merchantCategory,
-        merchantAddress,
+        merchantId: effectiveMerchantId,
+        merchantName: effectiveMerchantName,
+        merchantCategory: effectiveMerchantCategory,
+        merchantAddress: effectiveMerchantAddress,
         isColdChain,
         commercialPrice: Number(commercialPrice),
         wholesalePrice: Number(wholesalePrice),
@@ -545,33 +569,47 @@ export const ProductEditModal: React.FC = () => {
               <div className="sm:col-span-2 bg-blue-50/60 p-3 rounded-xl border border-blue-200">
                 <label className="block text-xs font-bold text-blue-950 mb-1 flex items-center justify-between">
                   <span>🏪 Comercio Asociado de Silao *</span>
-                  <span className="text-[10px] text-blue-700 font-normal">Hub Silao Central</span>
+                  <span className="text-[10px] text-blue-700 font-normal">
+                    {userRole === 'negocio' ? 'Tu negocio activo' : 'Hub Silao Central'}
+                  </span>
                 </label>
-                <select
-                  value={merchantId}
-                  onChange={(e) => {
-                    const selected = merchantsList.find(m => m.id === e.target.value);
-                    if (selected) {
-                      setMerchantId(selected.id);
-                      setMerchantName(selected.name);
-                      setMerchantCategory(selected.category);
-                      setMerchantAddress(selected.address);
-                      if (selected.isColdChain !== undefined) {
-                        setIsColdChain(Boolean(selected.isColdChain));
+                {userRole === 'negocio' ? (
+                  <div className="w-full px-3 py-2.5 bg-emerald-50 border border-emerald-300 rounded-lg text-emerald-950 text-xs font-semibold flex items-center justify-between shadow-xs">
+                    <span className="flex items-center gap-2">
+                      <span className="text-base">🏪</span>
+                      <span><strong>{merchantName}</strong> ({merchantCategory}) · {merchantAddress}</span>
+                    </span>
+                    <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded font-black uppercase tracking-wider">
+                      Exclusivo
+                    </span>
+                  </div>
+                ) : (
+                  <select
+                    value={merchantId}
+                    onChange={(e) => {
+                      const selected = merchantsList.find(m => m.id === e.target.value);
+                      if (selected) {
+                        setMerchantId(selected.id);
+                        setMerchantName(selected.name);
+                        setMerchantCategory(selected.category);
+                        setMerchantAddress(selected.address);
+                        if (selected.isColdChain !== undefined) {
+                          setIsColdChain(Boolean(selected.isColdChain));
+                        }
+                        if (!isCustomCategory) {
+                          setCategory(selected.category);
+                        }
                       }
-                      if (!isCustomCategory) {
-                        setCategory(selected.category);
-                      }
-                    }
-                  }}
-                  className="w-full px-3 py-2 text-xs sm:text-sm border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium text-slate-800"
-                >
-                  {merchantsList.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.badge} {m.name} ({m.category}) · {m.silaoZone}
-                    </option>
-                  ))}
-                </select>
+                    }}
+                    className="w-full px-3 py-2 text-xs sm:text-sm border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium text-slate-800"
+                  >
+                    {merchantsList.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.badge} {m.name} ({m.category}) · {m.silaoZone}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-2 pt-2 border-t border-blue-200/80 text-xs">
                   <span className="text-[11px] text-slate-600">
                     📍 <span className="font-semibold">{merchantName}</span>: {merchantAddress}

@@ -11,7 +11,9 @@ export const ProductQuickView: React.FC = () => {
     setPriceTier,
     addToCart,
     openProductModal,
-    cart
+    cart,
+    userRole,
+    loggedMerchantId
   } = useInventory();
 
   const [quantity, setQuantity] = useState(1);
@@ -68,17 +70,19 @@ export const ProductQuickView: React.FC = () => {
               <span>Marca: <strong className="text-slate-700">{product.brand}</strong></span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedProductForQuickView(null);
-                openProductModal(product);
-              }}
-              className="w-full py-2 px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
-            >
-              <Edit3 className="w-3.5 h-3.5 text-blue-600" />
-              <span>Editar Datos o Cambiar Fotografía</span>
-            </button>
+            {(userRole === 'admin' || (userRole === 'negocio' && product.merchantId === loggedMerchantId)) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedProductForQuickView(null);
+                  openProductModal(product);
+                }}
+                className="w-full py-2 px-3 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5 text-blue-600" />
+                <span>Editar Datos o Cambiar Fotografía</span>
+              </button>
+            )}
           </div>
         </div>
 

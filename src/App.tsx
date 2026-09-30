@@ -39,7 +39,8 @@ const MainContent: React.FC = () => {
     closeScanner,
     scannerMode,
     setIsBrochureModalOpen,
-    setIsAuthModalOpen
+    setIsAuthModalOpen,
+    userRole
   } = useInventory();
 
   // If page was loaded via QR scan link (e.g., /?rastreo=SLO-TRK-101), open tracking modal automatically
@@ -64,14 +65,14 @@ const MainContent: React.FC = () => {
       {/* Top Bar following contract */}
       <Navbar />
 
-      {/* Main View Router */}
+      {/* Main View Router with Strict Role Guards */}
       <main className="flex-1 pb-16 md:pb-0">
         {activeTab === 'tienda' && <Storefront />}
         {activeTab === 'inventario' && <InventoryManager />}
-        {activeTab === 'mi_negocio' && <MerchantPortal />}
-        {activeTab === 'finanzas' && <FinancialDashboard />}
-        {activeTab === 'hub_pedidos' && <HubOrdersManager />}
-        {activeTab === 'reportes' && <ReportsDashboard />}
+        {activeTab === 'mi_negocio' && (userRole === 'cliente' ? <Storefront /> : <MerchantPortal />)}
+        {activeTab === 'finanzas' && (userRole === 'admin' ? <FinancialDashboard /> : <Storefront />)}
+        {activeTab === 'hub_pedidos' && (userRole === 'admin' ? <HubOrdersManager /> : <Storefront />)}
+        {activeTab === 'reportes' && (userRole === 'admin' ? <ReportsDashboard /> : <Storefront />)}
         {activeTab === 'movimientos' && <MovementsHistory />}
         {activeTab === 'pedidos' && <OrdersHistory />}
       </main>

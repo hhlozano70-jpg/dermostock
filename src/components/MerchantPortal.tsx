@@ -79,7 +79,8 @@ export const MerchantPortal: React.FC = () => {
     const itemsInOrder = order.items.filter(item => item.product.merchantId === merchant.id);
     if (itemsInOrder.length > 0) {
       itemsInOrder.forEach(item => {
-        totalGrossSales += item.product.price * item.quantity;
+        const itemPrice = item.unitPrice || item.product.commercialPrice || (item.product as any).price || 0;
+        totalGrossSales += itemPrice * item.quantity;
         totalItemsSold += item.quantity;
       });
       return true;
@@ -88,7 +89,7 @@ export const MerchantPortal: React.FC = () => {
   });
 
   // Comisión y Neto
-  const commissionAmount = totalGrossSales * (commissionRate / 100);
+  const commissionAmount = (totalGrossSales * commissionRate) / 100;
   const netEarnings = totalGrossSales - commissionAmount;
 
   // Liquidaciones de este negocio
@@ -328,19 +329,23 @@ export const MerchantPortal: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {merchantProducts.slice(0, 8).map(prod => (
-                        <tr key={prod.id} className="hover:bg-slate-50">
-                          <td className="py-2.5 font-bold text-slate-800 flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            {prod.name}
-                          </td>
-                          <td className="py-2.5 text-center font-semibold text-slate-600">{prod.stock}</td>
-                          <td className="py-2.5 text-right font-bold text-slate-900">${prod.price.toFixed(2)}</td>
-                          <td className="py-2.5 text-right font-black text-emerald-700">
-                            ${(prod.price * (1 - commissionRate / 100)).toFixed(2)}
-                          </td>
-                        </tr>
-                      ))}
+                      {merchantProducts.slice(0, 8).map(prod => {
+                        const price = prod.commercialPrice || (prod as any).price || 0;
+                        const net = price * (1 - commissionRate / 100);
+                        return (
+                          <tr key={prod.id} className="hover:bg-slate-50">
+                            <td className="py-2.5 font-bold text-slate-800 flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                              {prod.name}
+                            </td>
+                            <td className="py-2.5 text-center font-semibold text-slate-600">{prod.stock}</td>
+                            <td className="py-2.5 text-right font-bold text-slate-900">${price.toFixed(2)}</td>
+                            <td className="py-2.5 text-right font-black text-emerald-700">
+                              ${net.toFixed(2)}
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -467,7 +472,10 @@ export const MerchantPortal: React.FC = () => {
             <div className="space-y-4">
               {merchantOrders.map((order) => {
                 const thisShopItems = order.items.filter(i => i.product.merchantId === merchant.id);
-                const shopTotal = thisShopItems.reduce((acc, i) => acc + (i.product.price * i.quantity), 0);
+                const shopTotal = thisShopItems.reduce((acc, i) => {
+                  const p = i.unitPrice || i.product.commercialPrice || (i.product as any).price || 0;
+                  return acc + (p * i.quantity);
+                }, 0);
                 const shopNet = shopTotal * (1 - commissionRate / 100);
 
                 return (
@@ -475,7 +483,7 @@ export const MerchantPortal: React.FC = () => {
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2">
                       <div className="flex items-center gap-2">
                         <span className="font-black text-slate-900 text-sm">Pedido #{order.id}</span>
-                        <span className="text-xs text-slate-500">• {new Date(order.createdAt).toLocaleString()}</span>
+                        <span className="text-xs text-slate-500">• {new Date(order.date || (order as any).createdAt || Date.now()).toLocaleString('es-MX')}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-slate-500">Cliente: <strong>{order.customerName}</strong></span>
@@ -488,16 +496,19 @@ export const MerchantPortal: React.FC = () => {
                     </div>
 
                     <div className="space-y-1.5">
-                      {thisShopItems.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between text-xs">
-                          <span className="text-slate-800">
-                            <strong>{item.quantity}x</strong> {item.product.name}
-                          </span>
-                          <span className="font-semibold text-slate-900">
-                            ${(item.product.price * item.quantity).toFixed(2)}
-                          </span>
-                        </div>
-                      ))}
+                      {thisShopItems.map((item, idx) => {
+                        const itemPrice = item.unitPrice || item.product.commercialPrice || (item.product as any).price || 0;
+                        return (
+                          <div key={idx} className="flex items-center justify-between text-xs">
+                            <span className="text-slate-800">
+                              <strong>{item.quantity}x</strong> {item.product.name}
+                            </span>
+                            <span className="font-semibold text-slate-900">
+                              ${(itemPrice * item.quantity).toFixed(2)}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
@@ -537,44 +548,49 @@ export const MerchantPortal: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {merchantProducts.map((prod) => (
-              <div key={prod.id} className="p-3.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 transition-all space-y-2 flex flex-col justify-between">
-                <div>
-                  <div className="w-full h-32 rounded-lg bg-slate-100 overflow-hidden mb-2 relative">
-                    <img 
-                      src={prod.image || '/images/products/placeholder.jpg'} 
-                      alt={prod.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&auto=format&fit=crop&q=80';
-                      }}
-                    />
-                    <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-bold">
-                      Stock: {prod.stock}
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-xs text-slate-900 line-clamp-2">{prod.name}</h4>
-                  <span className="text-[10px] text-slate-500">{prod.category}</span>
-                </div>
+            {merchantProducts.map((prod) => {
+              const price = prod.commercialPrice || (prod as any).price || 0;
+              const netPrice = price * (1 - commissionRate / 100);
 
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+              return (
+                <div key={prod.id} className="p-3.5 rounded-xl border border-slate-200 bg-white hover:border-emerald-300 transition-all space-y-2 flex flex-col justify-between">
                   <div>
-                    <span className="text-sm font-black text-slate-900">${prod.price.toFixed(2)}</span>
-                    <span className="text-[10px] text-emerald-700 block font-semibold">
-                      Neto: ${(prod.price * (1 - commissionRate / 100)).toFixed(2)}
-                    </span>
+                    <div className="w-full h-32 rounded-lg bg-slate-100 overflow-hidden mb-2 relative">
+                      <img 
+                        src={prod.imageUrl || (prod as any).image || '/images/products/placeholder.jpg'} 
+                        alt={prod.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&auto=format&fit=crop&q=80';
+                        }}
+                      />
+                      <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/70 text-white text-[10px] font-bold">
+                        Stock: {prod.stock}
+                      </span>
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-900 line-clamp-2">{prod.name}</h4>
+                    <span className="text-[10px] text-slate-500">{prod.category}</span>
                   </div>
 
-                  <button
-                    onClick={() => openProductModal(prod)}
-                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-all cursor-pointer"
-                    title="Editar producto"
-                  >
-                    <Edit className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-sm font-black text-slate-900">${price.toFixed(2)}</span>
+                      <span className="text-[10px] text-emerald-700 block font-semibold">
+                        Neto: ${netPrice.toFixed(2)}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => openProductModal(prod)}
+                      className="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-all cursor-pointer"
+                      title="Editar producto"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

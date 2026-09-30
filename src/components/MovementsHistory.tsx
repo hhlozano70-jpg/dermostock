@@ -12,12 +12,36 @@ import {
 import { useInventory } from '../context/InventoryContext';
 
 export const MovementsHistory: React.FC = () => {
-  const { movements } = useInventory();
+  const { 
+    movements, 
+    products, 
+    userRole, 
+    loggedMerchantId, 
+    loggedMerchant, 
+    setActiveTab, 
+    setIsAuthModalOpen 
+  } = useInventory();
   const [filterType, setFilterType] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Set of product IDs owned by this merchant
+  const merchantProductIds = useMemo(() => {
+    if (userRole === 'negocio' && loggedMerchantId) {
+      return new Set(products.filter((p) => p.merchantId === loggedMerchantId).map((p) => p.id));
+    }
+    return null;
+  }, [products, userRole, loggedMerchantId]);
+
+  // Scoped movements
+  const scopedMovements = useMemo(() => {
+    if (userRole === 'negocio' && merchantProductIds) {
+      return movements.filter((m) => merchantProductIds.has(m.productId));
+    }
+    return movements;
+  }, [movements, userRole, merchantProductIds]);
+
   const filteredMovements = useMemo(() => {
-    return movements.filter((m) => {
+    return scopedMovements.filter((m) => {
       const matchType = filterType === 'all' || m.type === filterType;
       const matchSearch =
         m.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -25,7 +49,7 @@ export const MovementsHistory: React.FC = () => {
         (m.reference && m.reference.toLowerCase().includes(searchTerm.toLowerCase()));
       return matchType && matchSearch;
     });
-  }, [movements, filterType, searchTerm]);
+  }, [scopedMovements, filterType, searchTerm]);
 
   const handleExportCSV = () => {
     const headers = [
@@ -39,7 +63,7 @@ export const MovementsHistory: React.FC = () => {
       'Referencia',
     ];
 
-    const rows = movements.map((m) => [
+    const rows = filteredMovements.map((m) => [
       `"${new Date(m.timestamp).toLocaleString('es-MX')}"`,
       `"${m.type.toUpperCase()}"`,
       `"${m.productName}"`,
@@ -59,12 +83,46 @@ export const MovementsHistory: React.FC = () => {
     link.setAttribute('href', encodedUri);
     link.setAttribute(
       'download',
-      `Kardex_Movimientos_DermoStock_${new Date().toISOString().slice(0, 10)}.csv`
+      `Kardex_Movimientos_Silaomarket_${new Date().toISOString().slice(0, 10)}.csv`
     );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
+
+  if (userRole === 'cliente') {
+    return (
+      <div className="max-w-2xl mx-auto my-16 p-8 bg-white rounded-3xl border border-slate-200 shadow-xl text-center space-y-5">
+        <div className="w-16 h-16 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center mx-auto border border-slate-200">
+          <History className="w-8 h-8" />
+        </div>
+        <span className="inline-block text-xs font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-3 py-1 rounded-full">
+          Registro de Almacén
+        </span>
+        <h2 className="text-2xl font-black text-slate-900 font-serif">
+          Auditoría y Kardex de Inventario
+        </h2>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          Esta vista es para el control interno de entradas, salidas y ajustes de stock de negocios y administradores.
+          Como cliente, puedes consultar el estado de tus compras en <strong>Mis Pedidos</strong>.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <button
+            onClick={() => setActiveTab('pedidos')}
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Ver Mis Pedidos</span>
+          </button>
+          <button
+            onClick={() => setIsAuthModalOpen(true)}
+            className="w-full sm:w-auto px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm transition-all cursor-pointer border border-slate-200"
+          >
+            Acceder como Negocio o Administrador
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -75,11 +133,15 @@ export const MovementsHistory: React.FC = () => {
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-blue-600" />
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight font-serif">
-              Kardex y Registro de Movimientos
+              {userRole === 'negocio'
+                ? `Kardex y Movimientos · ${loggedMerchant?.name || 'Mi Negocio'}`
+                : 'Kardex y Registro de Movimientos'}
             </h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">
-            Trazabilidad completa de auditoría: entradas por compra, ventas en tienda y ajustes manuales.
+            {userRole === 'negocio'
+              ? 'Trazabilidad y auditoría de entradas, salidas y ajustes manuales correspondientes a tu negocio.'
+              : 'Trazabilidad completa de auditoría: entradas por compra, ventas en tienda y ajustes manuales.'}
           </p>
         </div>
 

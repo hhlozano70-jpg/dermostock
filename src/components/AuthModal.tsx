@@ -245,15 +245,19 @@ export const AuthModal: React.FC = () => {
                 </div>
               </div>
               <ul className="text-xs text-slate-600 space-y-1 list-disc list-inside">
-                <li>Compra en varios negocios de Silao con un solo envío ($25).</li>
-                <li>Rastreo de repartidor con código QR en vivo.</li>
-                <li>Pago seguro en línea o contra entrega en efectivo.</li>
+                <li>Acceso para ver y comprar productos de todas las tiendas de Silao en un solo carrito consolidado.</li>
+                <li>Tarifa de envío municipal accesible ($25 a $40 dependiendo de tiendas y artículos).</li>
+                <li>Rastreo con código QR y entrega programada de 8:00 AM a 8:00 PM.</li>
               </ul>
             </div>
           )}
 
           {selectedRole === 'negocio' && (
             <div className="bg-amber-50/50 rounded-2xl p-4 border border-amber-200/80 space-y-4">
+              <div className="p-3 bg-amber-100/70 border border-amber-300 rounded-xl text-xs text-amber-950">
+                🔒 <strong>Privacidad e Inventario Propio:</strong> Solo podrás ver y editar los productos y ventas de tu negocio. No tienes acceso al inventario de otras tiendas.
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">
                   Selecciona tu Comercio Afiliado en Silao
@@ -300,8 +304,12 @@ export const AuthModal: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-xs text-white">Panel Maestro Hub Silao</h4>
-                  <p className="text-xs text-slate-400">Control financiero, retención del 8-18% y liquidaciones semanales.</p>
+                  <p className="text-xs text-slate-400">Control total: todos los comercios, todos los inventarios, finanzas y despacho.</p>
                 </div>
+              </div>
+
+              <div className="p-3 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-slate-300">
+                ⭐ <strong>Acceso Ilimitado:</strong> Visualización y edición global de catálogos, liquidaciones semanales, asignación a choferes y control de tarifas.
               </div>
 
               <div>

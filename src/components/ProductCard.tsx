@@ -14,7 +14,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     addToCart, 
     setSelectedProductForQuickView,
     openProductModal,
-    cart
+    cart,
+    userRole,
+    loggedMerchantId
   } = useInventory();
 
   const [isAddedRecently, setIsAddedRecently] = useState(false);
@@ -67,18 +69,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Quick View & Edit Overlay Buttons */}
         <div className="absolute bottom-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              openProductModal(product);
-            }}
-            className="bg-white/95 hover:bg-white text-slate-700 hover:text-emerald-700 p-2 rounded-lg shadow-sm backdrop-blur-xs transition-colors cursor-pointer"
-            title="Editar producto e imagen"
-            aria-label="Editar producto"
-          >
-            <Edit3 className="w-4 h-4" />
-          </button>
+          {(userRole === 'admin' || (userRole === 'negocio' && product.merchantId === loggedMerchantId)) && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openProductModal(product);
+              }}
+              className="bg-white/95 hover:bg-white text-slate-700 hover:text-emerald-700 p-2 rounded-lg shadow-sm backdrop-blur-xs transition-colors cursor-pointer"
+              title="Editar producto e imagen (Solo tú y administración)"
+              aria-label="Editar producto"
+            >
+              <Edit3 className="w-4 h-4" />
+            </button>
+          )}
           
           <button
             type="button"

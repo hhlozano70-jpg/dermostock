@@ -182,7 +182,7 @@ export const Navbar: React.FC = () => {
                 }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
-                <span>Inventario</span>
+                <span>{userRole === 'negocio' ? 'Mi Inventario' : 'Inventario'}</span>
               </button>
             )}
 
@@ -196,7 +196,7 @@ export const Navbar: React.FC = () => {
               }`}
             >
               <ClipboardList className="w-4 h-4" />
-              <span>Pedidos</span>
+              <span>{userRole === 'negocio' ? 'Mis Ventas / Pedidos' : userRole === 'cliente' ? 'Mis Pedidos' : 'Pedidos'}</span>
             </button>
           </nav>
 
