@@ -84,6 +84,17 @@ export type PriceTier = 'comercial' | 'mayorista' | 'promocion';
 
 export type DeliveryType = 'domicilio' | 'punto_fijo' | 'envio' | 'sucursal';
 
+export interface Driver {
+  id: string;
+  name: string;
+  phone: string; // WhatsApp
+  vehicle: string;
+  status: 'disponible' | 'en_ruta' | 'descanso';
+  activeOrdersCount?: number;
+  totalDelivered?: number;
+  rating?: number;
+}
+
 export interface StoreSettings {
   whatsappNumber: string; // e.g. "524721234567"
   businessName: string;   // "Silaomarket on line"
@@ -92,6 +103,9 @@ export interface StoreSettings {
   state: string; // "Guanajuato"
   hubAddress: string; // "Hub Central de Envíos Silao, Calle 5 de Mayo #45, Silao Centro"
   deliveryCost: number; // Costo único de envío por pedido consolidado
+  orderStartTime?: string; // "08:00"
+  orderEndTime?: string;   // "20:00"
+  maxOrdersPerHour?: number; // ej. 12
 }
 
 export interface Product {
@@ -156,9 +170,13 @@ export interface Order {
   trackingCode: string; // e.g. "SLO-TRK-74921"
   trackingStatus: TrackingStatus;
   timeline?: TrackingEvent[];
+  driverId?: string;
   courierName?: string;
   courierPhone?: string;
   courierVehicle?: string;
+  assignedAt?: string;
+  deliveredAt?: string;
+  scheduledTime?: string;
   customerName: string;
   customerPhone: string;
   customerAddress?: string;

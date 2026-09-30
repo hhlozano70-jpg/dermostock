@@ -14,12 +14,15 @@ import {
   Store,
   ChevronLeft,
   Building2,
-  PackageCheck
+  PackageCheck,
+  Clock,
+  AlertTriangle
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { DeliveryType, CartItem } from '../types/inventory';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
 import { calculateDynamicDeliveryFee } from '../utils/deliveryFee';
+import { checkOperatingHours, checkHourCapacity } from '../utils/operatingHours';
 
 export const CartDrawer: React.FC = () => {
   const { 
@@ -34,9 +37,20 @@ export const CartDrawer: React.FC = () => {
     cartTotal,
     priceTier,
     createOrder,
+    orders,
     settings,
     setIsSettingsModalOpen
   } = useInventory();
+
+  // Validación de horario de pedidos (8:00 AM a 8:00 PM)
+  const operatingHours = useMemo(() => {
+    return checkOperatingHours(settings);
+  }, [settings]);
+
+  // Validación de capacidad anti-saturación
+  const capacityStatus = useMemo(() => {
+    return checkHourCapacity(orders, settings.maxOrdersPerHour || 12);
+  }, [orders, settings.maxOrdersPerHour]);
 
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'checkout'>('cart');
   const [customerName, setCustomerName] = useState('');
@@ -131,6 +145,12 @@ export const CartDrawer: React.FC = () => {
       ? `${customerStreet.trim()}, ${selectedColonia}, Silao, Gto.` 
       : undefined;
 
+    const scheduledTime = !operatingHours.isOpen
+      ? `Programado (${operatingHours.nextOpenTimeStr})`
+      : capacityStatus.isSaturated
+        ? 'Siguiente Franja Disponible'
+        : 'Despacho Inmediato';
+
     const created = createOrder({
       customerName: customerName.trim(),
       customerPhone: customerPhone.trim(),
@@ -148,6 +168,7 @@ export const CartDrawer: React.FC = () => {
       hasColdChain: hasColdChainItems,
       merchantsCount: groupedCartByMerchant.length,
       merchantsNames: groupedCartByMerchant.map((g) => g.merchantName),
+      scheduledTime,
     });
 
     if (sendWhatsApp) {
@@ -380,6 +401,32 @@ export const CartDrawer: React.FC = () => {
                 <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                   <span>{errorMsg}</span>
+                </div>
+              )}
+
+              {/* Alerta de Horario de Pedidos (8:00 AM a 8:00 PM) */}
+              {!operatingHours.isOpen && (
+                <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                    <Clock className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>Horario de Pedidos en Silao: 8:00 AM a 8:00 PM</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-amber-800">
+                    Actualmente el Hub Silao está fuera de horario de despacho ({operatingHours.currentHour}:{operatingHours.currentMinute.toString().padStart(2, '0')} hrs). Tu pedido quedará <strong>programado para despacharse {operatingHours.nextOpenTimeStr}</strong>.
+                  </p>
+                </div>
+              )}
+
+              {/* Alerta de Capacidad Anti-Saturación */}
+              {capacityStatus.isSaturated && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-950 space-y-1">
+                  <div className="flex items-center gap-1.5 font-bold text-red-900">
+                    <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
+                    <span>Alta Demanda en esta Hora ({capacityStatus.currentHourOrders}/{capacityStatus.maxAllowed} envíos)</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-red-800">
+                    Para cuidar los tiempos de entrega, esta hora ha alcanzado el límite. Tu pedido se despachará en el siguiente turno disponible con prioridad.
+                  </p>
                 </div>
               )}
 

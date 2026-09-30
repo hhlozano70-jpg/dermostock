@@ -8,9 +8,11 @@ import {
   Check, 
   AlertCircle, 
   HelpCircle, 
-  MessageCircle,
+  MessageCircle, 
   Truck,
-  Snowflake
+  Snowflake,
+  Clock,
+  Gauge
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 
@@ -27,6 +29,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [hubAddress, setHubAddress] = useState(settings.hubAddress || 'Hub Central de Consolidación Silao, Calle 5 de Mayo #45, Silao Centro');
   const [defaultPickupPoint, setDefaultPickupPoint] = useState(settings.defaultPickupPoint || 'Hub Central Silao - Calle 5 de Mayo #45, Silao Centro');
   const [deliveryCost, setDeliveryCost] = useState<number>(settings.deliveryCost ?? 25);
+  const [orderStartTime, setOrderStartTime] = useState(settings.orderStartTime || '08:00');
+  const [orderEndTime, setOrderEndTime] = useState(settings.orderEndTime || '20:00');
+  const [maxOrdersPerHour, setMaxOrdersPerHour] = useState<number>(settings.maxOrdersPerHour ?? 12);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
@@ -36,6 +41,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setHubAddress(settings.hubAddress || 'Hub Central de Consolidación Silao, Calle 5 de Mayo #45, Silao Centro');
       setDefaultPickupPoint(settings.defaultPickupPoint || 'Hub Central Silao - Calle 5 de Mayo #45, Silao Centro');
       setDeliveryCost(settings.deliveryCost ?? 25);
+      setOrderStartTime(settings.orderStartTime || '08:00');
+      setOrderEndTime(settings.orderEndTime || '20:00');
+      setMaxOrdersPerHour(settings.maxOrdersPerHour ?? 12);
       setSavedSuccess(false);
     }
   }, [isOpen, settings]);
@@ -52,6 +60,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       hubAddress: hubAddress.trim() || 'Hub Central Silao, Calle 5 de Mayo #45, Silao Centro',
       defaultPickupPoint: defaultPickupPoint.trim() || 'Hub Central Silao - Calle 5 de Mayo #45, Silao Centro',
       deliveryCost: Number(deliveryCost) || 25,
+      orderStartTime: orderStartTime || '08:00',
+      orderEndTime: orderEndTime || '20:00',
+      maxOrdersPerHour: Number(maxOrdersPerHour) || 12,
       city: 'Silao',
       state: 'Guanajuato',
     });
@@ -188,6 +199,77 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             </div>
             <p className="text-[11px] text-slate-500">
               Tarifa base de $25 pesos, la cual se ajusta de forma automática hasta $40 pesos en el carrito según la cantidad de comercios y piezas ordenadas.
+            </p>
+          </div>
+
+          {/* Horario de Atención de Pedidos (8:00 AM a 8:00 PM) */}
+          <div className="space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Horario de Atención de Envíos</span>
+              </label>
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded">
+                Silao Local
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div>
+                <span className="text-[11px] text-slate-500 block mb-1">Hora Inicio:</span>
+                <input
+                  type="time"
+                  value={orderStartTime}
+                  onChange={(e) => setOrderStartTime(e.target.value)}
+                  className="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono bg-white"
+                />
+              </div>
+              <div>
+                <span className="text-[11px] text-slate-500 block mb-1">Hora Cierre:</span>
+                <input
+                  type="time"
+                  value={orderEndTime}
+                  onChange={(e) => setOrderEndTime(e.target.value)}
+                  className="w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono bg-white"
+                />
+              </div>
+            </div>
+            <p className="text-[10px] text-slate-500">
+              Horario oficial: 8:00 AM a 8:00 PM. Fuera de este horario, los pedidos se programan automáticamente para las 8:00 AM del día siguiente.
+            </p>
+          </div>
+
+          {/* Anti-Saturación: Máximo de Envíos por Hora */}
+          <div className="space-y-1 p-3 bg-amber-50/70 border border-amber-200 rounded-xl">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                <Gauge className="w-3.5 h-3.5 text-amber-700" />
+                <span>Capacidad Máxima de Envíos por Hora (Anti-Saturación)</span>
+              </label>
+              <span className="text-[11px] font-mono font-bold text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-full">
+                {maxOrdersPerHour} envíos/hr
+              </span>
+            </div>
+            <div className="flex items-center gap-3 pt-1">
+              <input
+                type="range"
+                min="3"
+                max="30"
+                step="1"
+                value={maxOrdersPerHour}
+                onChange={(e) => setMaxOrdersPerHour(parseInt(e.target.value) || 12)}
+                className="w-full accent-amber-600 cursor-pointer"
+              />
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={maxOrdersPerHour}
+                onChange={(e) => setMaxOrdersPerHour(parseInt(e.target.value) || 12)}
+                className="w-16 px-2 py-1 text-xs border border-amber-300 rounded-lg text-center font-mono font-bold bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
+            <p className="text-[10px] text-amber-800">
+              Si la cantidad de pedidos en la hora en curso alcanza este tope, la app informa al cliente sobre saturación y agenda el pedido para el siguiente bloque de entrega disponible.
             </p>
           </div>
 

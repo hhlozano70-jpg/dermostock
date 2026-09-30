@@ -20,6 +20,7 @@ import { AuthModal } from './components/AuthModal';
 import { MerchantPortal } from './components/MerchantPortal';
 import { FinancialDashboard } from './components/FinancialDashboard';
 import { MerchantsManager } from './components/MerchantsManager';
+import { HubOrdersManager } from './components/HubOrdersManager';
 
 const MainContent: React.FC = () => {
   const { 
@@ -69,6 +70,7 @@ const MainContent: React.FC = () => {
         {activeTab === 'inventario' && <InventoryManager />}
         {activeTab === 'mi_negocio' && <MerchantPortal />}
         {activeTab === 'finanzas' && <FinancialDashboard />}
+        {activeTab === 'hub_pedidos' && <HubOrdersManager />}
         {activeTab === 'reportes' && <ReportsDashboard />}
         {activeTab === 'movimientos' && <MovementsHistory />}
         {activeTab === 'pedidos' && <OrdersHistory />}

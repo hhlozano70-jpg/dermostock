@@ -1,4 +1,47 @@
-import { Merchant, Product } from '../types/inventory';
+import { Merchant, Product, Driver } from '../types/inventory';
+
+export const SILAO_DRIVERS: Driver[] = [
+  {
+    id: 'drv-1',
+    name: 'Carlos Méndez',
+    phone: '4721019944',
+    vehicle: 'Italika FT150 - GTO-884A (Caja térmica roja)',
+    status: 'disponible',
+    activeOrdersCount: 1,
+    totalDelivered: 128,
+    rating: 4.95,
+  },
+  {
+    id: 'drv-2',
+    name: 'Alejandro Rocha',
+    phone: '4721153322',
+    vehicle: 'Honda Cargo 125 - GTO-319B (Caja térmica azul)',
+    status: 'disponible',
+    activeOrdersCount: 0,
+    totalDelivered: 94,
+    rating: 4.9,
+  },
+  {
+    id: 'drv-3',
+    name: 'Miguel Ángel Torres (El Güero)',
+    phone: '4721287711',
+    vehicle: 'Yamaha YBR 125 - GTO-502C (Hielera activa ❄️)',
+    status: 'en_ruta',
+    activeOrdersCount: 2,
+    totalDelivered: 210,
+    rating: 5.0,
+  },
+  {
+    id: 'drv-4',
+    name: 'Brenda Salazar',
+    phone: '4721445588',
+    vehicle: 'Suzuki AX100 - GTO-714D (Caja isotérmica)',
+    status: 'disponible',
+    activeOrdersCount: 0,
+    totalDelivered: 82,
+    rating: 4.88,
+  }
+];
 
 export const SILAO_COLONIAS = [
   "Silao Centro",

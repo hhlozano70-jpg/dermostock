@@ -16,7 +16,8 @@ import {
   ShieldCheck,
   FileText,
   DollarSign,
-  Building2
+  Building2,
+  Truck
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { PriceTier } from '../types/inventory';
@@ -141,6 +142,21 @@ export const Navbar: React.FC = () => {
               >
                 <DollarSign className="w-4 h-4 text-emerald-600" />
                 <span>Finanzas Hub</span>
+              </button>
+            )}
+
+            {/* Hub Despacho / Drivers Tab (Solo admin) */}
+            {userRole === 'admin' && (
+              <button
+                onClick={() => setActiveTab('hub_pedidos')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
+                  activeTab === 'hub_pedidos'
+                    ? 'text-indigo-800 bg-indigo-100/80 font-bold shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+              >
+                <Truck className="w-4 h-4 text-indigo-600" />
+                <span>Hub Despacho</span>
               </button>
             )}
 
@@ -333,6 +349,18 @@ export const Navbar: React.FC = () => {
           >
             <DollarSign className="w-4 h-4 mb-0.5 text-emerald-600" />
             <span className="text-[10px]">Finanzas</span>
+          </button>
+        )}
+
+        {userRole === 'admin' && (
+          <button
+            onClick={() => setActiveTab('hub_pedidos')}
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-lg text-xs transition-colors cursor-pointer ${
+              activeTab === 'hub_pedidos' ? 'text-indigo-700 font-bold' : 'text-slate-500'
+            }`}
+          >
+            <Truck className="w-4 h-4 mb-0.5 text-indigo-600" />
+            <span className="text-[10px]">Despacho</span>
           </button>
         )}
 

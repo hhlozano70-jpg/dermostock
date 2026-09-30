@@ -12,11 +12,12 @@ import {
   TrackingEvent,
   CreateOrderInput,
   UserRole,
-  MerchantSettlement
+  MerchantSettlement,
+  Driver
 } from '../types/inventory';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
-import { SILAO_MERCHANTS } from '../data/silaoMarketData';
+import { SILAO_MERCHANTS, SILAO_DRIVERS } from '../data/silaoMarketData';
 import { calculateDynamicDeliveryFee } from '../utils/deliveryFee';
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
@@ -27,6 +28,9 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   state: 'Guanajuato',
   hubAddress: 'Hub Central de Consolidación Silao, Calle 5 de Mayo #45, Silao Centro',
   deliveryCost: 25,
+  orderStartTime: '08:00',
+  orderEndTime: '20:00',
+  maxOrdersPerHour: 12,
 };
 
 interface InventoryContextType {
@@ -62,8 +66,8 @@ interface InventoryContextType {
   resetToInitial: () => void;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
-  activeTab: 'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios';
-  setActiveTab: (tab: 'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios') => void;
+  activeTab: 'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios' | 'hub_pedidos';
+  setActiveTab: (tab: 'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios' | 'hub_pedidos') => void;
   selectedProductForQuickView: Product | null;
   setSelectedProductForQuickView: (product: Product | null) => void;
   lastCompletedOrder: Order | null;
@@ -126,11 +130,14 @@ interface InventoryContextType {
     orderIds: string[], 
     notes?: string
   ) => void;
-  markSettlementPaid: (settlementId: string, reference?: string) => void;
-
   // Brochure Modal
   isBrochureModalOpen: boolean;
   setIsBrochureModalOpen: (open: boolean) => void;
+
+  // Hub Dispatch & Drivers
+  drivers: Driver[];
+  assignDriverToOrder: (orderId: string, driverId: string) => boolean;
+  updateOrderStatus: (orderId: string, newStatus: TrackingStatus, notes?: string) => void;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -444,10 +451,22 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ];
   });
 
-  const [activeTab, setActiveTab] = useState<'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios'>('tienda');
+  const [activeTab, setActiveTab] = useState<'tienda' | 'inventario' | 'pedidos' | 'movimientos' | 'reportes' | 'mi_negocio' | 'finanzas' | 'negocios' | 'hub_pedidos'>('tienda');
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState<Product | null>(null);
   const [lastCompletedOrder, setLastCompletedOrder] = useState<Order | null>(null);
   const [activeTrackingOrder, setActiveTrackingOrder] = useState<Order | null>(null);
+
+  // Drivers del Hub Silao
+  const [drivers, setDrivers] = useState<Driver[]>(() => {
+    try {
+      const stored = localStorage.getItem('silaomarket_drivers_v1');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return SILAO_DRIVERS;
+  });
 
   const openTrackingModal = (order: Order) => {
     setActiveTrackingOrder(order);
@@ -458,20 +477,89 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const updateOrderTrackingStatus = (orderId: string, status: TrackingStatus) => {
-    setOrders((prev) =>
-      prev.map((o) => {
+    updateOrderStatus(orderId, status);
+  };
+
+  const updateOrderStatus = (orderId: string, status: TrackingStatus, notes?: string) => {
+    setOrders((prev) => {
+      const updated = prev.map((o) => {
         if (o.id !== orderId) return o;
-        const updated: Order = {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+
+        // Actualizar timeline
+        const currentTimeline = o.timeline || [];
+        const statusTitles: Record<TrackingStatus, { title: string; desc: string }> = {
+          recibido: { title: 'Pedido Recibido en Hub Silao', desc: 'Registrado en Hub Central 5 de Mayo #45' },
+          en_recoleccion: { title: 'Recolectando en Comercios', desc: `Driver recolectando en ${o.merchantsCount || 1} comercio(s)` },
+          consolidado: { title: 'Empaquetado y Consolidado', desc: o.hasColdChain ? 'Empacado con hielera térmica de frío ❄️' : 'Paquetes consolidados' },
+          en_camino: { title: 'En Camino a Domicilio', desc: `Driver en ruta a ${o.deliveryColonia || 'Silao'}` },
+          entregado: { title: 'Entregado al Cliente', desc: notes || 'Entrega confirmada y concluida' },
+        };
+
+        const updatedTimeline = currentTimeline.map((item) => {
+          if (item.status === status) {
+            return { ...item, completed: true, timestamp: timeStr };
+          }
+          return item;
+        });
+
+        const newOrderObj: Order = {
           ...o,
           trackingStatus: status,
           status: status === 'entregado' ? 'entregado' : 'completado',
+          deliveredAt: status === 'entregado' ? now.toISOString() : o.deliveredAt,
+          timeline: updatedTimeline,
         };
+
         if (activeTrackingOrder && activeTrackingOrder.id === orderId) {
-          setActiveTrackingOrder(updated);
+          setActiveTrackingOrder(newOrderObj);
         }
-        return updated;
-      })
-    );
+        return newOrderObj;
+      });
+
+      try {
+        localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updated));
+      } catch {}
+      syncToServer(products, movements, updated, priceTier, settingsRef.current, merchants, settlements);
+      return updated;
+    });
+  };
+
+  const assignDriverToOrder = (orderId: string, driverId: string): boolean => {
+    const driver = drivers.find((d) => d.id === driverId);
+    if (!driver) return false;
+
+    setOrders((prev) => {
+      const updated = prev.map((o) => {
+        if (o.id !== orderId) return o;
+        const now = new Date();
+        const nextStatus: TrackingStatus = o.trackingStatus === 'recibido' ? 'en_recoleccion' : o.trackingStatus;
+
+        const updatedOrder: Order = {
+          ...o,
+          driverId: driver.id,
+          courierName: `${driver.name} (${driver.vehicle})`,
+          courierPhone: driver.phone,
+          courierVehicle: driver.vehicle,
+          assignedAt: now.toISOString(),
+          trackingStatus: nextStatus,
+        };
+
+        if (activeTrackingOrder && activeTrackingOrder.id === orderId) {
+          setActiveTrackingOrder(updatedOrder);
+        }
+        return updatedOrder;
+      });
+
+      try {
+        localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updated));
+      } catch {}
+      syncToServer(products, movements, updated, priceTier, settingsRef.current, merchants, settlements);
+      return updated;
+    });
+
+    return true;
   };
 
   // Global Product Add/Edit Modal
@@ -1187,6 +1275,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         markSettlementPaid,
         isBrochureModalOpen,
         setIsBrochureModalOpen,
+        drivers,
+        assignDriverToOrder,
+        updateOrderStatus,
       }}
     >
       {children}
