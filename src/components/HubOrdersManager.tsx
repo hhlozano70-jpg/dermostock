@@ -22,7 +22,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Building2,
-  Share2
+  Share2,
+  RefreshCw
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Order, TrackingStatus, Driver } from '../types/inventory';
@@ -37,7 +38,8 @@ export const HubOrdersManager: React.FC = () => {
     updateOrderStatus, 
     openTrackingModal, 
     settings,
-    setIsSettingsModalOpen
+    setIsSettingsModalOpen,
+    resetOrdersToInitial
   } = useInventory();
 
   const [activeFilter, setActiveFilter] = useState<'todos' | 'recibido' | 'en_recoleccion' | 'en_camino' | 'entregado'>('todos');
@@ -170,6 +172,19 @@ export const HubOrdersManager: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.confirm('¿Deseas restablecer los 20 pedidos operativos de prueba en Silao con sus estados, repartidores y rutas?')) {
+                  resetOrdersToInitial();
+                }
+              }}
+              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-md shadow-emerald-950/40"
+              title="Restablecer los 20 pedidos con diferentes estatus de entrega para pruebas"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Cargar 20 Pedidos Demo</span>
+            </button>
+
             <button
               onClick={() => setIsSettingsModalOpen(true)}
               className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition-all cursor-pointer flex items-center gap-1.5"

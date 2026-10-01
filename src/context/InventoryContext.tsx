@@ -140,6 +140,7 @@ interface InventoryContextType {
   drivers: Driver[];
   assignDriverToOrder: (orderId: string, driverId: string) => boolean;
   updateOrderStatus: (orderId: string, newStatus: TrackingStatus, notes?: string) => void;
+  resetOrdersToInitial: () => void;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -438,17 +439,25 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Orders
+  // Orders (20 pedidos para evaluación operativa)
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.ORDERS);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length >= INITIAL_ORDERS.length) return parsed;
       }
     } catch {}
     return INITIAL_ORDERS;
   });
+
+  const resetOrdersToInitial = () => {
+    setOrders(INITIAL_ORDERS);
+    try {
+      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(INITIAL_ORDERS));
+    } catch {}
+    syncToServer(products, movements, INITIAL_ORDERS, priceTier, settingsRef.current, merchants, settlements);
+  };
 
   // Movements (Kardex log)
   const [movements, setMovements] = useState<InventoryMovement[]>(() => {
@@ -700,12 +709,13 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
       const data = await res.json();
       if (data && Array.isArray(data.products) && data.products.length >= INITIAL_PRODUCTS.length) {
-        // If server data is newer or force
         if (force || !isInitialLoadDoneRef.current || (data.lastUpdated && data.lastUpdated !== lastServerTimestampRef.current)) {
           lastServerTimestampRef.current = data.lastUpdated || new Date().toISOString();
           setProducts(data.products);
           if (Array.isArray(data.movements)) setMovements(data.movements);
-          if (Array.isArray(data.orders)) setOrders(data.orders);
+          if (Array.isArray(data.orders)) {
+            setOrders(data.orders.length >= INITIAL_ORDERS.length ? data.orders : INITIAL_ORDERS);
+          }
           if (data.priceTier) setPriceTier(data.priceTier);
           if (data.settings && data.settings.whatsappNumber) {
             setSettings(data.settings);
@@ -1302,6 +1312,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         drivers,
         assignDriverToOrder,
         updateOrderStatus,
+        resetOrdersToInitial,
       }}
     >
       {children}
