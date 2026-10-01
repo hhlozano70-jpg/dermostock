@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ShoppingBag, Check, ShieldCheck, Truck, Edit3 } from 'lucide-react';
+import { X, ShoppingBag, Check, ShieldCheck, Truck, Edit3, ExternalLink } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductVisual } from './ProductVisual';
 
@@ -125,6 +125,21 @@ export const ProductQuickView: React.FC = () => {
             <p className="text-sm text-slate-600 mt-3 leading-relaxed">
               {product.description}
             </p>
+
+            {/* Official Web / Brochure Reference Link */}
+            {product.sourceUrl && (
+              <div className="mt-2.5">
+                <a
+                  href={product.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold transition-colors"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Ver referencia web oficial en folleto digital ↗</span>
+                </a>
+              </div>
+            )}
 
             {/* All 3 Price Tiers Comparison Table */}
             <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200">

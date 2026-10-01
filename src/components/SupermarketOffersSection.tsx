@@ -13,7 +13,10 @@ import {
   Percent,
   Clock,
   Layers,
-  RefreshCw
+  RefreshCw,
+  ExternalLink,
+  Globe,
+  FileText
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Product } from '../types/inventory';
@@ -144,7 +147,9 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
       name: 'Todos los Súpers',
       badge: `${supermarketProducts.length} Ofertas`,
       icon: '🛒',
-      color: 'border-slate-800 bg-slate-900 text-white'
+      color: 'border-slate-800 bg-slate-900 text-white',
+      brochureUrl: 'https://www.tiendeo.mx/silao/supermercados',
+      brochureLabel: 'Ver Folletos de Silao en Tiendeo'
     },
     {
       id: 'merch-aurrera-silao',
@@ -152,7 +157,10 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
       branch: 'Plaza La Joya',
       badge: '🏷️ Morralla Bodega',
       icon: '🟢',
-      color: 'border-emerald-600 bg-emerald-900 text-white'
+      color: 'border-emerald-600 bg-emerald-900 text-white',
+      brochureUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital',
+      websiteUrl: 'https://despensa.bodegaaurrera.com.mx/',
+      brochureLabel: 'Folleto Digital Bodega Aurrera'
     },
     {
       id: 'merch-soriana-silao',
@@ -160,7 +168,10 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
       branch: 'Blvd. Bailleres',
       badge: '🔥 Martes de Frescura',
       icon: '🔴',
-      color: 'border-rose-600 bg-rose-900 text-white'
+      color: 'border-rose-600 bg-rose-900 text-white',
+      brochureUrl: 'https://www.soriana.com/folleto-digital.html',
+      websiteUrl: 'https://www.soriana.com/',
+      brochureLabel: 'Folleto Digital Soriana Híper'
     },
     {
       id: 'merch-tiendas-3b',
@@ -168,7 +179,10 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
       branch: 'Centro & Sopeña',
       badge: '💥 Precios de Fábrica',
       icon: '🟣',
-      color: 'border-purple-600 bg-purple-900 text-white'
+      color: 'border-purple-600 bg-purple-900 text-white',
+      brochureUrl: 'https://tiendas3b.com/productos/',
+      websiteUrl: 'https://tiendas3b.com/',
+      brochureLabel: 'Catálogo Oficial Tiendas 3B'
     },
     {
       id: 'merch-super-bara',
@@ -176,9 +190,15 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
       branch: 'Sopeña / Ducoing',
       badge: '⚡ Ahorro Exprés',
       icon: '🟠',
-      color: 'border-amber-600 bg-amber-900 text-white'
+      color: 'border-amber-600 bg-amber-900 text-white',
+      brochureUrl: 'https://bara.com.mx/promociones',
+      websiteUrl: 'https://bara.com.mx/',
+      brochureLabel: 'Promociones Bara Bajío'
     }
   ];
+
+  const activeSupermarket = supermarketTabs.find(s => s.id === selectedSupermarket);
+
 
   return (
     <section id="seccion-ofertas-supermercados" className="scroll-mt-24 space-y-6 bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950 rounded-3xl p-5 sm:p-8 text-white shadow-2xl border border-emerald-500/30 relative overflow-hidden">
@@ -287,6 +307,54 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
           );
         })}
       </div>
+
+      {/* Official Brochure Direct Link Bar */}
+      {activeSupermarket && activeSupermarket.brochureUrl && (
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 shadow-md">
+          <div className="flex items-center gap-2.5">
+            <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-base border border-emerald-500/30">
+              {activeSupermarket.icon}
+            </span>
+            <div>
+              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span>Referencia Oficial: {activeSupermarket.name}</span>
+                {activeSupermarket.branch && (
+                  <span className="text-[10px] text-slate-400">({activeSupermarket.branch})</span>
+                )}
+              </div>
+              <div className="text-[11px] text-slate-400">
+                Precios y ofertas respaldados con el portal digital y folleto de la cadena
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            {activeSupermarket.websiteUrl && (
+              <a
+                href={activeSupermarket.websiteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold transition-colors"
+              >
+                <Globe className="w-3.5 h-3.5 text-slate-300" />
+                <span>Sitio Web</span>
+                <ExternalLink className="w-3 h-3 text-slate-400" />
+              </a>
+            )}
+
+            <a
+              href={activeSupermarket.brochureUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition-all shadow-sm"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>{activeSupermarket.brochureLabel || 'Abrir Folleto Oficial Digital'}</span>
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* Subcategory Pills */}
       <div className="relative z-10 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
@@ -402,6 +470,23 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
                     <p className="text-[11px] text-slate-400 line-clamp-1">
                       {product.presentation}
                     </p>
+
+                    {/* Enlace a folleto/fuente web oficial */}
+                    {product.sourceUrl && (
+                      <div className="pt-0.5">
+                        <a
+                          href={product.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 text-[10px] text-cyan-300 hover:text-cyan-200 hover:underline font-semibold"
+                          title="Abrir folleto oficial del supermercado en pestaña nueva"
+                        >
+                          <ExternalLink className="w-2.5 h-2.5" />
+                          <span>Folleto oficial ↗</span>
+                        </a>
+                      </div>
+                    )}
                   </div>
 
                   {/* Price & Cart footer */}
@@ -466,6 +551,72 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
             <p className="text-sm">No se encontraron productos de oferta para esta combinación de filtros.</p>
           </div>
         )}
+      </div>
+
+      {/* Direct Reference Web Directory */}
+      <div className="relative z-10 pt-4 border-t border-slate-800/80 space-y-3">
+        <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider">
+          <Globe className="w-4 h-4 text-emerald-400" />
+          <span>Referencias y Folletos Web Oficiales Consultados en Silao, Gto</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+          <a
+            href="https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3 rounded-2xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-emerald-500/50 transition-all flex items-center justify-between group shadow-sm"
+          >
+            <div className="space-y-0.5">
+              <strong className="block text-white text-xs group-hover:text-emerald-300 font-bold">🟢 Bodega Aurrera Silao</strong>
+              <span className="text-[10px] text-slate-400 block">Folleto Digital & Morralla</span>
+              <span className="text-[9px] text-emerald-400/80 font-mono block">despensa.bodegaaurrera.com.mx</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-emerald-400 shrink-0 ml-2" />
+          </a>
+
+          <a
+            href="https://www.soriana.com/folleto-digital.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3 rounded-2xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-rose-500/50 transition-all flex items-center justify-between group shadow-sm"
+          >
+            <div className="space-y-0.5">
+              <strong className="block text-white text-xs group-hover:text-rose-300 font-bold">🔴 Mercado Soriana Silao</strong>
+              <span className="text-[10px] text-slate-400 block">Martes de Frescura & Catálogo</span>
+              <span className="text-[9px] text-rose-400/80 font-mono block">soriana.com/folleto-digital</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-rose-400 shrink-0 ml-2" />
+          </a>
+
+          <a
+            href="https://tiendas3b.com/productos/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3 rounded-2xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-purple-500/50 transition-all flex items-center justify-between group shadow-sm"
+          >
+            <div className="space-y-0.5">
+              <strong className="block text-white text-xs group-hover:text-purple-300 font-bold">🟣 Tiendas 3B Silao</strong>
+              <span className="text-[10px] text-slate-400 block">Catálogo Oficial de Fábrica</span>
+              <span className="text-[9px] text-purple-400/80 font-mono block">tiendas3b.com/productos</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-400 shrink-0 ml-2" />
+          </a>
+
+          <a
+            href="https://bara.com.mx/promociones"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3 rounded-2xl bg-slate-800/70 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/50 transition-all flex items-center justify-between group shadow-sm"
+          >
+            <div className="space-y-0.5">
+              <strong className="block text-white text-xs group-hover:text-amber-300 font-bold">🟠 Super Bara Silao</strong>
+              <span className="text-[10px] text-slate-400 block">Promociones Quincenales Bajío</span>
+              <span className="text-[9px] text-amber-400/80 font-mono block">bara.com.mx/promociones</span>
+            </div>
+            <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-amber-400 shrink-0 ml-2" />
+          </a>
+        </div>
       </div>
 
       {/* Footer Info Ribbon */}

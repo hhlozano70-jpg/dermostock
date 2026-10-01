@@ -14,12 +14,15 @@ export const SILAO_SUPERMARKET_MERCHANTS: Merchant[] = [
     badge: '🏷️ Morralla y Precios Bodega',
     iconName: 'ShoppingBag',
     description: 'Ofertas de canasta básica y folleto semanal de Bodega Aurrera Silao: despensa, abarrotes, huevo, frijol, lácteos y productos de limpieza con precios de remate.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital',
     commissionRate: 8,
     type: 'Producto',
     pin: '1234',
     bankAccount: 'Santander CLABE 014215000000004410',
     ownerName: 'Bodega Aurrera Silao (Plaza La Joya)',
-    email: 'aurrera.silao@silaomarket.com'
+    email: 'aurrera.silao@silaomarket.com',
+    websiteUrl: 'https://despensa.bodegaaurrera.com.mx/',
+    brochureUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'merch-soriana-silao',
@@ -34,12 +37,15 @@ export const SILAO_SUPERMARKET_MERCHANTS: Merchant[] = [
     badge: '🔥 Martes de Frescura & Ofertas',
     iconName: 'ShoppingCart',
     description: 'Ofertas de temporada en frutas, verduras frescas, carnes de res y pollo, salchichonería refrigerada y abarrotes de la semana en Soriana Silao.',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html',
     commissionRate: 8,
     type: 'Producto',
     pin: '1234',
     bankAccount: 'Banamex CLABE 002215000000006800',
     ownerName: 'Soriana Silao Centro',
-    email: 'soriana.silao@silaomarket.com'
+    email: 'soriana.silao@silaomarket.com',
+    websiteUrl: 'https://www.soriana.com/',
+    brochureUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'merch-tiendas-3b',
@@ -59,7 +65,9 @@ export const SILAO_SUPERMARKET_MERCHANTS: Merchant[] = [
     pin: '1234',
     bankAccount: 'BBVA CLABE 012215000000009011',
     ownerName: 'Tiendas 3B Silao Centro',
-    email: 'tiendas3b.silao@silaomarket.com'
+    email: 'tiendas3b.silao@silaomarket.com',
+    websiteUrl: 'https://tiendas3b.com/',
+    brochureUrl: 'https://tiendas3b.com/productos/'
   },
   {
     id: 'merch-super-bara',
@@ -79,7 +87,9 @@ export const SILAO_SUPERMARKET_MERCHANTS: Merchant[] = [
     pin: '1234',
     bankAccount: 'HSBC CLABE 021215000000001122',
     ownerName: 'Super Bara Silao Sopeña',
-    email: 'superbara.silao@silaomarket.com'
+    email: 'superbara.silao@silaomarket.com',
+    websiteUrl: 'https://bara.com.mx/',
+    brochureUrl: 'https://bara.com.mx/promociones'
   }
 ];
 
@@ -108,7 +118,9 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bottle',
     volume: '1 Litro',
     imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80',
-    description: 'Aceite vegetal comestible puro para cocinar 1-2-3 en oferta semanal de Bodega Aurrera Silao. Ideal para freír y guisados familiares.'
+    description: 'Aceite vegetal comestible puro para cocinar 1-2-3 en oferta semanal de Bodega Aurrera Silao. Ideal para freír y guisados familiares.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-02',
@@ -131,7 +143,9 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'box',
     volume: 'Cono 30 pzs (~1.8 kg)',
     imageUrl: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80',
-    description: 'Huevo blanco fresco tamaño grande de granja en cono de 30 piezas en oferta imperdible de Bodega Aurrera Silao.'
+    description: 'Huevo blanco fresco tamaño grande de granja en cono de 30 piezas en oferta imperdible de Bodega Aurrera Silao.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-03',
@@ -154,7 +168,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'tetra',
     volume: '1 Litro',
     imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80',
-    description: 'Leche 100% pura de vaca adicionada con vitaminas A y D. Precio económico de bodega para el desayuno familiar en Silao.'
+    description: 'Leche 100% pura de vaca adicionada con vitaminas A y D. Precio económico de bodega para el desayuno familiar en Silao.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-04',
@@ -177,7 +192,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bag',
     volume: '900 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1551462147-ff29053bfc14?auto=format&fit=crop&w=600&q=80',
-    description: 'Frijol negro limpio, libre de impurezas y de rápida cocción. Calidad premium Verde Valle a precio promocional en Aurrera Silao.'
+    description: 'Frijol negro limpio, libre de impurezas y de rápida cocción. Calidad premium Verde Valle a precio promocional en Aurrera Silao.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-05',
@@ -200,7 +216,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bag',
     volume: '900 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80',
-    description: 'Arroz grano largo y entero de alta calidad para arroz rojo mexicano o blanco al vapor. Precio de morralla Aurrera.'
+    description: 'Arroz grano largo y entero de alta calidad para arroz rojo mexicano o blanco al vapor. Precio de morralla Aurrera.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-06',
@@ -223,7 +240,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'pack',
     volume: '12 rollos dobles',
     imageUrl: 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=600&q=80',
-    description: 'Papel higiénico suave y resistente de alta duración Pétalo Rendimax en mega oferta quincenal de Bodega Aurrera Silao.'
+    description: 'Papel higiénico suave y resistente de alta duración Pétalo Rendimax en mega oferta quincenal de Bodega Aurrera Silao.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-07',
@@ -246,7 +264,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bag',
     volume: '1 kg',
     imageUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=80',
-    description: 'Detergente económico multiusos para ropa blanca y de color, pisos y trastes. El clásico de los hogares de Silao.'
+    description: 'Detergente económico multiusos para ropa blanca y de color, pisos y trastes. El clásico de los hogares de Silao.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-08',
@@ -269,7 +288,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bar',
     volume: '400 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1607006314181-4b104c965cbe?auto=format&fit=crop&w=600&q=80',
-    description: 'Jabón Zote rosa de puro aceite de coco y sebo natural. Excelente para desmanchar cuellos y puños.'
+    description: 'Jabón Zote rosa de puro aceite de coco y sebo natural. Excelente para desmanchar cuellos y puños.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-09',
@@ -292,7 +312,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'can',
     volume: '140 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1544943910-4c1dc44a03e6?auto=format&fit=crop&w=600&q=80',
-    description: 'Lomo de atún aleta amarilla en agua Dolores, rico en proteína y Omega-3. Oferta especial en canasta básica.'
+    description: 'Lomo de atún aleta amarilla en agua Dolores, rico en proteína y Omega-3. Oferta especial en canasta básica.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-aurrera-10',
@@ -315,7 +336,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'jar',
     volume: '120 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
-    description: 'El café preferido de México con su inconfundible aroma y sabor a granos tostados. Precio rebajado en Bodega Aurrera Silao.'
+    description: 'El café preferido de México con su inconfundible aroma y sabor a granos tostados. Precio rebajado en Bodega Aurrera Silao.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
 
   // ==========================================
@@ -342,7 +364,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bulk',
     volume: '1 Kilogramo',
     imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80',
-    description: 'Jitomate Saladette rojo y firme cosechado en campos de Guanajuato. Oferta estelar de Martes de Frescura Soriana Silao.'
+    description: 'Jitomate Saladette rojo y firme cosechado en campos de Guanajuato. Oferta estelar de Martes de Frescura Soriana Silao.',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'prod-sup-soriana-02',
@@ -365,7 +388,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bulk',
     volume: '1 Kilogramo',
     imageUrl: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80',
-    description: 'Aguacate Hass cremoso perfecto para guacamole o ensaladas. Super precio de oferta de temporada en Soriana Silao.'
+    description: 'Aguacate Hass cremoso perfecto para guacamole o ensaladas. Super precio de oferta de temporada en Soriana Silao.',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'prod-sup-soriana-03',
@@ -388,7 +412,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'tray',
     volume: '1 Kilogramo',
     imageUrl: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=600&q=80',
-    description: 'Pechuga de pollo fresca y limpia de primera calidad, transportada con hielera térmica fría garantizada hasta tu domicilio.'
+    description: 'Pechuga de pollo fresca y limpia de primera calidad, transportada con hielera térmica fría garantizada hasta tu domicilio.',
+    sourceUrl: 'https://bara.com.mx/promociones'
   },
   {
     id: 'prod-sup-soriana-04',
@@ -411,7 +436,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'tray',
     volume: '1 Kilogramo',
     imageUrl: 'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?auto=format&fit=crop&w=600&q=80',
-    description: 'Carne molida de res fresca 80% magra / 20% grasa para hamburguesas jugosas o picadillo casero con entrega fría en Silao.'
+    description: 'Carne molida de res fresca 80% magra / 20% grasa para hamburguesas jugosas o picadillo casero con entrega fría en Silao.',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'prod-sup-soriana-05',
@@ -434,7 +460,9 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'pack',
     volume: '400 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=600&q=80',
-    description: 'Queso panela fresco, bajo en grasa y con textura suave para asar o desmoronar. Se envía en hielera con hielo activo.'
+    description: 'Queso panela fresco, bajo en grasa y con textura suave para asar o desmoronar. Se envía en hielera con hielo activo.',
+    sourceUrl: 'https://bara.com.mx/promociones',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'prod-sup-soriana-06',
@@ -457,7 +485,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'pack',
     volume: '250 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1524438418049-ab2acb7aa48f?auto=format&fit=crop&w=600&q=80',
-    description: 'Jamón de pechuga de pavo Virginia bajo en sodio y sin grasa. Ideal para sándwiches y loncheras escolares en Silao.'
+    description: 'Jamón de pechuga de pavo Virginia bajo en sodio y sin grasa. Ideal para sándwiches y loncheras escolares en Silao.',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'prod-sup-soriana-07',
@@ -480,7 +509,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'jar',
     volume: '725 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80',
-    description: 'La mayonesa clásica con toque de limón que le da sabor a tus platillos. Oferta semanal en Soriana Silao.'
+    description: 'La mayonesa clásica con toque de limón que le da sabor a tus platillos. Oferta semanal en Soriana Silao.',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'prod-sup-soriana-08',
@@ -503,7 +533,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bag',
     volume: '200 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281691?auto=format&fit=crop&w=600&q=80',
-    description: 'Pasta mexicana fortificada con vitaminas para preparar la tradicional sopa aguada de fideo en los hogares de Silao.'
+    description: 'Pasta mexicana fortificada con vitaminas para preparar la tradicional sopa aguada de fideo en los hogares de Silao.',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-soriana-09',
@@ -526,7 +557,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bottle',
     volume: '2.8 Litros',
     imageUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=80',
-    description: 'Acondicionador de telas con fragancia duradera y suavidad superior. Oferta jumbo en Soriana Silao.'
+    description: 'Acondicionador de telas con fragancia duradera y suavidad superior. Oferta jumbo en Soriana Silao.',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'prod-sup-soriana-10',
@@ -549,7 +581,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'box',
     volume: '540 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80',
-    description: 'El cereal preferido de los niños fortificado con calcio, zinc y hierro. Rebaja especial en Soriana Silao.'
+    description: 'El cereal preferido de los niños fortificado con calcio, zinc y hierro. Rebaja especial en Soriana Silao.',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
 
   // ==========================================
@@ -576,7 +609,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'tetra',
     volume: '1 Litro',
     imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80',
-    description: 'El precio más bajo en leche entera de Silao: 100% de vaca, pasteurizada y con calidad garantizada de Tiendas 3B.'
+    description: 'El precio más bajo en leche entera de Silao: 100% de vaca, pasteurizada y con calidad garantizada de Tiendas 3B.',
+    sourceUrl: 'https://tiendas3b.com/productos/'
   },
   {
     id: 'prod-sup-tiendas3b-02',
@@ -599,7 +633,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'pack',
     volume: '4 rollos',
     imageUrl: 'https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=600&q=80',
-    description: 'Ahorro inteligente: papel higiénico rendidor, suave y a una fracción del costo de marcas comerciales.'
+    description: 'Ahorro inteligente: papel higiénico rendidor, suave y a una fracción del costo de marcas comerciales.',
+    sourceUrl: 'https://tiendas3b.com/productos/'
   },
   {
     id: 'prod-sup-tiendas3b-03',
@@ -622,7 +657,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bottle',
     volume: '800 mililitros',
     imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80',
-    description: 'Aceite vegetal comestible puro de soya para rendir tu quincena cocinando con máxima economía en Silao.'
+    description: 'Aceite vegetal comestible puro de soya para rendir tu quincena cocinando con máxima economía en Silao.',
+    sourceUrl: 'https://tiendas3b.com/productos/'
   },
   {
     id: 'prod-sup-tiendas3b-04',
@@ -645,7 +681,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bottle',
     volume: '1 Litro',
     imageUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=80',
-    description: 'Cloro blanqueador y desinfectante activo para baños, pisos y ropa blanca. Menos de $10 pesos por litro.'
+    description: 'Cloro blanqueador y desinfectante activo para baños, pisos y ropa blanca. Menos de $10 pesos por litro.',
+    sourceUrl: 'https://tiendas3b.com/productos/'
   },
   {
     id: 'prod-sup-tiendas3b-05',
@@ -668,7 +705,10 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'pack',
     volume: '500 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1524438418049-ab2acb7aa48f?auto=format&fit=crop&w=600&q=80',
-    description: 'Salchichas de pavo para hot dogs, entomatadas o botana escolar con entrega con hielera fría en Silao.'
+    description: 'Salchichas de pavo para hot dogs, entomatadas o botana escolar con entrega con hielera fría en Silao.',
+    sourceUrl: 'https://bara.com.mx/promociones',
+    sourceUrl: 'https://tiendas3b.com/productos/',
+    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
     id: 'prod-sup-tiendas3b-06',
@@ -691,7 +731,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bag',
     volume: '350 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80',
-    description: 'Ricas galletas crujientes surtidas para acompañar tu café o chocolate con el mejor precio garantizado de Silao.'
+    description: 'Ricas galletas crujientes surtidas para acompañar tu café o chocolate con el mejor precio garantizado de Silao.',
+    sourceUrl: 'https://tiendas3b.com/productos/'
   },
   {
     id: 'prod-sup-tiendas3b-07',
@@ -714,7 +755,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bag',
     volume: '900 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1551462147-ff29053bfc14?auto=format&fit=crop&w=600&q=80',
-    description: 'Frijol peruano claro y cremoso ideal para refritos con totopos. Ahorro sustancial frente a supermercados tradicionales.'
+    description: 'Frijol peruano claro y cremoso ideal para refritos con totopos. Ahorro sustancial frente a supermercados tradicionales.',
+    sourceUrl: 'https://tiendas3b.com/productos/'
   },
   {
     id: 'prod-sup-tiendas3b-08',
@@ -737,7 +779,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bottle',
     volume: '750 mililitros',
     imageUrl: 'https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=80',
-    description: 'Fórmula arranca-grasa con aroma fresco a limón para una vajilla reluciente sin gastar de más.'
+    description: 'Fórmula arranca-grasa con aroma fresco a limón para una vajilla reluciente sin gastar de más.',
+    sourceUrl: 'https://tiendas3b.com/productos/'
   },
 
   // ==========================================
@@ -764,7 +807,9 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bottle',
     volume: '2.5 Litros',
     imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80',
-    description: 'Coca-Cola bien fría lista para disfrutar con la comida familiar en Silao. Entrega garantizada con hielera.'
+    description: 'Coca-Cola bien fría lista para disfrutar con la comida familiar en Silao. Entrega garantizada con hielera.',
+    sourceUrl: 'https://bara.com.mx/promociones',
+    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
     id: 'prod-sup-superbara-02',
@@ -787,7 +832,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'pack',
     volume: '6 latones de 473ml',
     imageUrl: 'https://images.unsplash.com/photo-1608270119230-f20cf146ff75?auto=format&fit=crop&w=600&q=80',
-    description: 'Six pack de latones bien fríos de cerveza Victoria o Corona en promo de fin de semana entregados con hielera.'
+    description: 'Six pack de latones bien fríos de cerveza Victoria o Corona en promo de fin de semana entregados con hielera.',
+    sourceUrl: 'https://bara.com.mx/promociones'
   },
   {
     id: 'prod-sup-superbara-03',
@@ -810,7 +856,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bag',
     volume: '5 Kilogramos',
     imageUrl: 'https://images.unsplash.com/photo-1516054575922-f0b8eeadec1a?auto=format&fit=crop&w=600&q=80',
-    description: 'Hielo en cubos con agua 100% purificada, transportado en unidad fría para que llegue congelado y sin derretirse.'
+    description: 'Hielo en cubos con agua 100% purificada, transportado en unidad fría para que llegue congelado y sin derretirse.',
+    sourceUrl: 'https://bara.com.mx/promociones'
   },
   {
     id: 'prod-sup-superbara-04',
@@ -833,7 +880,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'bag',
     volume: '160 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=600&q=80',
-    description: 'Papas fritas con sal 100% naturales para botana y reuniones en Silao con precio rebajado en Super Bara.'
+    description: 'Papas fritas con sal 100% naturales para botana y reuniones en Silao con precio rebajado en Super Bara.',
+    sourceUrl: 'https://bara.com.mx/promociones'
   },
   {
     id: 'prod-sup-superbara-05',
@@ -856,7 +904,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'pack',
     volume: '400 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=600&q=80',
-    description: 'Queso oaxaca de hebra perfecto para quesadillas derretidas y sincronizadas. Conservado en frío estricto.'
+    description: 'Queso oaxaca de hebra perfecto para quesadillas derretidas y sincronizadas. Conservado en frío estricto.',
+    sourceUrl: 'https://bara.com.mx/promociones'
   },
   {
     id: 'prod-sup-superbara-06',
@@ -879,6 +928,7 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     packagingType: 'pack',
     volume: '1 Kilogramo',
     imageUrl: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=600&q=80',
-    description: 'Tortillas de maíz nixtamalizado suaves y calientes para tu comida diaria en Silao.'
+    description: 'Tortillas de maíz nixtamalizado suaves y calientes para tu comida diaria en Silao.',
+    sourceUrl: 'https://bara.com.mx/promociones'
   }
 ];

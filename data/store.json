@@ -11515,13 +11515,14 @@
       "isColdChain": false,
       "commercialPrice": 46,
       "wholesalePrice": 38,
-      "promoPrice": 35,
+      "promoPrice": 33.9,
       "stock": 65,
       "minStockAlert": 5,
       "packagingType": "bottle",
       "volume": "1 Litro",
       "imageUrl": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80",
-      "description": "Aceite Vegetal Comestible 1-2-3 (1 L) (Botella 1 Litro). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Aceite vegetal comestible puro para cocinar 1-2-3 en oferta semanal de Bodega Aurrera Silao. Ideal para freír y guisados familiares.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-02",
@@ -11538,13 +11539,14 @@
       "isColdChain": false,
       "commercialPrice": 88,
       "wholesalePrice": 76,
-      "promoPrice": 68.9,
+      "promoPrice": 69.5,
       "stock": 40,
       "minStockAlert": 4,
       "packagingType": "box",
       "volume": "Cono 30 pzs (~1.8 kg)",
       "imageUrl": "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80",
-      "description": "Huevo Blanco El Calvario (Cono 30 piezas) (Cono de cartón con 30 huevos seleccionados). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Huevo blanco fresco tamaño grande de granja en cono de 30 piezas en oferta imperdible de Bodega Aurrera Silao.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-03",
@@ -11561,13 +11563,14 @@
       "isColdChain": false,
       "commercialPrice": 24.5,
       "wholesalePrice": 21,
-      "promoPrice": 19.5,
+      "promoPrice": 18.9,
       "stock": 120,
       "minStockAlert": 10,
       "packagingType": "tetra",
       "volume": "1 Litro",
       "imageUrl": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80",
-      "description": "Leche Entera Great Value (1 Litro) (Tetra Pak 1 Litro ultrapasteurizada). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Leche 100% pura de vaca adicionada con vitaminas A y D. Precio económico de bodega para el desayuno familiar en Silao.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-04",
@@ -11584,13 +11587,14 @@
       "isColdChain": false,
       "commercialPrice": 46,
       "wholesalePrice": 39,
-      "promoPrice": 35.9,
+      "promoPrice": 35,
       "stock": 55,
       "minStockAlert": 5,
       "packagingType": "bag",
       "volume": "900 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1551462147-ff29053bfc14?auto=format&fit=crop&w=600&q=80",
-      "description": "Frijol Negro Verde Valle (900g) (Bolsa 900g seleccionado). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Frijol negro limpio, libre de impurezas y de rápida cocción. Calidad premium Verde Valle a precio promocional en Aurrera Silao.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-05",
@@ -11607,13 +11611,14 @@
       "isColdChain": false,
       "commercialPrice": 22.5,
       "wholesalePrice": 19,
-      "promoPrice": 17,
+      "promoPrice": 16.5,
       "stock": 80,
       "minStockAlert": 8,
       "packagingType": "bag",
       "volume": "900 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
-      "description": "Arroz Súper Extra Aurrera (900g) (Bolsa 900g grano largo). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Arroz grano largo y entero de alta calidad para arroz rojo mexicano o blanco al vapor. Precio de morralla Aurrera.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-06",
@@ -11630,13 +11635,14 @@
       "isColdChain": false,
       "commercialPrice": 92,
       "wholesalePrice": 78,
-      "promoPrice": 71.9,
+      "promoPrice": 69.9,
       "stock": 35,
       "minStockAlert": 4,
       "packagingType": "pack",
       "volume": "12 rollos dobles",
       "imageUrl": "https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=600&q=80",
-      "description": "Papel Higiénico Pétalo Rendimax (12 Rollos) (Paquete de 12 rollos hojas dobles). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Papel higiénico suave y resistente de alta duración Pétalo Rendimax en mega oferta quincenal de Bodega Aurrera Silao.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-07",
@@ -11653,13 +11659,14 @@
       "isColdChain": false,
       "commercialPrice": 38,
       "wholesalePrice": 32,
-      "promoPrice": 29.9,
+      "promoPrice": 28.5,
       "stock": 75,
       "minStockAlert": 6,
       "packagingType": "bag",
       "volume": "1 kg",
       "imageUrl": "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=80",
-      "description": "Detergente Multiusos Roma en Polvo (1 kg) (Bolsa 1 kg biodegradable). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Detergente económico multiusos para ropa blanca y de color, pisos y trastes. El clásico de los hogares de Silao.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-08",
@@ -11676,13 +11683,14 @@
       "isColdChain": false,
       "commercialPrice": 26,
       "wholesalePrice": 22,
-      "promoPrice": 20.9,
+      "promoPrice": 19.5,
       "stock": 90,
       "minStockAlert": 8,
       "packagingType": "bar",
       "volume": "400 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1607006314181-4b104c965cbe?auto=format&fit=crop&w=600&q=80",
-      "description": "Jabón de Lavandería Zote Rosa (400g) (Barra 400g tradicional). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Jabón Zote rosa de puro aceite de coco y sebo natural. Excelente para desmanchar cuellos y puños.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-09",
@@ -11699,13 +11707,14 @@
       "isColdChain": false,
       "commercialPrice": 23.5,
       "wholesalePrice": 19.5,
-      "promoPrice": 18,
+      "promoPrice": 17.9,
       "stock": 110,
       "minStockAlert": 10,
       "packagingType": "can",
       "volume": "140 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1544943910-4c1dc44a03e6?auto=format&fit=crop&w=600&q=80",
-      "description": "Atún Dolores en Agua Aleta Amarilla (140g) (Lata abre-fácil 140g). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Lomo de atún aleta amarilla en agua Dolores, rico en proteína y Omega-3. Oferta especial en canasta básica.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-aurrera-10",
@@ -11722,13 +11731,14 @@
       "isColdChain": false,
       "commercialPrice": 84,
       "wholesalePrice": 72,
-      "promoPrice": 65.9,
+      "promoPrice": 65,
       "stock": 45,
       "minStockAlert": 4,
       "packagingType": "jar",
       "volume": "120 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80",
-      "description": "Café Soluble Nescafé Clásico (120g) (Frasco de vidrio 120g). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "El café preferido de México con su inconfundible aroma y sabor a granos tostados. Precio rebajado en Bodega Aurrera Silao.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-soriana-01",
@@ -11745,13 +11755,14 @@
       "isColdChain": false,
       "commercialPrice": 38,
       "wholesalePrice": 28,
-      "promoPrice": 29.9,
+      "promoPrice": 22.9,
       "stock": 70,
       "minStockAlert": 5,
       "packagingType": "bulk",
       "volume": "1 Kilogramo",
       "imageUrl": "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
-      "description": "Jitomate Saladette Fresco Silao (1 kg) (Kilo seleccionado a granel). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Jitomate Saladette rojo y firme cosechado en campos de Guanajuato. Oferta estelar de Martes de Frescura Soriana Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-soriana-02",
@@ -11768,13 +11779,14 @@
       "isColdChain": false,
       "commercialPrice": 78,
       "wholesalePrice": 62,
-      "promoPrice": 60.9,
+      "promoPrice": 54.9,
       "stock": 45,
       "minStockAlert": 4,
       "packagingType": "bulk",
       "volume": "1 Kilogramo",
       "imageUrl": "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80",
-      "description": "Aguacate Hass de Michoacán (1 kg) (Kilo seleccionado en su punto). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Aguacate Hass cremoso perfecto para guacamole o ensaladas. Super precio de oferta de temporada en Soriana Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-soriana-03",
@@ -11791,13 +11803,14 @@
       "isColdChain": true,
       "commercialPrice": 118,
       "wholesalePrice": 95,
-      "promoPrice": 92.9,
+      "promoPrice": 84.9,
       "stock": 30,
       "minStockAlert": 3,
       "packagingType": "tray",
       "volume": "1 Kilogramo",
       "imageUrl": "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&w=600&q=80",
-      "description": "Pechuga de Pollo Fresca con Hueso (1 kg) (Kilo empacado en charola refrigerada). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Pechuga de pollo fresca y limpia de primera calidad, transportada con hielera térmica fría garantizada hasta tu domicilio.",
+      "sourceUrl": "https://bara.com.mx/promociones"
     },
     {
       "id": "prod-sup-soriana-04",
@@ -11814,13 +11827,14 @@
       "isColdChain": true,
       "commercialPrice": 129,
       "wholesalePrice": 108,
-      "promoPrice": 100.9,
+      "promoPrice": 96,
       "stock": 25,
       "minStockAlert": 3,
       "packagingType": "tray",
       "volume": "1 Kilogramo",
       "imageUrl": "https://images.unsplash.com/photo-1588168333986-5078d3ae3976?auto=format&fit=crop&w=600&q=80",
-      "description": "Carne Molida de Res 80/20 Soriana (1 kg) (Kilo en charola sellada refrigerada). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Carne molida de res fresca 80% magra / 20% grasa para hamburguesas jugosas o picadillo casero con entrega fría en Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-soriana-05",
@@ -11837,13 +11851,14 @@
       "isColdChain": true,
       "commercialPrice": 68,
       "wholesalePrice": 56,
-      "promoPrice": 53,
+      "promoPrice": 49.9,
       "stock": 40,
       "minStockAlert": 4,
       "packagingType": "pack",
       "volume": "400 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=600&q=80",
-      "description": "Queso Panela FUD en Barra (400g) (Empaque sellado al vacío 400g). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Queso panela fresco, bajo en grasa y con textura suave para asar o desmoronar. Se envía en hielera con hielo activo.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-soriana-06",
@@ -11860,13 +11875,14 @@
       "isColdChain": true,
       "commercialPrice": 46,
       "wholesalePrice": 38,
-      "promoPrice": 35.5,
+      "promoPrice": 33.5,
       "stock": 50,
       "minStockAlert": 5,
       "packagingType": "pack",
       "volume": "250 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1524438418049-ab2acb7aa48f?auto=format&fit=crop&w=600&q=80",
-      "description": "Jamón de Pavo Virginia Zwan (250g) (Paquete sellado 250g rebanado). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Jamón de pechuga de pavo Virginia bajo en sodio y sin grasa. Ideal para sándwiches y loncheras escolares en Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-soriana-07",
@@ -11883,13 +11899,14 @@
       "isColdChain": false,
       "commercialPrice": 62,
       "wholesalePrice": 52,
-      "promoPrice": 48.9,
+      "promoPrice": 46.5,
       "stock": 45,
       "minStockAlert": 4,
       "packagingType": "jar",
       "volume": "725 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
-      "description": "Mayonesa con Jugo de Limón McCormick (725g) (Frasco de vidrio 725g). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "La mayonesa clásica con toque de limón que le da sabor a tus platillos. Oferta semanal en Soriana Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-soriana-08",
@@ -11906,13 +11923,14 @@
       "isColdChain": false,
       "commercialPrice": 11.5,
       "wholesalePrice": 9.5,
-      "promoPrice": 8.9,
+      "promoPrice": 7.9,
       "stock": 140,
       "minStockAlert": 15,
       "packagingType": "bag",
       "volume": "200 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1621996346565-e3d5d6281691?auto=format&fit=crop&w=600&q=80",
-      "description": "Pasta para Sopa La Moderna Fideo / Codo (200g) (Bolsa 200g de sémola de trigo). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Pasta mexicana fortificada con vitaminas para preparar la tradicional sopa aguada de fideo en los hogares de Silao.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-soriana-09",
@@ -11929,13 +11947,14 @@
       "isColdChain": false,
       "commercialPrice": 86,
       "wholesalePrice": 72,
-      "promoPrice": 67.5,
+      "promoPrice": 62.9,
       "stock": 35,
       "minStockAlert": 3,
       "packagingType": "bottle",
       "volume": "2.8 Litros",
       "imageUrl": "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=80",
-      "description": "Suavizante de Telas Suavitel Fresco Aroma (2.8 L) (Garrafa 2.8 Litros). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Acondicionador de telas con fragancia duradera y suavidad superior. Oferta jumbo en Soriana Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-soriana-10",
@@ -11952,13 +11971,14 @@
       "isColdChain": false,
       "commercialPrice": 69,
       "wholesalePrice": 58,
-      "promoPrice": 53,
+      "promoPrice": 49.9,
       "stock": 40,
       "minStockAlert": 4,
       "packagingType": "box",
       "volume": "540 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80",
-      "description": "Cereal Choco Krispis Kellogg's (540g) (Caja 540g con arroz inflado achocolatado). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "El cereal preferido de los niños fortificado con calcio, zinc y hierro. Rebaja especial en Soriana Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-tiendas3b-01",
@@ -11975,13 +11995,14 @@
       "isColdChain": false,
       "commercialPrice": 20,
       "wholesalePrice": 17.5,
-      "promoPrice": 14,
+      "promoPrice": 15.5,
       "stock": 150,
       "minStockAlert": 15,
       "packagingType": "tetra",
       "volume": "1 Litro",
       "imageUrl": "https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80",
-      "description": "Leche Entera Vaca Blanca 3B (1 Litro) (Tetra Pak 1 Litro ultrapasteurizada). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "El precio más bajo en leche entera de Silao: 100% de vaca, pasteurizada y con calidad garantizada de Tiendas 3B.",
+      "sourceUrl": "https://tiendas3b.com/productos/"
     },
     {
       "id": "prod-sup-tiendas3b-02",
@@ -12004,7 +12025,8 @@
       "packagingType": "pack",
       "volume": "4 rollos",
       "imageUrl": "https://images.unsplash.com/photo-1584556812952-905ffd0c611a?auto=format&fit=crop&w=600&q=80",
-      "description": "Papel Higiénico Nube 3B (4 Rollos Dobles) (Paquete de 4 rollos suaves). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Ahorro inteligente: papel higiénico rendidor, suave y a una fracción del costo de marcas comerciales.",
+      "sourceUrl": "https://tiendas3b.com/productos/"
     },
     {
       "id": "prod-sup-tiendas3b-03",
@@ -12021,13 +12043,14 @@
       "isColdChain": false,
       "commercialPrice": 32,
       "wholesalePrice": 27,
-      "promoPrice": 23.9,
+      "promoPrice": 24.5,
       "stock": 85,
       "minStockAlert": 8,
       "packagingType": "bottle",
       "volume": "800 mililitros",
       "imageUrl": "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80",
-      "description": "Aceite Mi Marca 3B Puro de Soya (800 ml) (Botella 800 ml). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Aceite vegetal comestible puro de soya para rendir tu quincena cocinando con máxima economía en Silao.",
+      "sourceUrl": "https://tiendas3b.com/productos/"
     },
     {
       "id": "prod-sup-tiendas3b-04",
@@ -12044,13 +12067,14 @@
       "isColdChain": false,
       "commercialPrice": 14,
       "wholesalePrice": 11,
-      "promoPrice": 10.9,
+      "promoPrice": 9.9,
       "stock": 120,
       "minStockAlert": 10,
       "packagingType": "bottle",
       "volume": "1 Litro",
       "imageUrl": "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=80",
-      "description": "Cloro Concentrado Limpiador 3B (1 Litro) (Botella 1 Litro desinfectante). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Cloro blanqueador y desinfectante activo para baños, pisos y ropa blanca. Menos de $10 pesos por litro.",
+      "sourceUrl": "https://tiendas3b.com/productos/"
     },
     {
       "id": "prod-sup-tiendas3b-05",
@@ -12067,13 +12091,14 @@
       "isColdChain": true,
       "commercialPrice": 29,
       "wholesalePrice": 24,
-      "promoPrice": 20,
+      "promoPrice": 21,
       "stock": 45,
       "minStockAlert": 4,
       "packagingType": "pack",
       "volume": "500 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1524438418049-ab2acb7aa48f?auto=format&fit=crop&w=600&q=80",
-      "description": "Salchicha de Pavo 3B Económica (500g) (Paquete 500g empacado al vacío). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Salchichas de pavo para hot dogs, entomatadas o botana escolar con entrega con hielera fría en Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "prod-sup-tiendas3b-06",
@@ -12090,13 +12115,14 @@
       "isColdChain": false,
       "commercialPrice": 19.5,
       "wholesalePrice": 16,
-      "promoPrice": 14,
+      "promoPrice": 13.9,
       "stock": 75,
       "minStockAlert": 8,
       "packagingType": "bag",
       "volume": "350 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?auto=format&fit=crop&w=600&q=80",
-      "description": "Galletas Surtido Dulce 3B (350g) (Bolsa surtido de galletas). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Ricas galletas crujientes surtidas para acompañar tu café o chocolate con el mejor precio garantizado de Silao.",
+      "sourceUrl": "https://tiendas3b.com/productos/"
     },
     {
       "id": "prod-sup-tiendas3b-07",
@@ -12113,13 +12139,14 @@
       "isColdChain": false,
       "commercialPrice": 38,
       "wholesalePrice": 32,
-      "promoPrice": 27.5,
+      "promoPrice": 28.5,
       "stock": 60,
       "minStockAlert": 6,
       "packagingType": "bag",
       "volume": "900 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1551462147-ff29053bfc14?auto=format&fit=crop&w=600&q=80",
-      "description": "Frijol Peruano 3B (900g) (Bolsa 900g seleccionado). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Frijol peruano claro y cremoso ideal para refritos con totopos. Ahorro sustancial frente a supermercados tradicionales.",
+      "sourceUrl": "https://tiendas3b.com/productos/"
     },
     {
       "id": "prod-sup-tiendas3b-08",
@@ -12136,13 +12163,14 @@
       "isColdChain": false,
       "commercialPrice": 21,
       "wholesalePrice": 17.5,
-      "promoPrice": 15,
+      "promoPrice": 14.9,
       "stock": 80,
       "minStockAlert": 8,
       "packagingType": "bottle",
       "volume": "750 mililitros",
       "imageUrl": "https://images.unsplash.com/photo-1585421514738-01798e348b17?auto=format&fit=crop&w=600&q=80",
-      "description": "Lavatrastes Líquido Limón Brillín (750 ml) (Botella dosificadora 750 ml). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Fórmula arranca-grasa con aroma fresco a limón para una vajilla reluciente sin gastar de más.",
+      "sourceUrl": "https://tiendas3b.com/productos/"
     },
     {
       "id": "prod-sup-superbara-01",
@@ -12159,13 +12187,14 @@
       "isColdChain": true,
       "commercialPrice": 44,
       "wholesalePrice": 38,
-      "promoPrice": 34.5,
+      "promoPrice": 37.5,
       "stock": 60,
       "minStockAlert": 6,
       "packagingType": "bottle",
       "volume": "2.5 Litros",
       "imageUrl": "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80",
-      "description": "Refresco Coca-Cola Original (2.5 L No Retornable) (Botella familiar 2.5 Litros fría). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Coca-Cola bien fría lista para disfrutar con la comida familiar en Silao. Entrega garantizada con hielera.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "prod-sup-superbara-02",
@@ -12182,13 +12211,14 @@
       "isColdChain": true,
       "commercialPrice": 118,
       "wholesalePrice": 102,
-      "promoPrice": 92.9,
+      "promoPrice": 94,
       "stock": 40,
       "minStockAlert": 4,
       "packagingType": "pack",
       "volume": "6 latones de 473ml",
       "imageUrl": "https://images.unsplash.com/photo-1608270119230-f20cf146ff75?auto=format&fit=crop&w=600&q=80",
-      "description": "Cerveza Victoria o Corona Six Pack Latón 473ml (Six pack latas 473ml heladas). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Six pack de latones bien fríos de cerveza Victoria o Corona en promo de fin de semana entregados con hielera.",
+      "sourceUrl": "https://bara.com.mx/promociones"
     },
     {
       "id": "prod-sup-superbara-03",
@@ -12205,13 +12235,14 @@
       "isColdChain": true,
       "commercialPrice": 32,
       "wholesalePrice": 26,
-      "promoPrice": 24.9,
+      "promoPrice": 24,
       "stock": 50,
       "minStockAlert": 5,
       "packagingType": "bag",
       "volume": "5 Kilogramos",
       "imageUrl": "https://images.unsplash.com/photo-1516054575922-f0b8eeadec1a?auto=format&fit=crop&w=600&q=80",
-      "description": "Bolsa de Hielo en Cubos Puro Silao (5 kg) (Bolsa 5 kilos de cubos purificados). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Hielo en cubos con agua 100% purificada, transportado en unidad fría para que llegue congelado y sin derretirse.",
+      "sourceUrl": "https://bara.com.mx/promociones"
     },
     {
       "id": "prod-sup-superbara-04",
@@ -12228,13 +12259,14 @@
       "isColdChain": false,
       "commercialPrice": 52,
       "wholesalePrice": 44,
-      "promoPrice": 40.9,
+      "promoPrice": 41.9,
       "stock": 55,
       "minStockAlert": 5,
       "packagingType": "bag",
       "volume": "160 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&w=600&q=80",
-      "description": "Papas Fritas Sabritas Clásicas Sal (160g) (Bolsa tamaño fiesta 160g). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Papas fritas con sal 100% naturales para botana y reuniones en Silao con precio rebajado en Super Bara.",
+      "sourceUrl": "https://bara.com.mx/promociones"
     },
     {
       "id": "prod-sup-superbara-05",
@@ -12251,13 +12283,14 @@
       "isColdChain": true,
       "commercialPrice": 58,
       "wholesalePrice": 48,
-      "promoPrice": 45.9,
+      "promoPrice": 43.5,
       "stock": 35,
       "minStockAlert": 3,
       "packagingType": "pack",
       "volume": "400 gramos",
       "imageUrl": "https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=600&q=80",
-      "description": "Queso Oaxaca Hebra Don Lucas (400g) (Bolsa sellada 400g de hebra fresca). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Queso oaxaca de hebra perfecto para quesadillas derretidas y sincronizadas. Conservado en frío estricto.",
+      "sourceUrl": "https://bara.com.mx/promociones"
     },
     {
       "id": "prod-sup-superbara-06",
@@ -12274,13 +12307,14 @@
       "isColdChain": false,
       "commercialPrice": 24,
       "wholesalePrice": 20,
-      "promoPrice": 18.9,
+      "promoPrice": 17.5,
       "stock": 60,
       "minStockAlert": 6,
       "packagingType": "pack",
       "volume": "1 Kilogramo",
       "imageUrl": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=600&q=80",
-      "description": "Tortillas de Maíz Nixtamal Empacadas (1 kg) (Paquete 1 kg sellado). Oferta actualizada hoy 1 de Octubre de 2026 en SilaoMarket (Jueves de Morralla y Precios de Fábrica 3B). Entrega a domicilio consolidada en Silao."
+      "description": "Tortillas de maíz nixtamalizado suaves y calientes para tu comida diaria en Silao.",
+      "sourceUrl": "https://bara.com.mx/promociones"
     }
   ],
   "movements": [
@@ -14332,7 +14366,7 @@
     "hubAddress": "Hub Central de Consolidación Silao, Calle 5 de Mayo #45, Silao Centro",
     "deliveryCost": 25
   },
-  "lastUpdated": "2026-10-01T19:11:41.886Z",
+  "lastUpdated": "2026-10-01T19:42:46.041Z",
   "merchants": [
     {
       "id": "merch-abarrotes",
@@ -14547,12 +14581,15 @@
       "badge": "🏷️ Morralla y Precios Bodega",
       "iconName": "ShoppingBag",
       "description": "Ofertas de canasta básica y folleto semanal de Bodega Aurrera Silao: despensa, abarrotes, huevo, frijol, lácteos y productos de limpieza con precios de remate.",
+      "sourceUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital",
       "commissionRate": 8,
       "type": "Producto",
       "pin": "1234",
       "bankAccount": "Santander CLABE 014215000000004410",
       "ownerName": "Bodega Aurrera Silao (Plaza La Joya)",
-      "email": "aurrera.silao@silaomarket.com"
+      "email": "aurrera.silao@silaomarket.com",
+      "websiteUrl": "https://despensa.bodegaaurrera.com.mx/",
+      "brochureUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
     },
     {
       "id": "merch-soriana-silao",
@@ -14567,12 +14604,15 @@
       "badge": "🔥 Martes de Frescura & Ofertas",
       "iconName": "ShoppingCart",
       "description": "Ofertas de temporada en frutas, verduras frescas, carnes de res y pollo, salchichonería refrigerada y abarrotes de la semana en Soriana Silao.",
+      "sourceUrl": "https://www.soriana.com/folleto-digital.html",
       "commissionRate": 8,
       "type": "Producto",
       "pin": "1234",
       "bankAccount": "Banamex CLABE 002215000000006800",
       "ownerName": "Soriana Silao Centro",
-      "email": "soriana.silao@silaomarket.com"
+      "email": "soriana.silao@silaomarket.com",
+      "websiteUrl": "https://www.soriana.com/",
+      "brochureUrl": "https://www.soriana.com/folleto-digital.html"
     },
     {
       "id": "merch-tiendas-3b",
@@ -14592,7 +14632,9 @@
       "pin": "1234",
       "bankAccount": "BBVA CLABE 012215000000009011",
       "ownerName": "Tiendas 3B Silao Centro",
-      "email": "tiendas3b.silao@silaomarket.com"
+      "email": "tiendas3b.silao@silaomarket.com",
+      "websiteUrl": "https://tiendas3b.com/",
+      "brochureUrl": "https://tiendas3b.com/productos/"
     },
     {
       "id": "merch-super-bara",
@@ -14612,7 +14654,9 @@
       "pin": "1234",
       "bankAccount": "HSBC CLABE 021215000000001122",
       "ownerName": "Super Bara Silao Sopeña",
-      "email": "superbara.silao@silaomarket.com"
+      "email": "superbara.silao@silaomarket.com",
+      "websiteUrl": "https://bara.com.mx/",
+      "brochureUrl": "https://bara.com.mx/promociones"
     }
   ],
   "settlements": [],

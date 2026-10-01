@@ -64,6 +64,8 @@ export interface Merchant {
   bankAccount?: string; // CLABE o banco para liquidación semanal
   ownerName?: string;
   email?: string;
+  websiteUrl?: string;
+  brochureUrl?: string;
 }
 
 export interface MerchantSettlement {
@@ -132,6 +134,7 @@ export interface Product {
   volume?: string;
   imageUrl?: string;       // Foto / Imagen personalizada
   barcode?: string;        // Código de barras EAN-13, UPC o Code-128
+  sourceUrl?: string;      // Enlace web oficial al folleto o tienda
 }
 
 export interface CartItem {
