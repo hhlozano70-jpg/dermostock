@@ -81,7 +81,12 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "BBVA CLABE 012215000000001450",
     "ownerName": "Don José Providencia",
-    "email": "providencia.silao@gmail.com"
+    "email": "providencia.silao@gmail.com",
+    "hasWholesale": true,
+    "wholesaleMinPieces": 3,
+    "hasSpecialPromos": false,
+    "promoMinPieces": 2,
+    "promoTerms": "Mayoreo a partir de 3 piezas del mismo producto"
   },
   {
     "id": "merch-cadena-fria",
@@ -101,7 +106,12 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "Santander CLABE 014215000000005512",
     "ownerName": "María Luisa Michoacana",
-    "email": "michoacana.silao@gmail.com"
+    "email": "michoacana.silao@gmail.com",
+    "hasWholesale": true,
+    "wholesaleMinPieces": 10,
+    "hasSpecialPromos": true,
+    "promoMinPieces": 5,
+    "promoTerms": "Mayoreo en 10 paletas surtidas o 5 litros de helado"
   },
   {
     "id": "merch-cerveceria",
@@ -121,7 +131,12 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "Banorte CLABE 072215000000008800",
     "ownerName": "Carlos El Bajío",
-    "email": "cerveceria.bajio.silao@gmail.com"
+    "email": "cerveceria.bajio.silao@gmail.com",
+    "hasWholesale": true,
+    "wholesaleMinPieces": 3,
+    "hasSpecialPromos": true,
+    "promoMinPieces": 2,
+    "promoTerms": "Precio mayorista a partir de 3 six-packs"
   },
   {
     "id": "merch-refacciones",
@@ -141,7 +156,12 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "Citibanamex CLABE 002215000000003890",
     "ownerName": "Manuel El Güero",
-    "email": "refacciones.guero.silao@gmail.com"
+    "email": "refacciones.guero.silao@gmail.com",
+    "hasWholesale": true,
+    "wholesaleMinPieces": 4,
+    "hasSpecialPromos": false,
+    "promoMinPieces": 2,
+    "promoTerms": "Tarifa de taller a partir de 4 piezas"
   },
   {
     "id": "merch-farmacia",
@@ -161,7 +181,12 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "BBVA CLABE 012215000000000941",
     "ownerName": "Lic. Farmacéutico Juan",
-    "email": "farmacia.sanjuan.silao@gmail.com"
+    "email": "farmacia.sanjuan.silao@gmail.com",
+    "hasWholesale": false,
+    "wholesaleMinPieces": 5,
+    "hasSpecialPromos": false,
+    "promoMinPieces": 2,
+    "promoTerms": "Venta al menudeo institucional"
   },
   {
     "id": "merch-ferreteria",
@@ -181,7 +206,12 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "HSBC CLABE 021215000000006723",
     "ownerName": "Ing. Roberto Tornillo",
-    "email": "ferreteria.tornillo.silao@gmail.com"
+    "email": "ferreteria.tornillo.silao@gmail.com",
+    "hasWholesale": true,
+    "wholesaleMinPieces": 6,
+    "hasSpecialPromos": false,
+    "promoMinPieces": 3,
+    "promoTerms": "Mayoreo para contratistas a partir de 6 piezas"
   },
   {
     "id": "merch-mascotas",
@@ -201,7 +231,12 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "Santander CLABE 014215000000009901",
     "ownerName": "Dra. Andrea Huellitas",
-    "email": "huellitas.silao@gmail.com"
+    "email": "huellitas.silao@gmail.com",
+    "hasWholesale": true,
+    "wholesaleMinPieces": 2,
+    "hasSpecialPromos": false,
+    "promoMinPieces": 2,
+    "promoTerms": "Descuento en bultos a partir de 2 unidades"
   },
   {
     "id": "merch-flores",
@@ -221,7 +256,11 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "BanCoppel CLABE 137215000000004418",
     "ownerName": "Rosa Elena Flores",
-    "email": "rosadeoro.silao@gmail.com"
+    "email": "rosadeoro.silao@gmail.com",
+    "hasWholesale": false,
+    "hasSpecialPromos": true,
+    "promoMinPieces": 3,
+    "promoTerms": "Precio preferencial en compras de 3 arreglos o docenas"
   },
   {
     "id": "merch-servicios",
@@ -241,7 +280,9 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "BBVA CLABE 012215000000001122",
     "ownerName": "Maestro Cerrajerías Exprés",
-    "email": "servicios.expres.silao@gmail.com"
+    "email": "servicios.expres.silao@gmail.com",
+    "hasWholesale": false,
+    "hasSpecialPromos": false
   },
   {
     "id": "merch-maret-silao",
@@ -261,7 +302,12 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "pin": "1234",
     "bankAccount": "BBVA CLABE 012215000000007788",
     "ownerName": "MARET SILAO Central",
-    "email": "contacto@maretsilao.com"
+    "email": "contacto@maretsilao.com",
+    "hasWholesale": true,
+    "wholesaleMinPieces": 3,
+    "hasSpecialPromos": true,
+    "promoMinPieces": 2,
+    "promoTerms": "Mayoreo NIVEA y Dermo a partir de 3 piezas para distribuidores de Silao"
   },
   ...SILAO_SUPERMARKET_MERCHANTS
 ];

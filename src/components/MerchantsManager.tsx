@@ -35,16 +35,27 @@ export const MerchantsManager: React.FC = () => {
 
   const [formData, setFormData] = useState<Omit<Merchant, 'id'>>({
     name: '',
-    category: 'Abarrotes',
+    category: 'Abarrotes y Cremería',
     commissionRate: 8,
-    type: 'producto',
+    type: 'Producto',
     ownerName: '',
     phone: '',
     email: '',
     address: 'Silao, Gto.',
     bankAccount: '',
     pin: '1234',
-    status: 'active'
+    status: 'active',
+    silaoZone: 'Silao Centro',
+    badge: 'Comercio Local',
+    iconName: 'Store',
+    rating: 5.0,
+    reviewsCount: 1,
+    description: '',
+    hasWholesale: false,
+    wholesaleMinPieces: 3,
+    hasSpecialPromos: false,
+    promoMinPieces: 2,
+    promoTerms: ''
   });
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -87,16 +98,27 @@ export const MerchantsManager: React.FC = () => {
     setCurrentMerchantId(null);
     setFormData({
       name: '',
-      category: 'Abarrotes',
+      category: 'Abarrotes y Cremería',
       commissionRate: 8,
-      type: 'producto',
+      type: 'Producto',
       ownerName: '',
       phone: '',
       email: '',
       address: 'Silao, Gto.',
       bankAccount: '',
       pin: '1234',
-      status: 'active'
+      status: 'active',
+      silaoZone: 'Silao Centro',
+      badge: 'Comercio Local',
+      iconName: 'Store',
+      rating: 5.0,
+      reviewsCount: 1,
+      description: '',
+      hasWholesale: false,
+      wholesaleMinPieces: 3,
+      hasSpecialPromos: false,
+      promoMinPieces: 2,
+      promoTerms: ''
     });
   };
 
@@ -107,14 +129,25 @@ export const MerchantsManager: React.FC = () => {
       name: m.name,
       category: m.category,
       commissionRate: m.commissionRate || 10,
-      type: m.type || 'producto',
+      type: m.type || 'Producto',
       ownerName: m.ownerName || '',
       phone: m.phone || '',
       email: m.email || '',
       address: m.address || 'Silao, Gto.',
       bankAccount: m.bankAccount || '',
       pin: m.pin || '1234',
-      status: m.status || 'active'
+      status: m.status || 'active',
+      silaoZone: m.silaoZone || 'Silao Centro',
+      badge: m.badge || 'Comercio Local',
+      iconName: m.iconName || 'Store',
+      rating: m.rating || 5.0,
+      reviewsCount: m.reviewsCount || 1,
+      description: m.description || '',
+      hasWholesale: Boolean(m.hasWholesale),
+      wholesaleMinPieces: m.wholesaleMinPieces || 3,
+      hasSpecialPromos: Boolean(m.hasSpecialPromos),
+      promoMinPieces: m.promoMinPieces || 2,
+      promoTerms: m.promoTerms || ''
     });
   };
 
@@ -258,8 +291,8 @@ export const MerchantsManager: React.FC = () => {
                     onChange={e => setFormData({ ...formData, type: e.target.value as any })}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white"
                   >
-                    <option value="producto">Producto</option>
-                    <option value="servicio">Servicio</option>
+                    <option value="Producto">Producto</option>
+                    <option value="Servicio">Servicio</option>
                   </select>
                 </div>
               </div>
@@ -321,6 +354,93 @@ export const MerchantsManager: React.FC = () => {
                 />
               </div>
 
+              {/* Bloque: Condiciones de Mayoreo y Promociones Especiales */}
+              <div className="p-3 bg-blue-50/70 border border-blue-200 rounded-xl space-y-2.5">
+                <span className="block font-black text-blue-950 text-xs">
+                  Políticas de Mayoreo y Promociones (Opcionales por Tienda)
+                </span>
+                <p className="text-[11px] text-blue-800">
+                  El estándar inicial es Precio Comercial para todos. Puedes habilitar si esta tienda acepta mayoreo o promos, y definir en qué casos aplica con número de piezas mínimas:
+                </p>
+
+                {/* Switch Mayoreo */}
+                <div className="pt-1 border-t border-blue-200/80">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(formData.hasWholesale)}
+                      onChange={e => setFormData({ ...formData, hasWholesale: e.target.checked })}
+                      className="rounded text-blue-600"
+                    />
+                    <span className="font-bold text-slate-800 text-xs">
+                      Habilitar Precios a Mayoreo en esta tienda
+                    </span>
+                  </label>
+                  
+                  {formData.hasWholesale && (
+                    <div className="mt-2 pl-5 space-y-1">
+                      <label className="block text-[11px] font-bold text-slate-700">
+                        ¿A partir de cuántas piezas mínimas aplica? *
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={formData.wholesaleMinPieces || 3}
+                        onChange={e => setFormData({ ...formData, wholesaleMinPieces: Math.max(1, parseInt(e.target.value) || 1) })}
+                        className="w-full sm:w-32 px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold font-mono text-blue-900 bg-white"
+                      />
+                      <span className="text-[10px] text-slate-500 block">
+                        Al alcanzar {formData.wholesaleMinPieces || 3} piezas en el carrito se activa automáticamente el precio mayorista.
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Switch Promociones Especiales */}
+                <div className="pt-2 border-t border-blue-200/80">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(formData.hasSpecialPromos)}
+                      onChange={e => setFormData({ ...formData, hasSpecialPromos: e.target.checked })}
+                      className="rounded text-emerald-600"
+                    />
+                    <span className="font-bold text-slate-800 text-xs">
+                      Habilitar Promociones Especiales por Volumen
+                    </span>
+                  </label>
+
+                  {formData.hasSpecialPromos && (
+                    <div className="mt-2 pl-5 space-y-2">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700">Piezas mínimas promo</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="50"
+                            value={formData.promoMinPieces || 2}
+                            onChange={e => setFormData({ ...formData, promoMinPieces: Math.max(1, parseInt(e.target.value) || 1) })}
+                            className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold font-mono text-emerald-900 bg-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-700">Términos breves</label>
+                          <input
+                            type="text"
+                            placeholder="Ej. Ofertas 2x1 o folleto"
+                            value={formData.promoTerms || ''}
+                            onChange={e => setFormData({ ...formData, promoTerms: e.target.value })}
+                            className="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-xs bg-white"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <button
                 type="submit"
                 className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer mt-2"
@@ -352,6 +472,20 @@ export const MerchantsManager: React.FC = () => {
                         <span className="text-[10px] px-1.5 py-0.2 rounded font-bold bg-amber-100 text-amber-800 border border-amber-200">
                           {m.commissionRate || 10}% com.
                         </span>
+                        {m.hasWholesale ? (
+                          <span className="text-[10px] px-1.5 py-0.2 rounded font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                            📦 Mayoreo ({m.wholesaleMinPieces || 3}+ pzs)
+                          </span>
+                        ) : (
+                          <span className="text-[10px] px-1.5 py-0.2 rounded font-medium bg-slate-100 text-slate-600">
+                            PVP Comercial
+                          </span>
+                        )}
+                        {m.hasSpecialPromos && (
+                          <span className="text-[10px] px-1.5 py-0.2 rounded font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            ⚡ Promos
+                          </span>
+                        )}
                       </h4>
                       <p className="text-[11px] text-slate-500 mt-0.5">
                         {m.category} • Propietario: {m.ownerName || 'No especificado'} • PIN: <strong className="font-mono text-slate-700">{m.pin || '1234'}</strong>

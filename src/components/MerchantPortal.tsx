@@ -18,10 +18,12 @@ import {
   Plus
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
+import { Merchant } from '../types/inventory';
 
 export const MerchantPortal: React.FC = () => {
   const { 
     loggedMerchant, 
+    merchants,
     products, 
     orders, 
     settlements, 
@@ -29,10 +31,17 @@ export const MerchantPortal: React.FC = () => {
     setIsAuthModalOpen, 
     openProductModal,
     setActiveTab,
-    setIsBrochureModalOpen
+    setIsBrochureModalOpen,
+    updateMerchant
   } = useInventory();
 
-  const [activeSubTab, setActiveSubTab] = useState<'resumen' | 'liquidaciones' | 'pedidos' | 'catalogo'>('resumen');
+  const [activeSubTab, setActiveSubTab] = useState<'resumen' | 'liquidaciones' | 'pedidos' | 'catalogo' | 'politicas'>('resumen');
+  const [hasWholesaleState, setHasWholesaleState] = useState(false);
+  const [wholesaleMinPiecesState, setWholesaleMinPiecesState] = useState(3);
+  const [hasSpecialPromosState, setHasSpecialPromosState] = useState(false);
+  const [promoMinPiecesState, setPromoMinPiecesState] = useState(2);
+  const [promoTermsState, setPromoTermsState] = useState('');
+  const [isSavedPolicy, setIsSavedPolicy] = useState(false);
 
   if (!loggedMerchant && userRole !== 'admin') {
     return (
@@ -55,17 +64,29 @@ export const MerchantPortal: React.FC = () => {
   }
 
   // Si no hay merchant logueado pero es admin, tomar el primer comercio de demostración
-  const merchant = loggedMerchant || {
+  const merchant: Merchant = loggedMerchant || (merchants && merchants.length > 0 ? merchants[0] : {
     id: 'm1',
     name: 'Abarrotes y Minisuper El Centro',
-    category: 'Abarrotes',
+    category: 'Abarrotes y Cremería',
+    address: 'Calle 5 de Mayo #12, Centro, Silao',
+    silaoZone: 'Silao Centro',
+    rating: 4.8,
+    reviewsCount: 120,
+    badge: 'Comercio Local',
+    iconName: 'Store',
+    description: 'Abarrotes generales de Silao',
     commissionRate: 8,
     ownerName: 'Don Roberto Gómez',
     bankAccount: 'BBVA: 012 225 0154897210 4',
     phone: '472 101 2345',
     email: 'contacto@elcentro.com',
-    status: 'active' as const
-  };
+    status: 'active',
+    hasWholesale: true,
+    wholesaleMinPieces: 3,
+    hasSpecialPromos: false,
+    promoMinPieces: 2,
+    promoTerms: '',
+  });
 
   const commissionRate = merchant.commissionRate || 10;
 
@@ -98,6 +119,29 @@ export const MerchantPortal: React.FC = () => {
     .filter(s => s.status === 'pagado')
     .reduce((sum, s) => sum + s.netAmount, 0);
   const pendingSettlement = netEarnings - totalPaid > 0 ? netEarnings - totalPaid : 0;
+
+  React.useEffect(() => {
+    if (merchant) {
+      setHasWholesaleState(Boolean(merchant.hasWholesale));
+      setWholesaleMinPiecesState(merchant.wholesaleMinPieces || 3);
+      setHasSpecialPromosState(Boolean(merchant.hasSpecialPromos));
+      setPromoMinPiecesState(merchant.promoMinPieces || 2);
+      setPromoTermsState(merchant.promoTerms || '');
+    }
+  }, [merchant.id, merchant.hasWholesale, merchant.wholesaleMinPieces, merchant.hasSpecialPromos, merchant.promoMinPieces, merchant.promoTerms]);
+
+  const handleSavePolicies = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateMerchant(merchant.id, {
+      hasWholesale: hasWholesaleState,
+      wholesaleMinPieces: wholesaleMinPiecesState,
+      hasSpecialPromos: hasSpecialPromosState,
+      promoMinPieces: promoMinPiecesState,
+      promoTerms: promoTermsState,
+    });
+    setIsSavedPolicy(true);
+    setTimeout(() => setIsSavedPolicy(false), 3000);
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -272,6 +316,16 @@ export const MerchantPortal: React.FC = () => {
           }`}
         >
           🏷️ Mis Productos ({merchantProducts.length})
+        </button>
+        <button
+          onClick={() => setActiveSubTab('politicas')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeSubTab === 'politicas'
+              ? 'bg-blue-600 text-white shadow'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          ⚙️ Mayoreo y Promociones
         </button>
       </div>
 
@@ -592,6 +646,161 @@ export const MerchantPortal: React.FC = () => {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* TAB 5: POLÍTICAS DE MAYOREO Y PROMOCIONES DE MI TIENDA */}
+      {activeSubTab === 'politicas' && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-3xl space-y-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <span>⚙️ Políticas de Mayoreo y Promociones Especiales</span>
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Configura si tu negocio ofrece mayoreo o promociones, y bajo qué condiciones de piezas mínimas.
+              </p>
+            </div>
+            <span className="text-xs font-bold px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200">
+              {merchant.name}
+            </span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-950 space-y-1">
+            <span className="font-bold flex items-center gap-1.5 text-amber-900">
+              📌 Regla Estándar de SilaoMarket:
+            </span>
+            <p>
+              El estándar inicial para todos los clientes es el <strong>Precio Comercial</strong>. Tus clientes verán ese precio al comprar al menudeo. Si activas mayoreo y configuras el número de piezas mínimas aquí, se les aplicará automáticamente tu precio de mayoreo cuando lleven esa cantidad o más.
+            </p>
+          </div>
+
+          <form onSubmit={handleSavePolicies} className="space-y-6">
+            {/* Mayoreo */}
+            <div className="p-5 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-bold text-blue-950">Precios a Mayoreo</h4>
+                  <p className="text-xs text-blue-800 mt-0.5">
+                    Permite a clientes y revendedores obtener tu tarifa mayorista comprando volumen.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={hasWholesaleState}
+                    onChange={(e) => setHasWholesaleState(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {hasWholesaleState ? (
+                <div className="pt-3 border-t border-blue-200/80 space-y-2">
+                  <label className="block text-xs font-bold text-blue-900">
+                    ¿En qué casos aplica? (Número de piezas mínimas) *
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      required
+                      value={wholesaleMinPiecesState}
+                      onChange={(e) => setWholesaleMinPiecesState(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-28 px-3 py-2 rounded-xl border border-blue-300 bg-white font-mono font-bold text-sm text-blue-900 text-center"
+                    />
+                    <span className="text-xs text-blue-900 font-medium">piezas mínimas del mismo producto</span>
+                  </div>
+                  <p className="text-[11px] text-blue-700">
+                    A partir de <strong>{wholesaleMinPiecesState} piezas</strong> en el carrito, se aplicará el precio mayorista a los artículos de tu tienda que tengan precio mayorista registrado.
+                  </p>
+                </div>
+              ) : (
+                <div className="text-xs text-slate-500 italic">
+                  Tu tienda actualmente maneja exclusivamente venta a Precio Comercial.
+                </div>
+              )}
+            </div>
+
+            {/* Promociones Especiales */}
+            <div className="p-5 rounded-2xl bg-emerald-50/60 border border-emerald-200 space-y-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h4 className="text-sm font-bold text-emerald-950">Promociones Especiales por Volumen</h4>
+                  <p className="text-xs text-emerald-800 mt-0.5">
+                    Habilita promociones especiales de temporada para tus artículos.
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={hasSpecialPromosState}
+                    onChange={(e) => setHasSpecialPromosState(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                </label>
+              </div>
+
+              {hasSpecialPromosState ? (
+                <div className="pt-3 border-t border-emerald-200/80 space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-emerald-900 mb-1">
+                        Piezas mínimas para promo especial
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="50"
+                        value={promoMinPiecesState}
+                        onChange={(e) => setPromoMinPiecesState(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-white font-mono font-bold text-xs"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-emerald-900 mb-1">
+                        Descripción o Términos de la Promo
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ej. Ofertas 2x1 o precio por caja"
+                        value={promoTermsState}
+                        onChange={(e) => setPromoTermsState(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-emerald-300 bg-white text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-xs text-slate-500 italic">
+                  Sin promociones especiales por volumen activas.
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-2">
+              {isSavedPolicy ? (
+                <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-300 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>¡Políticas de precios actualizadas con éxito!</span>
+                </span>
+              ) : (
+                <span className="text-xs text-slate-400">
+                  Los cambios se sincronizan en tiempo real para todos los clientes en Silao.
+                </span>
+              )}
+
+              <button
+                type="submit"
+                className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-md cursor-pointer"
+              >
+                Guardar Políticas de Precios
+              </button>
+            </div>
+          </form>
         </div>
       )}
 

@@ -66,6 +66,15 @@ export interface Merchant {
   email?: string;
   websiteUrl?: string;
   brochureUrl?: string;
+  sourceUrl?: string;
+  status?: 'active' | 'inactive';
+
+  // Opcionales para cada tienda: Mayoreo y Promociones Especiales
+  hasWholesale?: boolean;          // Opcional: ¿La tienda ofrece precios a mayoreo?
+  wholesaleMinPieces?: number;     // En qué casos aplica: número de piezas mínimas (ej. 3, 6, 12 pzas)
+  hasSpecialPromos?: boolean;      // Opcional: ¿La tienda ofrece promociones especiales?
+  promoMinPieces?: number;         // En qué casos aplica: piezas mínimas para promo especial
+  promoTerms?: string;             // Explicación de en qué casos aplica (ej. "Ofertas de folleto", "2x1 a partir de 2 pzas")
 }
 
 export interface MerchantSettlement {
@@ -124,17 +133,25 @@ export interface Product {
   merchantCategory: MerchantCategory;
   merchantAddress?: string;
   isColdChain?: boolean; // ❄️ Requiere hielera / transporte térmico
-  commercialPrice: number; // Precio Comercial (MXN)
-  wholesalePrice: number;  // Precio Mayorista (-40%)
-  promoPrice: number;      // Precio Promoción (-60%)
+  commercialPrice: number; // Precio Comercial (MXN) - Estándar inicial para todos
+  wholesalePrice: number;  // Precio Mayorista (opcional según tienda y piezas mínimas)
+  promoPrice: number;      // Precio Promoción / Oferta declarada
   stock: number;           // Numero de piezas
   minStockAlert: number;   // Umbral de stock bajo (default 2)
   description?: string;
-  packagingType?: 'bottle' | 'large_bottle' | 'tin' | 'tube' | 'pump' | 'lip_balm' | 'box' | 'jar' | 'dropper' | 'package' | 'cold_box' | 'service' | 'bag';
+  packagingType?: 'bottle' | 'large_bottle' | 'tin' | 'tube' | 'pump' | 'lip_balm' | 'box' | 'jar' | 'dropper' | 'package' | 'cold_box' | 'service' | 'bag' | 'tetra' | 'pack' | 'bar' | 'can' | 'bulk' | 'tray' | string;
   volume?: string;
   imageUrl?: string;       // Foto / Imagen personalizada
   barcode?: string;        // Código de barras EAN-13, UPC o Code-128
   sourceUrl?: string;      // Enlace web oficial al folleto o tienda
+
+  // Condiciones de aplicación de precios por producto:
+  isOfferDeclared?: boolean;       // OFERTA YA DECLARADA: Aplica precio de oferta directo desde 1 pieza (folleto/temporada)
+  hasWholesale?: boolean;          // Opcional para este producto específico (si false, solo comercial)
+  wholesaleMinPieces?: number;     // Piezas mínimas específicas para mayoreo de este producto
+  hasSpecialPromos?: boolean;      // Opcional para este producto específico
+  promoMinPieces?: number;         // Piezas mínimas para promo especial
+  promoDescription?: string;       // Descripción de la oferta o promoción
 }
 
 export interface CartItem {
@@ -142,6 +159,10 @@ export interface CartItem {
   quantity: number;
   appliedTier: PriceTier;
   unitPrice: number;
+  savings?: number;
+  isWholesaleApplied?: boolean;
+  isDeclaredOffer?: boolean;
+  minPiecesWholesale?: number;
 }
 
 export type MovementType = 'entrada' | 'salida' | 'venta' | 'ajuste';

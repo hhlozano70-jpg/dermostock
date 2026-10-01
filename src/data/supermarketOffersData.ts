@@ -22,7 +22,11 @@ export const SILAO_SUPERMARKET_MERCHANTS: Merchant[] = [
     ownerName: 'Bodega Aurrera Silao (Plaza La Joya)',
     email: 'aurrera.silao@silaomarket.com',
     websiteUrl: 'https://despensa.bodegaaurrera.com.mx/',
-    brochureUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
+    brochureUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital',
+    hasWholesale: false,
+    hasSpecialPromos: true,
+    promoMinPieces: 1,
+    promoTerms: 'Ofertas de folleto semanal oficial aplicables desde 1 pieza'
   },
   {
     id: 'merch-soriana-silao',
@@ -45,7 +49,11 @@ export const SILAO_SUPERMARKET_MERCHANTS: Merchant[] = [
     ownerName: 'Soriana Silao Centro',
     email: 'soriana.silao@silaomarket.com',
     websiteUrl: 'https://www.soriana.com/',
-    brochureUrl: 'https://www.soriana.com/folleto-digital.html'
+    brochureUrl: 'https://www.soriana.com/folleto-digital.html',
+    hasWholesale: false,
+    hasSpecialPromos: true,
+    promoMinPieces: 1,
+    promoTerms: 'Ofertas de folleto semanal oficial aplicables desde 1 pieza'
   },
   {
     id: 'merch-tiendas-3b',
@@ -67,7 +75,11 @@ export const SILAO_SUPERMARKET_MERCHANTS: Merchant[] = [
     ownerName: 'Tiendas 3B Silao Centro',
     email: 'tiendas3b.silao@silaomarket.com',
     websiteUrl: 'https://tiendas3b.com/',
-    brochureUrl: 'https://tiendas3b.com/productos/'
+    brochureUrl: 'https://tiendas3b.com/productos/',
+    hasWholesale: false,
+    hasSpecialPromos: true,
+    promoMinPieces: 1,
+    promoTerms: 'Ofertas de folleto semanal oficial aplicables desde 1 pieza'
   },
   {
     id: 'merch-super-bara',
@@ -89,7 +101,11 @@ export const SILAO_SUPERMARKET_MERCHANTS: Merchant[] = [
     ownerName: 'Super Bara Silao Sopeña',
     email: 'superbara.silao@silaomarket.com',
     websiteUrl: 'https://bara.com.mx/',
-    brochureUrl: 'https://bara.com.mx/promociones'
+    brochureUrl: 'https://bara.com.mx/promociones',
+    hasWholesale: false,
+    hasSpecialPromos: true,
+    promoMinPieces: 1,
+    promoTerms: 'Ofertas de folleto semanal oficial aplicables desde 1 pieza'
   }
 ];
 
@@ -119,7 +135,6 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     volume: '1 Litro',
     imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80',
     description: 'Aceite vegetal comestible puro para cocinar 1-2-3 en oferta semanal de Bodega Aurrera Silao. Ideal para freír y guisados familiares.',
-    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital',
     sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
@@ -144,7 +159,6 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     volume: 'Cono 30 pzs (~1.8 kg)',
     imageUrl: 'https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?auto=format&fit=crop&w=600&q=80',
     description: 'Huevo blanco fresco tamaño grande de granja en cono de 30 piezas en oferta imperdible de Bodega Aurrera Silao.',
-    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital',
     sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
   },
   {
@@ -461,7 +475,6 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     volume: '400 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=600&q=80',
     description: 'Queso panela fresco, bajo en grasa y con textura suave para asar o desmoronar. Se envía en hielera con hielo activo.',
-    sourceUrl: 'https://bara.com.mx/promociones',
     sourceUrl: 'https://www.soriana.com/folleto-digital.html'
   },
   {
@@ -706,9 +719,7 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     volume: '500 gramos',
     imageUrl: 'https://images.unsplash.com/photo-1524438418049-ab2acb7aa48f?auto=format&fit=crop&w=600&q=80',
     description: 'Salchichas de pavo para hot dogs, entomatadas o botana escolar con entrega con hielera fría en Silao.',
-    sourceUrl: 'https://bara.com.mx/promociones',
-    sourceUrl: 'https://tiendas3b.com/productos/',
-    sourceUrl: 'https://www.soriana.com/folleto-digital.html'
+    sourceUrl: 'https://tiendas3b.com/productos/'
   },
   {
     id: 'prod-sup-tiendas3b-06',
@@ -808,8 +819,7 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     volume: '2.5 Litros',
     imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80',
     description: 'Coca-Cola bien fría lista para disfrutar con la comida familiar en Silao. Entrega garantizada con hielera.',
-    sourceUrl: 'https://bara.com.mx/promociones',
-    sourceUrl: 'https://despensa.bodegaaurrera.com.mx/c/folleto-digital'
+    sourceUrl: 'https://bara.com.mx/promociones'
   },
   {
     id: 'prod-sup-superbara-02',
@@ -931,4 +941,8 @@ export const SILAO_SUPERMARKET_PRODUCTS: Product[] = [
     description: 'Tortillas de maíz nixtamalizado suaves y calientes para tu comida diaria en Silao.',
     sourceUrl: 'https://bara.com.mx/promociones'
   }
-];
+].map(prod => ({
+  ...prod,
+  isOfferDeclared: true,
+  hasWholesale: false
+}));

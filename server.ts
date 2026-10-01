@@ -271,7 +271,7 @@ app.get('/api/data', async (_req, res) => {
     const firestoreCount = firestoreData && Array.isArray(firestoreData.products) ? firestoreData.products.length : 0;
 
     // If Firestore has at least as many products as localStore (and has products), use Firestore
-    if (firestoreCount >= localCount && firestoreCount > 0) {
+    if (firestoreData && firestoreCount >= localCount && firestoreCount > 0) {
       if ((!firestoreData.orders || firestoreData.orders.length < (localStore?.orders?.length || 0)) && localStore?.orders) {
         firestoreData.orders = localStore.orders;
         writeFirestoreStore(firestoreData).catch((e) => console.warn('Could not auto-upgrade Firestore orders:', e));

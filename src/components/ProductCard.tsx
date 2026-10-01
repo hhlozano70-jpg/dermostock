@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { ShoppingBag, Eye, Check, Edit3, Snowflake, Store } from 'lucide-react';
+import { ShoppingBag, Eye, Check, Edit3, Snowflake, Store, Tag, Package } from 'lucide-react';
 import { Product } from '../types/inventory';
 import { useInventory } from '../context/InventoryContext';
 import { ProductVisual } from './ProductVisual';
+import { calculateEffectiveProductPrice } from '../utils/pricing';
 
 interface ProductCardProps {
   product: Product;
@@ -10,7 +11,7 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { 
-    priceTier, 
+    merchants,
     addToCart, 
     setSelectedProductForQuickView,
     openProductModal,
@@ -21,27 +22,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const [isAddedRecently, setIsAddedRecently] = useState(false);
 
-  const getPrice = () => {
-    switch (priceTier) {
-      case 'mayorista':
-        return product.wholesalePrice;
-      case 'promocion':
-        return product.promoPrice;
-      case 'comercial':
-      default:
-        return product.commercialPrice;
-    }
-  };
-
-  const currentPrice = getPrice();
-  const hasDiscount = priceTier !== 'comercial';
-  const discountPercent = priceTier === 'mayorista' ? 40 : priceTier === 'promocion' ? 60 : 0;
-
   // Cart quantity check
   const inCartItem = cart.find((item) => item.product.id === product.id);
   const qtyInCart = inCartItem ? inCartItem.quantity : 0;
   const isOutOfStock = product.stock <= 0;
   const isMaxInCart = qtyInCart >= product.stock;
+
+  // Merchant lookup and pricing calculation
+  const merchant = merchants.find((m) => m.id === product.merchantId);
+  const effectivePricing = calculateEffectiveProductPrice(
+    product, 
+    merchant, 
+    qtyInCart > 0 ? qtyInCart : 1
+  );
+
+  const isDeclaredOffer = effectivePricing.isDeclaredOffer;
+  const isWholesaleActiveInCart = qtyInCart >= effectivePricing.wholesaleMinPieces && effectivePricing.productOffersWholesale;
+  const currentPrice = effectivePricing.unitPrice;
+  const hasDiscount = isDeclaredOffer || isWholesaleActiveInCart;
+  const discountPercent = effectivePricing.commercialPrice > 0 
+    ? Math.round(((effectivePricing.commercialPrice - currentPrice) / effectivePricing.commercialPrice) * 100)
+    : 0;
 
   const handleAdd = () => {
     if (isOutOfStock || isMaxInCart) return;
@@ -132,28 +133,73 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Price & Actions Area */}
         <div className="mt-4 pt-3 border-t border-slate-100 flex items-end justify-between">
-          <div>
-            {hasDiscount && (
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <span className="text-xs text-slate-400 line-through font-mono tabular-nums">
-                  ${product.commercialPrice.toFixed(2)}
-                </span>
-                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1 rounded">
-                  -{discountPercent}%
+          <div className="min-w-0 pr-2">
+            {/* Si es Oferta Declarada */}
+            {isDeclaredOffer ? (
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-slate-400 line-through font-mono tabular-nums">
+                    ${effectivePricing.commercialPrice.toFixed(2)}
+                  </span>
+                  <span className="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.2 rounded">
+                    Oferta -{discountPercent}%
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-lg font-black text-rose-600 font-mono tabular-nums tracking-tight">
+                    ${currentPrice.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-slate-400">MXN</span>
+                </div>
+                <span className="text-[10px] text-rose-700 font-semibold block truncate">
+                  🏷️ Oferta declarada (1+ pza)
                 </span>
               </div>
-            )}
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-bold text-slate-900 font-mono tabular-nums tracking-tight">
-                ${currentPrice.toFixed(2)}
-              </span>
-              <span className="text-xs text-slate-400">MXN</span>
-            </div>
-            {priceTier === 'mayorista' && (
-              <span className="text-[10px] text-blue-600 block font-medium">Tarifa Mayorista</span>
-            )}
-            {priceTier === 'promocion' && (
-              <span className="text-[10px] text-emerald-600 block font-medium">Oferta Promoción</span>
+            ) : isWholesaleActiveInCart ? (
+              /* Si el cliente ya tiene en carrito las piezas suficientes para mayoreo */
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs text-slate-400 line-through font-mono tabular-nums">
+                    ${effectivePricing.commercialPrice.toFixed(2)}
+                  </span>
+                  <span className="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded">
+                    Mayoreo -{discountPercent}%
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-lg font-black text-blue-700 font-mono tabular-nums tracking-tight">
+                    ${currentPrice.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-slate-400">MXN</span>
+                </div>
+                <span className="text-[10px] text-blue-700 font-semibold block truncate">
+                  🎉 Mayoreo activo ({qtyInCart} pzas)
+                </span>
+              </div>
+            ) : (
+              /* Estándar Inicial: PRECIO COMERCIAL PARA TODOS */
+              <div className="space-y-0.5">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-lg font-bold text-slate-900 font-mono tabular-nums tracking-tight">
+                    ${effectivePricing.commercialPrice.toFixed(2)}
+                  </span>
+                  <span className="text-xs text-slate-400">MXN</span>
+                </div>
+                {/* Mayoreo opcional por tienda con piezas mínimas */}
+                {effectivePricing.productOffersWholesale ? (
+                  <span 
+                    className="text-[10px] text-blue-700 font-medium bg-blue-50/80 hover:bg-blue-100 border border-blue-200/60 px-1.5 py-0.5 rounded block truncate cursor-pointer transition-colors"
+                    title={`Mayoreo de $${effectivePricing.wholesalePrice.toFixed(2)} a partir de ${effectivePricing.wholesaleMinPieces} piezas`}
+                    onClick={() => setSelectedProductForQuickView(product)}
+                  >
+                    📦 Mayoreo: ${effectivePricing.wholesalePrice.toFixed(2)} (mín. {effectivePricing.wholesaleMinPieces} pzs)
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-slate-500 block">
+                    Precio Comercial estándar
+                  </span>
+                )}
+              </div>
             )}
           </div>
 

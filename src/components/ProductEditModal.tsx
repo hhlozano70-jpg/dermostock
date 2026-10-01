@@ -63,6 +63,14 @@ export const ProductEditModal: React.FC = () => {
   const [packagingType, setPackagingType] = useState<Product['packagingType']>('bottle');
   const [volume, setVolume] = useState('');
   
+  // Wholesale & Declared Offer states
+  const [isOfferDeclared, setIsOfferDeclared] = useState(false);
+  const [hasWholesale, setHasWholesale] = useState(true);
+  const [wholesaleMinPieces, setWholesaleMinPieces] = useState<number | ''>('');
+  const [hasSpecialPromos, setHasSpecialPromos] = useState(false);
+  const [promoMinPieces, setPromoMinPieces] = useState<number | ''>('');
+  const [promoDescription, setPromoDescription] = useState('');
+
   // Image handling
   const [imageUrl, setImageUrl] = useState<string>('');
   const [imageInputMode, setImageInputMode] = useState<'upload' | 'url'>('upload');
@@ -134,6 +142,13 @@ export const ProductEditModal: React.FC = () => {
       setPromoPrice(productToEdit.promoPrice ?? 40);
       setAutoCalculateDiscounts(false);
 
+      setIsOfferDeclared(Boolean(productToEdit.isOfferDeclared));
+      setHasWholesale(productToEdit.hasWholesale !== false);
+      setWholesaleMinPieces(productToEdit.wholesaleMinPieces ?? '');
+      setHasSpecialPromos(Boolean(productToEdit.hasSpecialPromos));
+      setPromoMinPieces(productToEdit.promoMinPieces ?? '');
+      setPromoDescription(productToEdit.promoDescription ?? '');
+
       setStock(productToEdit.stock ?? 0);
       setMinStockAlert(productToEdit.minStockAlert ?? 2);
       setDescription(productToEdit.description ?? '');
@@ -168,6 +183,12 @@ export const ProductEditModal: React.FC = () => {
       setWholesalePrice(60);
       setPromoPrice(40);
       setAutoCalculateDiscounts(true);
+      setIsOfferDeclared(false);
+      setHasWholesale(Boolean(defaultMerchant.hasWholesale));
+      setWholesaleMinPieces(defaultMerchant.wholesaleMinPieces || '');
+      setHasSpecialPromos(Boolean(defaultMerchant.hasSpecialPromos));
+      setPromoMinPieces(defaultMerchant.promoMinPieces || '');
+      setPromoDescription('');
       setStock(5);
       setMinStockAlert(2);
       setDescription('');
@@ -251,6 +272,12 @@ export const ProductEditModal: React.FC = () => {
     commercialPrice: commercialPrice || 0,
     wholesalePrice: wholesalePrice || 0,
     promoPrice: promoPrice || 0,
+    isOfferDeclared,
+    hasWholesale,
+    wholesaleMinPieces: wholesaleMinPieces !== '' ? Number(wholesaleMinPieces) : undefined,
+    hasSpecialPromos,
+    promoMinPieces: promoMinPieces !== '' ? Number(promoMinPieces) : undefined,
+    promoDescription: promoDescription.trim() || undefined,
     stock: stock || 0,
     minStockAlert: minStockAlert || 2,
     description,
@@ -301,6 +328,12 @@ export const ProductEditModal: React.FC = () => {
         commercialPrice: Number(commercialPrice),
         wholesalePrice: Number(wholesalePrice),
         promoPrice: Number(promoPrice),
+        isOfferDeclared,
+        hasWholesale,
+        wholesaleMinPieces: wholesaleMinPieces !== '' ? Number(wholesaleMinPieces) : undefined,
+        hasSpecialPromos,
+        promoMinPieces: promoMinPieces !== '' ? Number(promoMinPieces) : undefined,
+        promoDescription: promoDescription.trim() || undefined,
         stock: Number(stock),
         minStockAlert: Number(minStockAlert),
         description: description.trim(),
@@ -336,6 +369,12 @@ export const ProductEditModal: React.FC = () => {
         commercialPrice: Number(commercialPrice),
         wholesalePrice: Number(wholesalePrice),
         promoPrice: Number(promoPrice),
+        isOfferDeclared,
+        hasWholesale,
+        wholesaleMinPieces: wholesaleMinPieces !== '' ? Number(wholesaleMinPieces) : undefined,
+        hasSpecialPromos,
+        promoMinPieces: promoMinPieces !== '' ? Number(promoMinPieces) : undefined,
+        promoDescription: promoDescription.trim() || undefined,
         stock: Number(stock),
         minStockAlert: Number(minStockAlert),
         description: description.trim(),
@@ -806,6 +845,115 @@ export const ProductEditModal: React.FC = () => {
                       }`}
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Oferta declarada y Reglas Opcionales de Mayoreo / Promos para este Producto */}
+              <div className="pt-3 border-t border-slate-200 space-y-3">
+                {/* 1. Oferta Ya Declarada */}
+                <div className="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isOfferDeclared}
+                      onChange={(e) => setIsOfferDeclared(e.target.checked)}
+                      className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-emerald-950 flex items-center gap-1.5">
+                        🔥 Oferta ya declarada / Folleto oficial (Aplica desde 1 pieza)
+                      </span>
+                      <p className="text-[11px] text-emerald-800 mt-0.5">
+                        Al marcar esta opción, el cliente disfrutará del precio promocional (${(Number(promoPrice) || 0).toFixed(2)}) directamente desde 1 sola pieza sin requerir volumen ni mayoreo (ej. ofertas de folleto de Bodega Aurrera, Soriana o liquidaciones).
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* 2. Mayoreo Opcional y Piezas Mínimas */}
+                <div className="p-3 rounded-xl bg-blue-50/70 border border-blue-200 space-y-2">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={hasWholesale}
+                      onChange={(e) => setHasWholesale(e.target.checked)}
+                      className="mt-0.5 rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-blue-950 flex items-center gap-1.5">
+                        📦 Habilitar precio a Mayoreo para este producto
+                      </span>
+                      <p className="text-[11px] text-blue-800 mt-0.5">
+                        Permite a los clientes comprar a ${(Number(wholesalePrice) || 0).toFixed(2)} al adquirir la cantidad mínima requerida.
+                      </p>
+                    </div>
+                  </label>
+
+                  {hasWholesale && (
+                    <div className="pl-6 pt-1 flex flex-wrap items-center gap-2">
+                      <label className="text-[11px] font-bold text-blue-950 whitespace-nowrap">
+                        Piezas mínimas para mayoreo:
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        placeholder="Default de tienda"
+                        value={wholesaleMinPieces}
+                        onChange={(e) => setWholesaleMinPieces(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value) || 1))}
+                        className="w-24 px-2 py-1 text-xs border border-blue-300 rounded-lg font-mono font-bold bg-white text-blue-900 text-center"
+                      />
+                      <span className="text-[10px] text-blue-700">piezas del mismo producto en carrito</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Promo Especial por Volumen */}
+                <div className="p-3 rounded-xl bg-purple-50/70 border border-purple-200 space-y-2">
+                  <label className="flex items-start gap-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={hasSpecialPromos}
+                      onChange={(e) => setHasSpecialPromos(e.target.checked)}
+                      className="mt-0.5 rounded text-purple-600 focus:ring-purple-500 w-4 h-4 cursor-pointer"
+                    />
+                    <div className="text-xs">
+                      <span className="font-bold text-purple-950 flex items-center gap-1.5">
+                        🎁 Habilitar Promoción Especial por Volumen
+                      </span>
+                      <p className="text-[11px] text-purple-800 mt-0.5">
+                        Oferta condicionada a un volumen específico de compra (ej. promociones 2x1 o combos).
+                      </p>
+                    </div>
+                  </label>
+
+                  {hasSpecialPromos && (
+                    <div className="pl-6 pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="flex items-center gap-2">
+                        <label className="text-[11px] font-bold text-purple-950 whitespace-nowrap">
+                          Piezas mínimas:
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="50"
+                          placeholder="Ej. 2"
+                          value={promoMinPieces}
+                          onChange={(e) => setPromoMinPieces(e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value) || 1))}
+                          className="w-20 px-2 py-1 text-xs border border-purple-300 rounded-lg font-mono font-bold bg-white text-purple-900 text-center"
+                        />
+                      </div>
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Ej. 2x1 en productos seleccionados"
+                          value={promoDescription}
+                          onChange={(e) => setPromoDescription(e.target.value)}
+                          className="w-full px-2.5 py-1 text-xs border border-purple-300 rounded-lg bg-white text-purple-950"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

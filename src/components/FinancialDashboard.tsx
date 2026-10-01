@@ -72,7 +72,8 @@ export const FinancialDashboard: React.FC = () => {
     totalDeliveryFund += order.deliveryFee || 25;
 
     order.items.forEach(item => {
-      const lineTotal = item.product.price * item.quantity;
+      const itemUnitPrice = item.unitPrice ?? item.product.commercialPrice ?? 0;
+      const lineTotal = itemUnitPrice * item.quantity;
       totalGMV += lineTotal;
 
       const mId = item.product.merchantId;

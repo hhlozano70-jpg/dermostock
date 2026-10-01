@@ -354,9 +354,26 @@ export const CartDrawer: React.FC = () => {
                             <h4 className="text-xs font-semibold text-slate-900 line-clamp-1">
                               {item.product.name}
                             </h4>
-                            <span className="text-[11px] text-slate-500 font-mono block">
-                              ${item.unitPrice.toFixed(2)} c/u
-                            </span>
+                            <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                              <span className="text-[11px] font-mono font-bold text-slate-800">
+                                ${item.unitPrice.toFixed(2)} c/u
+                              </span>
+                              {item.isDeclaredOffer && (
+                                <span className="text-[9px] bg-rose-100 text-rose-800 px-1.5 py-0.2 rounded font-bold">
+                                  🏷️ Oferta
+                                </span>
+                              )}
+                              {item.isWholesaleApplied && (
+                                <span className="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-bold">
+                                  📦 Mayoreo ({item.quantity} pzas)
+                                </span>
+                              )}
+                              {!item.isDeclaredOffer && !item.isWholesaleApplied && item.minPiecesWholesale && item.quantity < item.minPiecesWholesale && (
+                                <span className="text-[9px] text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded font-medium">
+                                  💡 Lleva {item.minPiecesWholesale - item.quantity} más para mayoreo (${item.product.wholesalePrice.toFixed(2)})
+                                </span>
+                              )}
+                            </div>
                           </div>
 
                           {/* Quantity Controls */}

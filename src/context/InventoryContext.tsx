@@ -19,6 +19,7 @@ import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
 import { SILAO_MERCHANTS, SILAO_DRIVERS } from '../data/silaoMarketData';
 import { calculateDynamicDeliveryFee } from '../utils/deliveryFee';
+import { calculateEffectiveProductPrice } from '../utils/pricing';
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   whatsappNumber: '524721234567',
@@ -132,6 +133,7 @@ interface InventoryContextType {
     orderIds: string[], 
     notes?: string
   ) => void;
+  markSettlementPaid: (settlementId: string, reference?: string) => void;
   // Brochure Modal
   isBrochureModalOpen: boolean;
   setIsBrochureModalOpen: (open: boolean) => void;
@@ -867,32 +869,31 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return () => clearTimeout(timer);
   }, [products, priceTier, orders, movements]);
 
-  // Price helper based on current active tier
-  const getProductPriceForTier = (product: Product, tier: PriceTier): number => {
-    switch (tier) {
-      case 'mayorista':
-        return product.wholesalePrice;
-      case 'promocion':
-        return product.promoPrice;
-      case 'comercial':
-      default:
-        return product.commercialPrice;
-    }
+  // Price helper based on product, merchant policy, and quantity (Wholesale & declared offers)
+  const getProductPriceForTier = (product: Product, tier: PriceTier, quantity: number = 1): number => {
+    const merchant = merchantsRef.current.find((m) => m.id === product.merchantId);
+    const calc = calculateEffectiveProductPrice(product, merchant, quantity);
+    if (calc.isDeclaredOffer) return calc.unitPrice;
+    if (tier === 'mayorista' && calc.productOffersWholesale) return product.wholesalePrice;
+    if (tier === 'promocion') return product.promoPrice;
+    return calc.unitPrice;
   };
 
-  // Add to cart
+  // Add to cart with automatic wholesale and declared offer detection
   const addToCart = (product: Product, quantity = 1): boolean => {
     const currentProd = products.find((p) => p.id === product.id);
     if (!currentProd || currentProd.stock <= 0) return false;
 
     const existingCartItem = cart.find((item) => item.product.id === product.id);
     const currentCartQty = existingCartItem ? existingCartItem.quantity : 0;
+    const newTotalQty = currentCartQty + quantity;
 
-    if (currentCartQty + quantity > currentProd.stock) {
+    if (newTotalQty > currentProd.stock) {
       return false; // Exceeds current warehouse stock
     }
 
-    const unitPrice = getProductPriceForTier(currentProd, priceTier);
+    const merchant = merchantsRef.current.find((m) => m.id === currentProd.merchantId);
+    const priceCalc = calculateEffectiveProductPrice(currentProd, merchant, newTotalQty);
 
     if (existingCartItem) {
       setCart((prev) =>
@@ -900,9 +901,13 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           item.product.id === product.id
             ? {
                 ...item,
-                quantity: item.quantity + quantity,
-                appliedTier: priceTier,
-                unitPrice,
+                quantity: newTotalQty,
+                appliedTier: priceCalc.appliedTier,
+                unitPrice: priceCalc.unitPrice,
+                savings: priceCalc.totalSavings,
+                isWholesaleApplied: priceCalc.wholesaleActive,
+                isDeclaredOffer: priceCalc.isDeclaredOffer,
+                minPiecesWholesale: priceCalc.wholesaleMinPieces,
               }
             : item
         )
@@ -912,16 +917,20 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         ...prev,
         {
           product: currentProd,
-          quantity,
-          appliedTier: priceTier,
-          unitPrice,
+          quantity: newTotalQty,
+          appliedTier: priceCalc.appliedTier,
+          unitPrice: priceCalc.unitPrice,
+          savings: priceCalc.totalSavings,
+          isWholesaleApplied: priceCalc.wholesaleActive,
+          isDeclaredOffer: priceCalc.isDeclaredOffer,
+          minPiecesWholesale: priceCalc.wholesaleMinPieces,
         },
       ]);
     }
     return true;
   };
 
-  // Update Cart Quantity
+  // Update Cart Quantity with dynamic tier and price re-evaluation
   const updateCartQuantity = (productId: string, quantity: number): boolean => {
     if (quantity <= 0) {
       removeFromCart(productId);
@@ -935,14 +944,21 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return false; // Cannot exceed stock
     }
 
+    const merchant = merchantsRef.current.find((m) => m.id === currentProd.merchantId);
+    const priceCalc = calculateEffectiveProductPrice(currentProd, merchant, quantity);
+
     setCart((prev) =>
       prev.map((item) =>
         item.product.id === productId
           ? {
               ...item,
               quantity,
-              unitPrice: getProductPriceForTier(currentProd, priceTier),
-              appliedTier: priceTier,
+              unitPrice: priceCalc.unitPrice,
+              appliedTier: priceCalc.appliedTier,
+              savings: priceCalc.totalSavings,
+              isWholesaleApplied: priceCalc.wholesaleActive,
+              isDeclaredOffer: priceCalc.isDeclaredOffer,
+              minPiecesWholesale: priceCalc.wholesaleMinPieces,
             }
           : item
       )
@@ -961,20 +977,26 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Dynamic calculations based on cart and tier
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Recalculate cart prices when tier changes
+  // Recalculate cart prices when merchants or products change
   useEffect(() => {
     setCart((prev) =>
       prev.map((item) => {
         const prod = products.find((p) => p.id === item.product.id);
         if (!prod) return item;
+        const merchant = merchants.find((m) => m.id === prod.merchantId);
+        const calc = calculateEffectiveProductPrice(prod, merchant, item.quantity);
         return {
           ...item,
-          appliedTier: priceTier,
-          unitPrice: getProductPriceForTier(prod, priceTier),
+          appliedTier: calc.appliedTier,
+          unitPrice: calc.unitPrice,
+          savings: calc.totalSavings,
+          isWholesaleApplied: calc.wholesaleActive,
+          isDeclaredOffer: calc.isDeclaredOffer,
+          minPiecesWholesale: calc.wholesaleMinPieces,
         };
       })
     );
-  }, [priceTier]);
+  }, [products, merchants]);
 
   const cartSubtotal = cart.reduce(
     (sum, item) => sum + item.product.commercialPrice * item.quantity,

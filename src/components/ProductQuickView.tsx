@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { X, ShoppingBag, Check, ShieldCheck, Truck, Edit3, ExternalLink } from 'lucide-react';
+import { X, ShoppingBag, Check, ShieldCheck, Truck, Edit3, ExternalLink, Sparkles, Tag, Package } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductVisual } from './ProductVisual';
+import { calculateEffectiveProductPrice } from '../utils/pricing';
 
 export const ProductQuickView: React.FC = () => {
   const { 
     selectedProductForQuickView, 
     setSelectedProductForQuickView,
-    priceTier,
-    setPriceTier,
+    merchants,
     addToCart,
     openProductModal,
     cart,
@@ -22,15 +22,13 @@ export const ProductQuickView: React.FC = () => {
   if (!selectedProductForQuickView) return null;
   const product = selectedProductForQuickView;
 
+  const merchant = merchants.find((m) => m.id === product.merchantId);
   const inCart = cart.find((i) => i.product.id === product.id);
   const qtyInCart = inCart ? inCart.quantity : 0;
   const maxAvailableToAdd = Math.max(0, product.stock - qtyInCart);
 
-  const getTierPrice = (tier: string) => {
-    if (tier === 'mayorista') return product.wholesalePrice;
-    if (tier === 'promocion') return product.promoPrice;
-    return product.commercialPrice;
-  };
+  // Dynamic pricing calculation based on selected quantity and merchant policy
+  const pricing = calculateEffectiveProductPrice(product, merchant, quantity);
 
   const handleAddToCart = () => {
     if (maxAvailableToAdd <= 0) return;
@@ -141,63 +139,125 @@ export const ProductQuickView: React.FC = () => {
               </div>
             )}
 
-            {/* All 3 Price Tiers Comparison Table */}
+            {/* All 3 Price Tiers Comparison Table (Estructura de Precios por Tienda y Piezas) */}
             <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-2">
-                Estructura de Precios Disponibles
-              </span>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                  Estructura de Precios en {product.merchantName || 'esta tienda'}
+                </span>
+                <span className="text-[10px] text-slate-500 font-medium">
+                  {pricing.isDeclaredOffer ? '🏷️ Oferta oficial declarada' : 'Estándar: Precio Comercial'}
+                </span>
+              </div>
               
               <div className="grid grid-cols-3 gap-2">
-                {/* Comercial */}
-                <button
-                  type="button"
-                  onClick={() => setPriceTier('comercial')}
-                  className={`p-2 rounded-lg text-left border transition-all cursor-pointer ${
-                    priceTier === 'comercial'
-                      ? 'bg-white border-blue-600 shadow-xs ring-1 ring-blue-600'
-                      : 'bg-white/60 border-slate-200 hover:border-slate-300'
+                {/* 1. Comercial (Estándar inicial para todos) */}
+                <div
+                  className={`p-2.5 rounded-lg text-left border transition-all ${
+                    pricing.appliedTier === 'comercial'
+                      ? 'bg-white border-blue-600 shadow-xs ring-2 ring-blue-600/30'
+                      : 'bg-white/60 border-slate-200 opacity-75'
                   }`}
                 >
-                  <span className="text-[10px] text-slate-500 block">Comercial</span>
-                  <span className="text-sm font-bold text-slate-900 font-mono tabular-nums block">
+                  <span className="text-[10px] font-bold text-slate-600 block">Comercial (PVP)</span>
+                  <span className="text-sm font-black text-slate-900 font-mono tabular-nums block">
                     ${product.commercialPrice.toFixed(2)}
                   </span>
-                  <span className="text-[9px] text-slate-400">PVP Estándar</span>
-                </button>
+                  <span className="text-[9px] text-slate-500 font-medium">Estándar inicial para todos</span>
+                  {pricing.appliedTier === 'comercial' && (
+                    <span className="mt-1 text-[9px] bg-slate-900 text-white px-1.5 py-0.2 rounded font-bold block text-center">
+                      Tarifa Actual
+                    </span>
+                  )}
+                </div>
 
-                {/* Mayorista -40% */}
-                <button
-                  type="button"
-                  onClick={() => setPriceTier('mayorista')}
-                  className={`p-2 rounded-lg text-left border transition-all cursor-pointer ${
-                    priceTier === 'mayorista'
-                      ? 'bg-blue-50/80 border-blue-600 shadow-xs ring-1 ring-blue-600'
-                      : 'bg-white/60 border-slate-200 hover:border-slate-300'
+                {/* 2. Mayorista (Opcional para cada tienda, aplica con mínimo de piezas) */}
+                <div
+                  onClick={() => {
+                    if (pricing.productOffersWholesale && quantity < pricing.wholesaleMinPieces) {
+                      setQuantity(Math.min(maxAvailableToAdd, pricing.wholesaleMinPieces));
+                    }
+                  }}
+                  className={`p-2.5 rounded-lg text-left border transition-all ${
+                    !pricing.productOffersWholesale
+                      ? 'bg-slate-100 border-slate-200 opacity-60 cursor-not-allowed'
+                      : pricing.wholesaleActive
+                      ? 'bg-blue-50 border-blue-600 shadow-xs ring-2 ring-blue-600/30'
+                      : 'bg-white/70 border-blue-200 hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer'
                   }`}
+                  title={
+                    pricing.productOffersWholesale 
+                      ? `Haz clic para fijar ${pricing.wholesaleMinPieces} piezas y activar mayoreo`
+                      : 'Esta tienda no ofrece precios a mayoreo'
+                  }
                 >
-                  <span className="text-[10px] font-medium text-blue-700 block">Mayoreo (-40%)</span>
-                  <span className="text-sm font-bold text-blue-900 font-mono tabular-nums block">
-                    ${product.wholesalePrice.toFixed(2)}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-blue-800 block">Mayoreo</span>
+                    {pricing.productOffersWholesale && (
+                      <span className="text-[8px] bg-blue-100 text-blue-800 px-1 rounded font-bold">
+                        mín. {pricing.wholesaleMinPieces} pzs
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-sm font-black text-blue-900 font-mono tabular-nums block">
+                    {pricing.productOffersWholesale ? `$${product.wholesalePrice.toFixed(2)}` : 'N/A'}
                   </span>
-                  <span className="text-[9px] text-emerald-600 font-medium">Ahorras ${(product.commercialPrice - product.wholesalePrice).toFixed(2)}</span>
-                </button>
+                  <span className="text-[9px] text-blue-700 font-medium block leading-tight">
+                    {pricing.productOffersWholesale
+                      ? pricing.wholesaleActive
+                        ? `¡Activo! (-$${(product.commercialPrice - product.wholesalePrice).toFixed(2)} c/u)`
+                        : `Lleva ${pricing.wholesaleMinPieces}+ pzas para activar`
+                      : 'No aplica en esta tienda'}
+                  </span>
+                  {pricing.wholesaleActive && (
+                    <span className="mt-1 text-[9px] bg-blue-600 text-white px-1.5 py-0.2 rounded font-bold block text-center">
+                      Mayoreo Aplicado
+                    </span>
+                  )}
+                </div>
 
-                {/* Promoción -60% */}
-                <button
-                  type="button"
-                  onClick={() => setPriceTier('promocion')}
-                  className={`p-2 rounded-lg text-left border transition-all cursor-pointer ${
-                    priceTier === 'promocion'
-                      ? 'bg-emerald-50/80 border-emerald-600 shadow-xs ring-1 ring-emerald-600'
-                      : 'bg-white/60 border-slate-200 hover:border-slate-300'
+                {/* 3. Promoción / Oferta Declarada */}
+                <div
+                  className={`p-2.5 rounded-lg text-left border transition-all ${
+                    pricing.isDeclaredOffer || pricing.promoActive
+                      ? 'bg-rose-50 border-rose-500 shadow-xs ring-2 ring-rose-500/30'
+                      : 'bg-white/60 border-slate-200 opacity-60'
                   }`}
                 >
-                  <span className="text-[10px] font-medium text-emerald-700 block">Promo (-60%)</span>
-                  <span className="text-sm font-bold text-emerald-900 font-mono tabular-nums block">
+                  <span className="text-[10px] font-bold text-rose-800 block">
+                    {pricing.isDeclaredOffer ? 'Oferta Declarada' : 'Promo Especial'}
+                  </span>
+                  <span className="text-sm font-black text-rose-700 font-mono tabular-nums block">
                     ${product.promoPrice.toFixed(2)}
                   </span>
-                  <span className="text-[9px] text-emerald-600 font-medium">Ahorras ${(product.commercialPrice - product.promoPrice).toFixed(2)}</span>
-                </button>
+                  <span className="text-[9px] text-rose-700 font-medium block leading-tight">
+                    {pricing.isDeclaredOffer
+                      ? 'Vigente desde 1 pieza'
+                      : pricing.storeOffersPromos
+                      ? `Mín. ${pricing.promoMinPieces} piezas`
+                      : 'Sin promo activa'}
+                  </span>
+                  {(pricing.isDeclaredOffer || pricing.promoActive) && (
+                    <span className="mt-1 text-[9px] bg-rose-600 text-white px-1.5 py-0.2 rounded font-bold block text-center">
+                      Oferta Activa
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Dynamic Guidance Banner */}
+              <div className="mt-2.5 p-2 rounded-lg bg-white border border-slate-200 text-xs flex items-center justify-between gap-2">
+                <span className="text-slate-700 font-medium flex items-center gap-1.5">
+                  <span className="text-sm">
+                    {pricing.isDeclaredOffer ? '🏷️' : pricing.wholesaleActive ? '🎉' : '💡'}
+                  </span>
+                  <span>{pricing.explanation}</span>
+                </span>
+                {pricing.totalSavings > 0 && (
+                  <span className="text-[11px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md shrink-0">
+                    Ahorro: ${pricing.totalSavings.toFixed(2)} MXN
+                  </span>
+                )}
               </div>
             </div>
 
@@ -214,7 +274,7 @@ export const ProductQuickView: React.FC = () => {
           <div className="mt-6 pt-4 border-t border-slate-200">
             <div className="flex items-center gap-3">
               {/* Stepper */}
-              <div className="flex items-center border border-slate-300 rounded-lg bg-white">
+              <div className="flex items-center border border-slate-300 rounded-lg bg-white shadow-2xs">
                 <button
                   type="button"
                   disabled={quantity <= 1}
@@ -241,12 +301,12 @@ export const ProductQuickView: React.FC = () => {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={maxAvailableToAdd <= 0}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-150 shadow-xs cursor-pointer ${
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-bold text-sm transition-all duration-150 shadow-xs cursor-pointer ${
                   maxAvailableToAdd <= 0
                     ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     : justAdded
                     ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-900 hover:bg-blue-700 text-white'
+                    : 'bg-slate-900 hover:bg-emerald-700 text-white active:scale-98'
                 }`}
               >
                 {justAdded ? (
@@ -260,7 +320,7 @@ export const ProductQuickView: React.FC = () => {
                   <>
                     <ShoppingBag className="w-4 h-4" />
                     <span>
-                      Agregar {quantity} por ${(getTierPrice(priceTier) * quantity).toFixed(2)} MXN
+                      Agregar {quantity} por ${pricing.totalPrice.toFixed(2)} MXN (${pricing.unitPrice.toFixed(2)} c/u)
                     </span>
                   </>
                 )}
