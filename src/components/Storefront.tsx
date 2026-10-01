@@ -23,6 +23,7 @@ import { ProductCard } from './ProductCard';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
 import { SilaoEmblem } from './SilaoEmblem';
 import { SilaoLandmarksShowcase } from './SilaoLandmarksShowcase';
+import { SupermarketOffersSection } from './SupermarketOffersSection';
 
 export const Storefront: React.FC = () => {
   const { 
@@ -45,6 +46,7 @@ export const Storefront: React.FC = () => {
 
   const categories = [
     'all',
+    '🛒 Ofertas de Supermercados',
     'MARET SILAO (Nivea & Cuidado Personal)',
     'Abarrotes y Cremería',
     'Cadena Fría (Aguas, Paletas, Cervezas)',
@@ -69,6 +71,14 @@ export const Storefront: React.FC = () => {
         selectedCategory === 'all' || 
         p.category === selectedCategory || 
         p.merchantCategory === selectedCategory ||
+        (selectedCategory.includes('Supermercados') && (
+          p.category === 'Supermercados y Ofertas' || 
+          p.merchantCategory === 'Supermercados y Ofertas' ||
+          p.merchantId?.includes('aurrera') ||
+          p.merchantId?.includes('soriana') ||
+          p.merchantId?.includes('tiendas-3b') ||
+          p.merchantId?.includes('super-bara')
+        )) ||
         (selectedCategory.startsWith('MARET') && (p.merchantId === 'merch-maret-silao' || p.category.includes('Belleza') || p.category.includes('Cuidado Personal')));
 
       const matchMerchant =
@@ -154,6 +164,18 @@ export const Storefront: React.FC = () => {
               <strong className="text-white">Rastreo QR</strong>
               <span className="text-slate-400">(Envío Local)</span>
             </span>
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.getElementById('seccion-ofertas-supermercados');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-md hover:scale-105 transition-transform cursor-pointer"
+            >
+              <span>🛒</span>
+              <span>Ver Ofertas de Supermercados</span>
+              <span className="text-[10px] bg-slate-950 text-amber-300 px-1.5 py-0.5 rounded-full font-bold">HOY</span>
+            </button>
           </div>
 
           {/* Hub Logistics Step-by-Step Banner */}
@@ -310,6 +332,9 @@ export const Storefront: React.FC = () => {
           </div>
         </div>
 
+        {/* SECTION: Ofertas de Supermercados de Silao */}
+        <SupermarketOffersSection onSelectCategory={(cat) => setSelectedCategory(cat)} />
+
         {/* SECTION: Lugares Emblemáticos & Orgullo de Silao */}
         <SilaoLandmarksShowcase />
 
@@ -366,8 +391,11 @@ export const Storefront: React.FC = () => {
               const isSelected = selectedMerchantId === m.id;
               const merchantItemCount = products.filter(p => p.merchantId === m.id).length;
               const isMaret = m.id === 'merch-maret-silao';
+              const isSupermarket = m.category.includes('Supermercados') || m.id.includes('aurrera') || m.id.includes('soriana') || m.id.includes('tiendas-3b') || m.id.includes('super-bara');
               const icon = isMaret 
                 ? '✨' 
+                : isSupermarket
+                ? '🛒'
                 : m.isColdChain 
                 ? '❄️' 
                 : m.category.includes('Refaccionaria') || m.category.includes('Automotriz')

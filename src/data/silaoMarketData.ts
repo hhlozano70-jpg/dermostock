@@ -1,4 +1,5 @@
 import { Merchant, Product, Driver } from '../types/inventory';
+import { SILAO_SUPERMARKET_MERCHANTS, SILAO_SUPERMARKET_PRODUCTS } from './supermarketOffersData';
 
 export const SILAO_DRIVERS: Driver[] = [
   {
@@ -261,7 +262,8 @@ export const SILAO_MERCHANTS: Merchant[] = [
     "bankAccount": "BBVA CLABE 012215000000007788",
     "ownerName": "MARET SILAO Central",
     "email": "contacto@maretsilao.com"
-  }
+  },
+  ...SILAO_SUPERMARKET_MERCHANTS
 ];
 
 export const INITIAL_SILAO_PRODUCTS: Product[] = [
@@ -11764,5 +11766,7 @@ export const INITIAL_SILAO_PRODUCTS: Product[] = [
     "volume": "Tubo ungüento regenerador intensivo",
     "imageUrl": "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80",
     "description": "Aquaphor Ungüento Reparador Piel Dañada 50ml (Tubo ungüento regenerador intensivo) disponible para entrega local en Silao con consolidación en Hub Central."
-  }
+  },
+  ...SILAO_SUPERMARKET_PRODUCTS
 ];
+

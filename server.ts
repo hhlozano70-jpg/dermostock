@@ -4,6 +4,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import admin from 'firebase-admin';
+import { SupermarketOffersCron } from './server/supermarketOffersAutomation';
 
 // Load local environment variables (.env or .env.local)
 dotenv.config();
@@ -328,6 +329,53 @@ app.post('/api/data', async (req, res) => {
 });
 
 // ----------------------------------------------------
+// AUTOMATIZACIÓN PROGRAMADA: OFERTAS DE SUPERMERCADOS SILAO
+// ----------------------------------------------------
+const offersCron = new SupermarketOffersCron(
+  () => readLocalStore(),
+  async (data) => {
+    writeLocalStore(data);
+    if (isFirestoreAvailable) {
+      await writeFirestoreStore(data);
+    }
+    return true;
+  }
+);
+
+// GET Supermarket offers status and last update time
+app.get('/api/supermarket-offers/status', (_req, res) => {
+  const localStore = readLocalStore();
+  const meta = localStore?.supermarketOffersMeta || null;
+  const count = localStore?.products?.filter((p: any) => 
+    p.category === 'Supermercados y Ofertas' || p.id?.startsWith('prod-sup-')
+  )?.length || 0;
+
+  res.json({
+    status: 'ok',
+    meta,
+    activeOffersCount: count,
+  });
+});
+
+// POST Trigger immediate sync of supermarket offers (Admin or external cron)
+app.post('/api/supermarket-offers/sync', async (_req, res) => {
+  try {
+    const meta = await offersCron.runSyncNow();
+    if (meta) {
+      res.json({ 
+        success: true, 
+        message: 'Ofertas de supermercados de Silao actualizadas con éxito.',
+        meta 
+      });
+    } else {
+      res.status(500).json({ success: false, message: 'No se pudo sincronizar las ofertas.' });
+    }
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || String(err) });
+  }
+});
+
+// ----------------------------------------------------
 // SERVER BOOTSTRAP
 // ----------------------------------------------------
 async function startServer() {
@@ -336,6 +384,9 @@ async function startServer() {
   if (isFirestoreAvailable) {
     await seedFirestoreIfEmpty();
   }
+
+  // Iniciar automatización programada diaria de ofertas de supermercados
+  offersCron.startDailySchedule();
 
   const isProd = process.env.NODE_ENV === 'production';
 

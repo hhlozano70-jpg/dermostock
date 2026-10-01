@@ -115,6 +115,22 @@ export const Navbar: React.FC = () => {
               <span>Tienda Silao</span>
             </button>
 
+            {/* Acceso Directo a Ofertas de Supermercados */}
+            <button
+              onClick={() => {
+                setActiveTab('tienda');
+                setTimeout(() => {
+                  const el = document.getElementById('seccion-ofertas-supermercados');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 80);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer text-emerald-900 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 font-bold shadow-2xs"
+            >
+              <span>🛒</span>
+              <span>Ofertas de Súper</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            </button>
+
             {/* Negocio Tab (Solo si es rol negocio o admin) */}
             {(userRole === 'negocio' || userRole === 'admin') && (
               <button
@@ -324,6 +340,21 @@ export const Navbar: React.FC = () => {
         >
           <Store className="w-4 h-4 mb-0.5" />
           <span className="text-[10px]">Tienda</span>
+        </button>
+
+        {/* Acceso Directo Móvil a Ofertas de Supermercados */}
+        <button
+          onClick={() => {
+            setActiveTab('tienda');
+            setTimeout(() => {
+              const el = document.getElementById('seccion-ofertas-supermercados');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, 80);
+          }}
+          className="flex flex-col items-center justify-center py-1 px-2.5 rounded-lg text-xs transition-colors cursor-pointer text-amber-800 font-bold"
+        >
+          <span className="text-sm mb-0.5">🛒</span>
+          <span className="text-[10px]">Súper Ofertas</span>
         </button>
 
         {userRole === 'cliente' && (

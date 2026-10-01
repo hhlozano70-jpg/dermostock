@@ -182,6 +182,15 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length >= INITIAL_PRODUCTS.length) return parsed;
+        if (Array.isArray(parsed)) {
+          const existingIds = new Set(parsed.map(p => p.id));
+          const missing = INITIAL_PRODUCTS.filter(p => !existingIds.has(p.id));
+          const merged = [...parsed, ...missing];
+          try {
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(merged));
+          } catch {}
+          return merged;
+        }
       }
     } catch (e) {
       console.error('Error reading products from storage', e);
@@ -255,8 +264,17 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.MERCHANTS);
       if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        const parsed: Merchant[] = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length >= SILAO_MERCHANTS.length) return parsed;
+        if (Array.isArray(parsed)) {
+          const existingIds = new Set(parsed.map(m => m.id));
+          const missing = SILAO_MERCHANTS.filter(m => !existingIds.has(m.id));
+          const merged = [...parsed, ...missing];
+          try {
+            localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(merged));
+          } catch {}
+          return merged;
+        }
       }
     } catch {}
     return SILAO_MERCHANTS;
