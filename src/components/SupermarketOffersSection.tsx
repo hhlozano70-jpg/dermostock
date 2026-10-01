@@ -21,6 +21,7 @@ import {
 import { useInventory } from '../context/InventoryContext';
 import { Product } from '../types/inventory';
 import { ProductVisual } from './ProductVisual';
+import { SupermarketPriceComparator } from './SupermarketPriceComparator';
 
 interface SupermarketOffersSectionProps {
   onSelectCategory?: (category: string) => void;
@@ -38,6 +39,9 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
     userRole,
     refreshFromServer
   } = useInventory();
+
+  // Modo de visualización: 'compare' (comparativa de productos similares) o 'grid' (catálogo general)
+  const [viewMode, setViewMode] = useState<'compare' | 'grid'>('compare');
 
   const [selectedSupermarket, setSelectedSupermarket] = useState<string>('all');
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('all');
@@ -271,8 +275,51 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
         </div>
       </div>
 
-      {/* Supermarkets Filter Cards */}
-      <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+      {/* Selector de Modo: Comparador de Similares vs Catálogo por Tienda */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 p-2 bg-slate-900/90 rounded-2xl border border-slate-700/80 shadow-md">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setViewMode('compare')}
+            className={`py-2 px-3.5 sm:px-4 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-sm ${
+              viewMode === 'compare'
+                ? 'bg-amber-400 text-slate-950 shadow-amber-400/20 ring-2 ring-amber-300 scale-102'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <span>⚖️ Comparar Productos Similares en Tiendas</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded font-extrabold ${viewMode === 'compare' ? 'bg-slate-950 text-amber-300' : 'bg-amber-400 text-slate-950'}`}>
+              RECOMENDADO
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setViewMode('grid')}
+            className={`py-2 px-3.5 sm:px-4 rounded-xl text-xs font-black transition-all flex items-center gap-2 cursor-pointer shadow-sm ${
+              viewMode === 'grid'
+                ? 'bg-emerald-600 text-white shadow-emerald-500/20 ring-2 ring-emerald-400 scale-102'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Ver Catálogo por Tienda Individual ({supermarketProducts.length})</span>
+          </button>
+        </div>
+
+        <span className="text-[11px] text-slate-400 hidden lg:inline px-2">
+          {viewMode === 'compare' ? 'Comparativa lado a lado entre Bodega Aurrera, Soriana, Tiendas 3B y Bara' : 'Filtros y buscador libre de ofertas'}
+        </span>
+      </div>
+
+      {viewMode === 'compare' ? (
+        <div className="relative z-10">
+          <SupermarketPriceComparator />
+        </div>
+      ) : (
+        <>
+          {/* Supermarkets Filter Cards */}
+          <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
         {supermarketTabs.map((s) => {
           const isSelected = selectedSupermarket === s.id;
           return (
@@ -552,6 +599,8 @@ export const SupermarketOffersSection: React.FC<SupermarketOffersSectionProps> =
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* Direct Reference Web Directory */}
       <div className="relative z-10 pt-4 border-t border-slate-800/80 space-y-3">
