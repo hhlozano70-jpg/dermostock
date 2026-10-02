@@ -22,7 +22,7 @@ interface SettingsModalProps {
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
-  const { settings, updateSettings } = useInventory();
+  const { settings, updateSettings, userRole } = useInventory();
 
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsappNumber || '524721234567');
   const [businessName, setBusinessName] = useState(settings.businessName || 'Silaomarket on line');
@@ -49,6 +49,28 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   }, [isOpen, settings]);
 
   if (!isOpen) return null;
+
+  if (userRole !== 'admin') {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+        <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 text-center space-y-4">
+          <div className="w-12 h-12 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <h3 className="font-bold text-base text-slate-900">Acceso Exclusivo de Administración</h3>
+          <p className="text-xs text-slate-600">
+            La configuración de pedidos, rutas y WhatsApp de recepción solo puede ser gestionada por la Administración Central del Hub Silao.
+          </p>
+          <button
+            onClick={onClose}
+            className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl cursor-pointer"
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const cleanPhone = (whatsappNumber || '').replace(/[^0-9]/g, '');
 
@@ -97,8 +119,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <Settings className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-base">Ajustes Hub Silao & WhatsApp</h3>
-              <p className="text-xs text-slate-400">Recepción de pedidos consolidados y rutas Silao</p>
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold text-base">Ajustes de Pedidos & WhatsApp</h3>
+                <span className="text-[10px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.2 rounded uppercase">
+                  Admin Hub
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">Recepción centralizada de pedidos consolidados y rutas Silao</p>
             </div>
           </div>
           <button
@@ -111,6 +138,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
         {/* Body */}
         <form onSubmit={handleSave} className="p-6 space-y-4 overflow-y-auto">
+          {/* Badge informativo de exclusividad */}
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
+            <span>
+              <strong>Panel Exclusivo de Administración:</strong> La configuración de pedidos es centralizada y no es editable desde los perfiles de los comercios.
+            </span>
+          </div>
+
           {savedSuccess && (
             <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2 animate-fade-in">
               <Check className="w-4 h-4 text-emerald-600 shrink-0" />

@@ -13,7 +13,8 @@ import {
   PlusCircle,
   Building2,
   ShieldAlert,
-  AlertCircle
+  AlertCircle,
+  Settings
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Merchant } from '../types/inventory';
@@ -27,7 +28,8 @@ export const FinancialDashboard: React.FC = () => {
     markSettlementPaid,
     userRole,
     setIsAuthModalOpen,
-    setIsMerchantManagerOpen
+    setIsMerchantManagerOpen,
+    setIsSettingsModalOpen
   } = useInventory();
 
   const [filterPeriod, setFilterPeriod] = useState<string>('todos');
@@ -169,6 +171,15 @@ export const FinancialDashboard: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setIsSettingsModalOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition-all cursor-pointer flex items-center gap-1.5"
+            title="Configurar recepción de WhatsApp, costo de envío y horarios"
+          >
+            <Settings className="w-4 h-4" />
+            <span>Configuración de Pedidos</span>
+          </button>
+
           <button
             onClick={() => setIsMerchantManagerOpen(true)}
             className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs shadow transition-all cursor-pointer"

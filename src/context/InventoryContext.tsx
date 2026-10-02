@@ -340,33 +340,39 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     if (role === 'admin') {
-      if (pin && pin.trim() === adminPin.trim()) {
+      if (!pin || !pin.trim()) {
+        return { success: false, message: 'Se requiere la contraseña de Administrador para acceder.' };
+      }
+      if (pin.trim() === adminPin.trim()) {
         setUserRole('admin');
         setLoggedMerchantId(null);
         setHasAccessSelected(true);
         setActiveTab('inventario');
         return { success: true };
       }
-      return { success: false, message: 'Contraseña de Administrador incorrecta (Por defecto: 1234)' };
+      return { success: false, message: 'Contraseña de Administrador incorrecta.' };
     }
 
     if (role === 'negocio') {
       if (!merchantId) {
         return { success: false, message: 'Selecciona tu negocio para continuar.' };
       }
+      if (!pin || !pin.trim()) {
+        return { success: false, message: 'Se requiere la contraseña del negocio para acceder.' };
+      }
       const target = merchants.find(m => m.id === merchantId);
       if (!target) {
         return { success: false, message: 'Comercio no encontrado en el sistema.' };
       }
       const targetPass = (target.password || target.pin || '1234').trim();
-      if (pin && pin.trim() === targetPass) {
+      if (pin.trim() === targetPass) {
         setUserRole('negocio');
         setLoggedMerchantId(merchantId);
         setHasAccessSelected(true);
         setActiveTab('mi_negocio');
         return { success: true };
       }
-      return { success: false, message: `Contraseña incorrecta para ${target.name}. (Por defecto: 1234)` };
+      return { success: false, message: `Contraseña incorrecta para ${target.name}.` };
     }
 
     return { success: false, message: 'Rol no reconocido.' };

@@ -22,7 +22,8 @@ import {
   HelpCircle,
   X,
   Package,
-  Sparkles
+  Sparkles,
+  LogOut
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { PriceTier } from '../types/inventory';
@@ -45,7 +46,8 @@ export const Navbar: React.FC = () => {
     loggedMerchant,
     setIsAuthModalOpen,
     setIsBrochureModalOpen,
-    setIsMerchantManagerOpen
+    setIsMerchantManagerOpen,
+    logoutRole
   } = useInventory();
 
   return (
@@ -266,6 +268,18 @@ export const Navbar: React.FC = () => {
               )}
             </button>
 
+            {/* Logout button if logged as merchant or admin */}
+            {userRole !== 'cliente' && (
+              <button
+                onClick={logoutRole}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                title="Cerrar sesión y volver a la selección de perfiles"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Salir</span>
+              </button>
+            )}
+
             {/* Pricing Rules & Policies Trigger (Desktop) */}
             <button
               type="button"
@@ -289,14 +303,16 @@ export const Navbar: React.FC = () => {
               <Scan className="w-4 h-4 text-blue-600" />
             </button>
 
-            {/* Settings Trigger */}
-            <button
-              onClick={() => setIsSettingsModalOpen(true)}
-              className="flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-emerald-700 transition-colors cursor-pointer"
-              title="Configuración de WhatsApp y entregas"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
+            {/* Settings Trigger - Exclusivo para Administración Central */}
+            {userRole === 'admin' && (
+              <button
+                onClick={() => setIsSettingsModalOpen(true)}
+                className="flex items-center justify-center p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-emerald-700 transition-colors cursor-pointer"
+                title="Configuración de Pedidos y Entregas (Hub Silao)"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
+            )}
 
             {/* Cart Trigger */}
             <button

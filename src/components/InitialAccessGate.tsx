@@ -58,13 +58,17 @@ export const InitialAccessGate: React.FC = () => {
       setErrorMessage('Por favor selecciona tu comercio afiliado de Silao.');
       return;
     }
+    if (!merchantPin.trim()) {
+      setErrorMessage('Por favor ingresa la contraseña para acceder al perfil del comercio.');
+      return;
+    }
     setLoading(true);
-    const res = loginRole('negocio', selectedMerchantId, merchantPin || '1234');
+    const res = loginRole('negocio', selectedMerchantId, merchantPin.trim());
     if (res.success) {
       setHasAccessSelected(true);
       setActiveTab('mi_negocio');
     } else {
-      setErrorMessage(res.message || 'PIN incorrecto. (Por defecto demo: 1234)');
+      setErrorMessage(res.message || 'Contraseña incorrecta.');
     }
     setLoading(false);
   };
@@ -72,13 +76,17 @@ export const InitialAccessGate: React.FC = () => {
   const handleEnterAsAdmin = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    if (!adminPin.trim()) {
+      setErrorMessage('Por favor ingresa la contraseña de Administrador para acceder.');
+      return;
+    }
     setLoading(true);
-    const res = loginRole('admin', undefined, adminPin || '1234');
+    const res = loginRole('admin', undefined, adminPin.trim());
     if (res.success) {
       setHasAccessSelected(true);
       setActiveTab('inventario');
     } else {
-      setErrorMessage(res.message || 'PIN de Administrador incorrecto. (Por defecto demo: 1234)');
+      setErrorMessage(res.message || 'Contraseña de Administrador incorrecta.');
     }
     setLoading(false);
   };
@@ -274,7 +282,8 @@ export const InitialAccessGate: React.FC = () => {
                     <input
                       type={showMerchantPass ? 'text' : 'password'}
                       maxLength={18}
-                      placeholder="Contraseña (Demo: 1234)"
+                      required
+                      placeholder="Ingresa la contraseña del comercio"
                       value={merchantPin}
                       onChange={(e) => setMerchantPin(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18))}
                       className="w-full pl-3 pr-9 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-amber-400"
@@ -288,7 +297,7 @@ export const InitialAccessGate: React.FC = () => {
                     </button>
                   </div>
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    * Alfanumérica hasta 18 caracteres (predeterminada: <strong className="text-amber-300">1234</strong>)
+                    * Alfanumérica hasta 18 caracteres requerida para acceder
                   </span>
                 </div>
               </form>
@@ -357,7 +366,8 @@ export const InitialAccessGate: React.FC = () => {
                     <input
                       type={showAdminPass ? 'text' : 'password'}
                       maxLength={18}
-                      placeholder="Contraseña Maestra (Demo: 1234)"
+                      required
+                      placeholder="Ingresa la contraseña de Administrador"
                       value={adminPin}
                       onChange={(e) => setAdminPin(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18))}
                       className="w-full pl-3 pr-9 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-indigo-400"
@@ -371,7 +381,7 @@ export const InitialAccessGate: React.FC = () => {
                     </button>
                   </div>
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    * Alfanumérica hasta 18 caracteres (predeterminada: <strong className="text-indigo-300">1234</strong>)
+                    * Alfanumérica hasta 18 caracteres requerida para acceder
                   </span>
                 </div>
               </form>

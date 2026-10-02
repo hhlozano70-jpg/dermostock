@@ -63,7 +63,11 @@ export const AuthModal: React.FC = () => {
         setErrorMessage('Por favor selecciona tu negocio.');
         return;
       }
-      const res = loginRole('negocio', selectedMerchantId, merchantPin);
+      if (!merchantPin.trim()) {
+        setErrorMessage('Por favor ingresa la contraseña para acceder al perfil del negocio.');
+        return;
+      }
+      const res = loginRole('negocio', selectedMerchantId, merchantPin.trim());
       if (res.success) {
         setSuccessMessage('¡Bienvenido a tu Portal de Negocio!');
         setTimeout(() => {
@@ -71,10 +75,14 @@ export const AuthModal: React.FC = () => {
           setActiveTab('mi_negocio');
         }, 500);
       } else {
-        setErrorMessage(res.message || 'PIN incorrecto.');
+        setErrorMessage(res.message || 'Contraseña incorrecta.');
       }
     } else if (selectedRole === 'admin') {
-      const res = loginRole('admin', undefined, adminPin);
+      if (!adminPin.trim()) {
+        setErrorMessage('Por favor ingresa la contraseña de Administrador para acceder.');
+        return;
+      }
+      const res = loginRole('admin', undefined, adminPin.trim());
       if (res.success) {
         setSuccessMessage('¡Acceso concedido a la Administración Hub Silao!');
         setTimeout(() => {
@@ -82,7 +90,7 @@ export const AuthModal: React.FC = () => {
           setActiveTab('finanzas');
         }, 500);
       } else {
-        setErrorMessage(res.message || 'PIN de Administrador incorrecto.');
+        setErrorMessage(res.message || 'Contraseña de Administrador incorrecta.');
       }
     }
   };
@@ -293,9 +301,10 @@ export const AuthModal: React.FC = () => {
                   <input
                     type={showMerchantPass ? 'text' : 'password'}
                     maxLength={18}
+                    required={selectedRole === 'negocio'}
                     value={merchantPin}
                     onChange={(e) => setMerchantPin(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18))}
-                    placeholder="Contraseña alfanumérica (Por defecto: 1234)"
+                    placeholder="Ingresa la contraseña del negocio"
                     className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:outline-none"
                   />
                   <button
@@ -307,7 +316,7 @@ export const AuthModal: React.FC = () => {
                   </button>
                 </div>
                 <span className="text-[11px] text-slate-500 mt-1 block">
-                  * Alfanumérica hasta 18 caracteres. Predeterminada inicial: <strong className="text-slate-800">1234</strong>
+                  * Contraseña alfanumérica requerida para acceder
                 </span>
               </div>
             </div>
@@ -342,9 +351,10 @@ export const AuthModal: React.FC = () => {
                   <input
                     type={showAdminPass ? 'text' : 'password'}
                     maxLength={18}
+                    required={selectedRole === 'admin'}
                     value={adminPin}
                     onChange={(e) => setAdminPin(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18))}
-                    placeholder="Contraseña alfanumérica (Por defecto: 1234)"
+                    placeholder="Ingresa la contraseña de Administrador"
                     className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none"
                   />
                   <button
@@ -356,7 +366,7 @@ export const AuthModal: React.FC = () => {
                   </button>
                 </div>
                 <span className="text-[11px] text-slate-400 mt-1 block">
-                  * Contraseña alfanumérica hasta 18 caracteres. Predeterminada inicial: <strong className="text-emerald-400">1234</strong>
+                  * Contraseña alfanumérica requerida para acceder
                 </span>
               </div>
             </div>
