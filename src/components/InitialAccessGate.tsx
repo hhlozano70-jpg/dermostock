@@ -14,7 +14,8 @@ import {
   Clock,
   MapPin,
   Truck,
-  Eye
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { UserRole } from '../types/inventory';
@@ -35,6 +36,8 @@ export const InitialAccessGate: React.FC = () => {
   const [selectedMerchantId, setSelectedMerchantId] = useState<string>(merchantsList[0]?.id || '');
   const [merchantPin, setMerchantPin] = useState<string>('');
   const [adminPin, setAdminPin] = useState<string>('');
+  const [showMerchantPass, setShowMerchantPass] = useState(false);
+  const [showAdminPass, setShowAdminPass] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -259,18 +262,33 @@ export const InitialAccessGate: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                    PIN de Acceso al Comercio:
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="PIN (Demo: 1234)"
-                    value={merchantPin}
-                    onChange={(e) => setMerchantPin(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-amber-400"
-                  />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-[11px] font-bold text-slate-300">
+                      Contraseña de Acceso al Comercio:
+                    </label>
+                    <span className="text-[10px] text-amber-300 font-mono font-bold">
+                      {merchantPin.length}/18 car.
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showMerchantPass ? 'text' : 'password'}
+                      maxLength={18}
+                      placeholder="Contraseña (Demo: 1234)"
+                      value={merchantPin}
+                      onChange={(e) => setMerchantPin(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18))}
+                      className="w-full pl-3 pr-9 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-amber-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowMerchantPass(!showMerchantPass)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
+                    >
+                      {showMerchantPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    * PIN predeterminado: <strong className="text-amber-300">1234</strong>
+                    * Alfanumérica hasta 18 caracteres (predeterminada: <strong className="text-amber-300">1234</strong>)
                   </span>
                 </div>
               </form>
@@ -306,7 +324,7 @@ export const InitialAccessGate: React.FC = () => {
                   <span>Administrador</span>
                 </h3>
                 <p className="text-xs text-indigo-300 font-semibold mt-0.5">
-                  Control Total & Logística Hub Central
+                  Supervisión & Finanzas Hub Silao
                 </p>
               </div>
 
@@ -314,31 +332,46 @@ export const InitialAccessGate: React.FC = () => {
               <div className="p-3 rounded-xl bg-indigo-950/40 border border-indigo-500/20 text-[11px] text-indigo-200 space-y-1.5">
                 <div className="flex items-center gap-1.5 font-bold text-indigo-300">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Acceso Completo:</span>
+                  <span>Supervisión y Control:</span>
                 </div>
                 <p className="text-[11px] leading-relaxed">
-                  Supervisión y edición de <strong>todos los comercios, inventarios, despacho con QR y finanzas</strong>.
+                  Consulta de datos de comercios, liquidaciones semanales y poder de <strong>eliminar comercios cuando se requiera</strong>.
                 </p>
                 <p className="text-[10px] text-indigo-300">
-                  ⭐ Liquidaciones semanales, asignación de choferes y control municipal.
+                  🔒 No modifica datos de los negocios ni visualiza contraseñas (son confidenciales del encargado).
                 </p>
               </div>
 
               {/* Admin Login Form */}
               <form id="admin-login-form" onSubmit={handleEnterAsAdmin} className="space-y-3 pt-1">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                    PIN Maestro de Administración:
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="PIN Maestro (Demo: 1234)"
-                    value={adminPin}
-                    onChange={(e) => setAdminPin(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-indigo-400"
-                  />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-[11px] font-bold text-slate-300">
+                      Contraseña Maestra de Administrador:
+                    </label>
+                    <span className="text-[10px] text-indigo-300 font-mono font-bold">
+                      {adminPin.length}/18 car.
+                    </span>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showAdminPass ? 'text' : 'password'}
+                      maxLength={18}
+                      placeholder="Contraseña Maestra (Demo: 1234)"
+                      value={adminPin}
+                      onChange={(e) => setAdminPin(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18))}
+                      className="w-full pl-3 pr-9 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-indigo-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminPass(!showAdminPass)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
+                    >
+                      {showAdminPass ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    * PIN maestro predeterminado: <strong className="text-indigo-300">1234</strong>
+                    * Alfanumérica hasta 18 caracteres (predeterminada: <strong className="text-indigo-300">1234</strong>)
                   </span>
                 </div>
               </form>

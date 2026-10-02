@@ -10,7 +10,10 @@ import {
   AlertCircle,
   LogOut,
   Building2,
-  FileText
+  FileText,
+  Eye,
+  EyeOff,
+  Lock
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { UserRole } from '../types/inventory';
@@ -34,6 +37,8 @@ export const AuthModal: React.FC = () => {
   );
   const [merchantPin, setMerchantPin] = useState<string>('');
   const [adminPin, setAdminPin] = useState<string>('');
+  const [showMerchantPass, setShowMerchantPass] = useState(false);
+  const [showAdminPass, setShowAdminPass] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -276,18 +281,33 @@ export const AuthModal: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  PIN de Acceso al Negocio
-                </label>
-                <input
-                  type="password"
-                  value={merchantPin}
-                  onChange={(e) => setMerchantPin(e.target.value)}
-                  placeholder="PIN del comercio (Por defecto: 1234)"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Contraseña de Acceso al Negocio
+                  </label>
+                  <span className="text-[10px] text-amber-800 font-mono font-bold bg-amber-100 px-1.5 py-0.2 rounded">
+                    {merchantPin.length}/18 caracteres
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showMerchantPass ? 'text' : 'password'}
+                    maxLength={18}
+                    value={merchantPin}
+                    onChange={(e) => setMerchantPin(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18))}
+                    placeholder="Contraseña alfanumérica (Por defecto: 1234)"
+                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-300 text-sm font-mono focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowMerchantPass(!showMerchantPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    {showMerchantPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
                 <span className="text-[11px] text-slate-500 mt-1 block">
-                  * PIN predeterminado de demostración: <strong className="text-slate-800">1234</strong>
+                  * Alfanumérica hasta 18 caracteres. Predeterminada inicial: <strong className="text-slate-800">1234</strong>
                 </span>
               </div>
             </div>
@@ -301,27 +321,42 @@ export const AuthModal: React.FC = () => {
                 </div>
                 <div>
                   <h4 className="font-bold text-xs text-white">Panel Maestro Hub Silao</h4>
-                  <p className="text-xs text-slate-400">Control total: todos los comercios, todos los inventarios, finanzas y despacho.</p>
+                  <p className="text-xs text-slate-400">Supervisión general de pedidos, choferes, finanzas y red de comercios.</p>
                 </div>
               </div>
 
               <div className="p-3 bg-slate-800/80 border border-slate-700 rounded-xl text-xs text-slate-300">
-                ⭐ <strong>Acceso Ilimitado:</strong> Visualización y edición global de catálogos, liquidaciones semanales, asignación a choferes y control de tarifas.
+                ⭐ <strong>Supervisión y Control:</strong> Consulta de datos de comercios, liquidaciones semanales y poder de eliminar negocios cuando se requiera. Las contraseñas son confidenciales del encargado.
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  PIN Maestro de Administración
-                </label>
-                <input
-                  type="password"
-                  value={adminPin}
-                  onChange={(e) => setAdminPin(e.target.value)}
-                  placeholder="Ingresa PIN Maestro (Por defecto: 1234)"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm focus:ring-2 focus:ring-emerald-400 focus:outline-none"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-300">
+                    Contraseña Maestra de Administrador
+                  </label>
+                  <span className="text-[10px] text-emerald-400 font-mono font-bold bg-slate-800 px-1.5 py-0.2 rounded border border-slate-700">
+                    {adminPin.length}/18 caracteres
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showAdminPass ? 'text' : 'password'}
+                    maxLength={18}
+                    value={adminPin}
+                    onChange={(e) => setAdminPin(e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18))}
+                    placeholder="Contraseña alfanumérica (Por defecto: 1234)"
+                    className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-slate-700 bg-slate-800 text-white text-sm font-mono focus:ring-2 focus:ring-emerald-400 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowAdminPass(!showAdminPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 cursor-pointer"
+                  >
+                    {showAdminPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
                 <span className="text-[11px] text-slate-400 mt-1 block">
-                  * PIN maestro predeterminado: <strong className="text-emerald-400">1234</strong>
+                  * Contraseña alfanumérica hasta 18 caracteres. Predeterminada inicial: <strong className="text-emerald-400">1234</strong>
                 </span>
               </div>
             </div>

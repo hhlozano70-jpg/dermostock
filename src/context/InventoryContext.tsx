@@ -155,17 +155,20 @@ const STORAGE_KEYS = {
   SETTINGS: 'silaomarket_settings_v4',
   MERCHANTS: 'silaomarket_merchants_v4',
   SETTLEMENTS: 'silaomarket_settlements_v4',
-  ROLE: 'silaomarket_role_v4',
-  LOGGED_MERCHANT: 'silaomarket_logged_merchant_v4',
   ADMIN_PIN: 'silaomarket_admin_pin_v4',
-  ACCESS_SELECTED: 'silaomarket_access_selected_v1',
+};
+
+const SESSION_KEYS = {
+  ROLE: 'silaomarket_role_session',
+  LOGGED_MERCHANT: 'silaomarket_logged_merchant_session',
+  ACCESS_SELECTED: 'silaomarket_access_selected_session',
 };
 
 export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Access Gate state (requires selecting role upfront before accessing main views)
+  // Access Gate state - Session-only: resets on accidental exit / closing page
   const [hasAccessSelected, setHasAccessSelectedState] = useState<boolean>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEYS.ACCESS_SELECTED) === 'true';
+      return sessionStorage.getItem(SESSION_KEYS.ACCESS_SELECTED) === 'true';
     } catch {}
     return false;
   });
@@ -173,8 +176,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const setHasAccessSelected = (selected: boolean) => {
     setHasAccessSelectedState(selected);
     try {
-      if (selected) localStorage.setItem(STORAGE_KEYS.ACCESS_SELECTED, 'true');
-      else localStorage.removeItem(STORAGE_KEYS.ACCESS_SELECTED);
+      if (selected) sessionStorage.setItem(SESSION_KEYS.ACCESS_SELECTED, 'true');
+      else sessionStorage.removeItem(SESSION_KEYS.ACCESS_SELECTED);
     } catch {}
   };
   // Load products from localStorage or default
@@ -211,10 +214,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return 'comercial';
   });
 
-  // Access Control & Roles: 'cliente' | 'negocio' | 'admin'
+  // Access Control & Roles: Session-only so closing/exiting tab accidentally performs automatic logout
   const [userRole, setUserRoleState] = useState<UserRole>(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEYS.ROLE);
+      const stored = sessionStorage.getItem(SESSION_KEYS.ROLE);
       if (stored === 'cliente' || stored === 'negocio' || stored === 'admin') return stored;
     } catch {}
     return 'cliente';
@@ -222,11 +225,12 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const [loggedMerchantId, setLoggedMerchantIdState] = useState<string | null>(() => {
     try {
-      return localStorage.getItem(STORAGE_KEYS.LOGGED_MERCHANT) || null;
+      return sessionStorage.getItem(SESSION_KEYS.LOGGED_MERCHANT) || null;
     } catch {}
     return null;
   });
 
+  // Admin password/PIN: Alfanumérica hasta 18 dígitos
   const [adminPin, setAdminPinState] = useState<string>(() => {
     try {
       return localStorage.getItem(STORAGE_KEYS.ADMIN_PIN) || '1234';
@@ -234,25 +238,45 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return '1234';
   });
 
+  // Automatic logout when closing page or navigating away accidentally
+  useEffect(() => {
+    const handleAutomaticLogoutOnExit = () => {
+      try {
+        sessionStorage.removeItem(SESSION_KEYS.ROLE);
+        sessionStorage.removeItem(SESSION_KEYS.LOGGED_MERCHANT);
+        sessionStorage.removeItem(SESSION_KEYS.ACCESS_SELECTED);
+      } catch {}
+    };
+
+    window.addEventListener('beforeunload', handleAutomaticLogoutOnExit);
+    window.addEventListener('pagehide', handleAutomaticLogoutOnExit);
+    return () => {
+      window.removeEventListener('beforeunload', handleAutomaticLogoutOnExit);
+      window.removeEventListener('pagehide', handleAutomaticLogoutOnExit);
+    };
+  }, []);
+
   const setUserRole = (role: UserRole) => {
     setUserRoleState(role);
     try {
-      localStorage.setItem(STORAGE_KEYS.ROLE, role);
+      sessionStorage.setItem(SESSION_KEYS.ROLE, role);
     } catch {}
   };
 
   const setLoggedMerchantId = (id: string | null) => {
     setLoggedMerchantIdState(id);
     try {
-      if (id) localStorage.setItem(STORAGE_KEYS.LOGGED_MERCHANT, id);
-      else localStorage.removeItem(STORAGE_KEYS.LOGGED_MERCHANT);
+      if (id) sessionStorage.setItem(SESSION_KEYS.LOGGED_MERCHANT, id);
+      else sessionStorage.removeItem(SESSION_KEYS.LOGGED_MERCHANT);
     } catch {}
   };
 
   const setAdminPin = (pin: string) => {
-    setAdminPinState(pin);
+    // Alfanumérica hasta 18 caracteres
+    const sanitized = pin.trim().replace(/[^a-zA-Z0-9]/g, '').slice(0, 18);
+    setAdminPinState(sanitized);
     try {
-      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, pin);
+      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, sanitized);
     } catch {}
   };
 
@@ -323,7 +347,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         setActiveTab('inventario');
         return { success: true };
       }
-      return { success: false, message: 'PIN de Administrador incorrecto (Por defecto: 1234)' };
+      return { success: false, message: 'Contraseña de Administrador incorrecta (Por defecto: 1234)' };
     }
 
     if (role === 'negocio') {
@@ -334,15 +358,15 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (!target) {
         return { success: false, message: 'Comercio no encontrado en el sistema.' };
       }
-      const targetPin = target.pin || '1234';
-      if (pin && pin.trim() === targetPin.trim()) {
+      const targetPass = (target.password || target.pin || '1234').trim();
+      if (pin && pin.trim() === targetPass) {
         setUserRole('negocio');
         setLoggedMerchantId(merchantId);
         setHasAccessSelected(true);
         setActiveTab('mi_negocio');
         return { success: true };
       }
-      return { success: false, message: `PIN incorrecto para ${target.name}. (Por defecto: 1234)` };
+      return { success: false, message: `Contraseña incorrecta para ${target.name}. (Por defecto: 1234)` };
     }
 
     return { success: false, message: 'Rol no reconocido.' };

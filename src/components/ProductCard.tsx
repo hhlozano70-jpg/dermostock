@@ -106,10 +106,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {/* Merchant tag */}
           <div className="flex items-center justify-between gap-1 mb-1.5">
             <span 
-              className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md truncate max-w-[200px] flex items-center gap-1"
+              className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md truncate max-w-[200px] flex items-center gap-1.5"
               title={product.merchantName}
             >
-              <Store className="w-3 h-3 text-emerald-600 shrink-0" />
+              {merchant?.logoUrl ? (
+                <img 
+                  src={merchant.logoUrl} 
+                  alt={product.merchantName} 
+                  className="w-3.5 h-3.5 rounded-full object-cover shrink-0 border border-emerald-300" 
+                />
+              ) : (
+                <Store className="w-3 h-3 text-emerald-600 shrink-0" />
+              )}
               <span className="truncate">{product.merchantName || 'Comercio Silao'}</span>
             </span>
             <span className="text-[10px] text-slate-400 font-mono">

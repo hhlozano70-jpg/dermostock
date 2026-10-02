@@ -321,7 +321,15 @@ export const Storefront: React.FC = () => {
                     }`}
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <span className="text-base shrink-0">{icon}</span>
+                      {m.logoUrl ? (
+                        <img 
+                          src={m.logoUrl} 
+                          alt={m.name} 
+                          className="w-5 h-5 rounded-md object-cover shrink-0 border border-slate-200" 
+                        />
+                      ) : (
+                        <span className="text-base shrink-0">{icon}</span>
+                      )}
                       <div className="truncate">
                         <strong className="text-xs block truncate">{isMaret ? 'MARET SILAO' : m.name}</strong>
                         <span className={`text-[10px] block truncate ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>

@@ -15,7 +15,18 @@ import {
   ShieldCheck,
   Building2,
   Edit,
-  Plus
+  Plus,
+  Lock,
+  Eye,
+  EyeOff,
+  Camera,
+  Upload,
+  Image as ImageIcon,
+  Trash2,
+  UserCheck,
+  MapPin,
+  Phone,
+  Mail
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { Merchant } from '../types/inventory';
@@ -35,13 +46,28 @@ export const MerchantPortal: React.FC = () => {
     updateMerchant
   } = useInventory();
 
-  const [activeSubTab, setActiveSubTab] = useState<'resumen' | 'liquidaciones' | 'pedidos' | 'catalogo' | 'politicas'>('resumen');
+  const [activeSubTab, setActiveSubTab] = useState<'resumen' | 'liquidaciones' | 'pedidos' | 'catalogo' | 'politicas' | 'perfil'>('resumen');
   const [hasWholesaleState, setHasWholesaleState] = useState(false);
   const [wholesaleMinPiecesState, setWholesaleMinPiecesState] = useState(3);
   const [hasSpecialPromosState, setHasSpecialPromosState] = useState(false);
   const [promoMinPiecesState, setPromoMinPiecesState] = useState(2);
   const [promoTermsState, setPromoTermsState] = useState('');
   const [isSavedPolicy, setIsSavedPolicy] = useState(false);
+
+  // Estados para el perfil del encargado de negocio
+  const [profileName, setProfileName] = useState('');
+  const [profileOwner, setProfileOwner] = useState('');
+  const [profilePhone, setProfilePhone] = useState('');
+  const [profileEmail, setProfileEmail] = useState('');
+  const [profileAddress, setProfileAddress] = useState('');
+  const [profileZone, setProfileZone] = useState('');
+  const [profileDescription, setProfileDescription] = useState('');
+  const [profileBankAccount, setProfileBankAccount] = useState('');
+  const [profilePassword, setProfilePassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [profileLogoUrl, setProfileLogoUrl] = useState('');
+  const [isSavedProfile, setIsSavedProfile] = useState(false);
+
 
   if (!loggedMerchant && userRole !== 'admin') {
     return (
@@ -127,8 +153,37 @@ export const MerchantPortal: React.FC = () => {
       setHasSpecialPromosState(Boolean(merchant.hasSpecialPromos));
       setPromoMinPiecesState(merchant.promoMinPieces || 2);
       setPromoTermsState(merchant.promoTerms || '');
+
+      setProfileName(merchant.name || '');
+      setProfileOwner(merchant.ownerName || '');
+      setProfilePhone(merchant.phone || '');
+      setProfileEmail(merchant.email || '');
+      setProfileAddress(merchant.address || '');
+      setProfileZone(merchant.silaoZone || '');
+      setProfileDescription(merchant.description || '');
+      setProfileBankAccount(merchant.bankAccount || '');
+      setProfilePassword(merchant.password || merchant.pin || '1234');
+      setProfileLogoUrl(merchant.logoUrl || '');
     }
-  }, [merchant.id, merchant.hasWholesale, merchant.wholesaleMinPieces, merchant.hasSpecialPromos, merchant.promoMinPieces, merchant.promoTerms]);
+  }, [
+    merchant.id,
+    merchant.name,
+    merchant.ownerName,
+    merchant.phone,
+    merchant.email,
+    merchant.address,
+    merchant.silaoZone,
+    merchant.description,
+    merchant.bankAccount,
+    merchant.password,
+    merchant.pin,
+    merchant.logoUrl,
+    merchant.hasWholesale,
+    merchant.wholesaleMinPieces,
+    merchant.hasSpecialPromos,
+    merchant.promoMinPieces,
+    merchant.promoTerms
+  ]);
 
   const handleSavePolicies = (e: React.FormEvent) => {
     e.preventDefault();
@@ -143,6 +198,44 @@ export const MerchantPortal: React.FC = () => {
     setTimeout(() => setIsSavedPolicy(false), 3000);
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2.5 * 1024 * 1024) {
+        alert('Por favor selecciona una imagen menor a 2.5 MB para un óptimo rendimiento.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        if (result) {
+          setProfileLogoUrl(result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveProfile = (e: React.FormEvent) => {
+    e.preventDefault();
+    const sanitizedPassword = profilePassword.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18);
+    updateMerchant(merchant.id, {
+      name: profileName.trim() || merchant.name,
+      ownerName: profileOwner.trim(),
+      phone: profilePhone.trim(),
+      email: profileEmail.trim(),
+      address: profileAddress.trim(),
+      silaoZone: profileZone.trim(),
+      description: profileDescription.trim(),
+      bankAccount: profileBankAccount.trim(),
+      password: sanitizedPassword || '1234',
+      pin: sanitizedPassword || '1234',
+      logoUrl: profileLogoUrl.trim()
+    });
+    setIsSavedProfile(true);
+    setTimeout(() => setIsSavedProfile(false), 3500);
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       
@@ -152,8 +245,16 @@ export const MerchantPortal: React.FC = () => {
 
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-3xl shadow-inner">
-              🏪
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-3xl shadow-inner overflow-hidden relative group">
+              {merchant.logoUrl ? (
+                <img 
+                  src={merchant.logoUrl} 
+                  alt={merchant.name} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-3xl select-none">🏪</span>
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -326,6 +427,16 @@ export const MerchantPortal: React.FC = () => {
           }`}
         >
           ⚙️ Mayoreo y Promociones
+        </button>
+        <button
+          onClick={() => setActiveSubTab('perfil')}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeSubTab === 'perfil'
+              ? 'bg-emerald-600 text-white shadow'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          🏢 Mi Negocio y Logo
         </button>
       </div>
 
@@ -800,6 +911,293 @@ export const MerchantPortal: React.FC = () => {
                 Guardar Políticas de Precios
               </button>
             </div>
+          </form>
+        </div>
+      )}
+
+      {/* TAB 6: PERFIL Y DATOS DEL NEGOCIO / SUBIDA DE LOGO / CONTRASEÑA */}
+      {activeSubTab === 'perfil' && (
+        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-8">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                Gestión de Comercio Oficial
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-2">
+              Datos de Mi Negocio, Logotipo y Contraseña
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
+              Como encargado o dueño del negocio, puedes actualizar los datos visibles para tus clientes, subir tu logo oficial y cambiar tu contraseña alfanumérica de hasta 18 caracteres.
+            </p>
+          </div>
+
+          <form onSubmit={handleSaveProfile} className="space-y-8">
+            
+            {/* SECCIÓN 1: LOGOTIPO DEL NEGOCIO */}
+            <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                    <Camera className="w-4 h-4 text-emerald-600" />
+                    Logotipo Oficial del Negocio
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Se mostrará en la tienda virtual, en tu portal y junto a tus productos en Silao.
+                  </p>
+                </div>
+                {profileLogoUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setProfileLogoUrl('')}
+                    className="text-xs text-rose-600 hover:text-rose-700 font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Quitar Logo
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-6 pt-2">
+                {/* Visualizador / Preview */}
+                <div className="w-28 h-28 rounded-2xl bg-white border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shadow-inner relative group shrink-0">
+                  {profileLogoUrl ? (
+                    <img 
+                      src={profileLogoUrl} 
+                      alt="Vista previa del logo" 
+                      className="w-full h-full object-cover" 
+                    />
+                  ) : (
+                    <div className="text-center p-3 text-slate-400">
+                      <ImageIcon className="w-8 h-8 mx-auto mb-1 opacity-50" />
+                      <span className="text-[10px] font-bold block">Sin Logotipo</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 space-y-3 w-full">
+                  <div>
+                    <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm cursor-pointer transition-colors">
+                      <Upload className="w-4 h-4" />
+                      <span>Subir Logotipo desde Mi Dispositivo</span>
+                      <input 
+                        type="file" 
+                        accept="image/png, image/jpeg, image/webp, image/svg+xml" 
+                        onChange={handleLogoUpload}
+                        className="hidden" 
+                      />
+                    </label>
+                    <span className="text-[11px] text-slate-400 block mt-1.5">
+                      Formatos recomendados: PNG, JPG o WebP (cuadrado preferiblemente, máx 2.5 MB).
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      O pega una URL directa de tu logo en internet:
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://ejemplo.com/mi-logo.png"
+                      value={profileLogoUrl}
+                      onChange={(e) => setProfileLogoUrl(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SECCIÓN 2: INFORMACIÓN GENERAL */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-black text-slate-900 flex items-center gap-2">
+                <Store className="w-4 h-4 text-emerald-600" />
+                Información Comercial y Ubicación
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Nombre Comercial del Negocio *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={profileName}
+                    onChange={(e) => setProfileName(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Propietario / Encargado General
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Juan Pérez"
+                    value={profileOwner}
+                    onChange={(e) => setProfileOwner(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Teléfono / WhatsApp de Contacto
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="Ej. 472 123 4567"
+                    value={profilePhone}
+                    onChange={(e) => setProfilePhone(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Correo Electrónico
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="negocio@correo.com"
+                    value={profileEmail}
+                    onChange={(e) => setProfileEmail(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Dirección Física en Silao
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Calle 5 de Mayo #45, Silao"
+                    value={profileAddress}
+                    onChange={(e) => setProfileAddress(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Zona de Silao
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Silao Centro, Blvd. Raúl Bailleres..."
+                    value={profileZone}
+                    onChange={(e) => setProfileZone(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Descripción o Eslogan del Negocio
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Describe brevemente tus productos y atención en Silao..."
+                  value={profileDescription}
+                  onChange={(e) => setProfileDescription(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900"
+                />
+              </div>
+            </div>
+
+            {/* SECCIÓN 3: CUENTA DE LIQUIDACIÓN Y PAGO */}
+            <div className="p-5 bg-emerald-50/60 rounded-2xl border border-emerald-200 space-y-3">
+              <h3 className="text-sm font-black text-emerald-950 flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-emerald-700" />
+                Cuenta Bancaria para Liquidaciones Semanales
+              </h3>
+              <p className="text-xs text-emerald-800">
+                Aquí recibirás el pago de tus ventas acumuladas cada 7 días netas de comisión.
+              </p>
+              <div>
+                <label className="block text-xs font-bold text-emerald-900 mb-1">
+                  Banco y CLABE Interbancaria (18 dígitos) o Tarjeta
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej. BBVA: 012 225 0154897210 4"
+                  value={profileBankAccount}
+                  onChange={(e) => setProfileBankAccount(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl border border-emerald-300 bg-white font-mono font-bold text-xs text-slate-900"
+                />
+              </div>
+            </div>
+
+            {/* SECCIÓN 4: CONTRASEÑA DE ACCESO */}
+            <div className="p-5 bg-amber-50/60 rounded-2xl border border-amber-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-black text-amber-950 flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-amber-700" />
+                    Contraseña de Acceso al Negocio
+                  </h3>
+                  <p className="text-xs text-amber-800 mt-0.5">
+                    Alfanumérica de hasta 18 caracteres (letras mayúsculas, minúsculas y números).
+                  </p>
+                </div>
+                <span className="text-[11px] font-mono font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded">
+                  {profilePassword.length}/18 caracteres
+                </span>
+              </div>
+
+              <div className="relative max-w-md">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  maxLength={18}
+                  placeholder="Ingresa tu contraseña de hasta 18 caracteres"
+                  value={profilePassword}
+                  onChange={(e) => {
+                    // Permitir sólo alfanuméricos hasta 18 caracteres
+                    const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18);
+                    setProfilePassword(val);
+                  }}
+                  className="w-full pl-3 pr-10 py-2.5 rounded-xl border border-amber-300 bg-white font-mono font-bold text-sm text-slate-900"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 cursor-pointer"
+                  title={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[11px] text-amber-900/80">
+                🔒 Tu contraseña está protegida. El administrador no puede verla ni alterarla; sólo tú como encargado puedes gestionarla.
+              </p>
+            </div>
+
+            {/* BOTÓN DE GUARDAR Y CONFIRMACIÓN */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200">
+              {isSavedProfile ? (
+                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-4 py-2 rounded-xl border border-emerald-300 flex items-center gap-2 shadow-xs">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                  <span>¡Datos, logo y contraseña del negocio guardados correctamente!</span>
+                </span>
+              ) : (
+                <span className="text-xs text-slate-400">
+                  Los cambios se sincronizan en tu sesión y en la base del portal.
+                </span>
+              )}
+
+              <button
+                type="submit"
+                className="w-full sm:w-auto px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Guardar Cambios de Mi Negocio</span>
+              </button>
+            </div>
+
           </form>
         </div>
       )}

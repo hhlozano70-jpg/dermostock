@@ -60,7 +60,9 @@ export interface Merchant {
   description: string;
   commissionRate?: number; // % de comisión según giro (8% - 18%)
   type?: 'Producto' | 'Servicio';
-  pin?: string; // PIN de acceso (default "1234")
+  pin?: string; // Contraseña alfanumérica hasta 18 caracteres (compatibilidad pin)
+  password?: string; // Contraseña alfanumérica hasta 18 caracteres del encargado
+  logoUrl?: string; // Espacio para el logo oficial de cada negocio
   bankAccount?: string; // CLABE o banco para liquidación semanal
   ownerName?: string;
   email?: string;
