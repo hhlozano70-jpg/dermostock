@@ -9,7 +9,10 @@ import {
   FileText,
   Building2,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  ExternalLink,
+  Sparkles,
+  Paperclip
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
@@ -28,6 +31,7 @@ export const Storefront: React.FC = () => {
     openScanner,
     setIsBrochureModalOpen,
     setIsAuthModalOpen,
+    setIsCartOpen,
     giros
   } = useInventory();
 
@@ -414,6 +418,47 @@ export const Storefront: React.FC = () => {
                   <p className="text-xs text-slate-500 mt-0.5">
                     {selMerchant.category} · 📍 {selMerchant.address} ({selMerchant.silaoZone || 'Silao Centro'})
                   </p>
+
+                  {/* Catálogo, Menú o Documentos del Comercio */}
+                  {(selMerchant.catalogPdfUrl || (selMerchant.customDocuments && selMerchant.customDocuments.length > 0)) && (
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      {selMerchant.catalogPdfUrl && (
+                        <a
+                          href={selMerchant.catalogPdfUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>Ver Catálogo / Menú Digital Completo</span>
+                          <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
+                        </a>
+                      )}
+                      {selMerchant.customDocuments?.map((doc) => (
+                        <a
+                          key={doc.id}
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-[11px] border border-slate-200 transition-colors"
+                          title={doc.description || doc.title}
+                        >
+                          <span>📄 {doc.title}</span>
+                          <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                        </a>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Requerimiento de Archivos para el Servicio */}
+                  {selMerchant.requiresCustomerFile && (
+                    <div className="mt-2 text-[11px] text-blue-900 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5">
+                      <Paperclip className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span>
+                        <strong>Servicio que requiere archivo:</strong> {selMerchant.fileRequirementsInstructions || 'Puedes subir tu foto, PDF, Word o Excel al agregar tu pedido al carrito.'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -438,6 +483,28 @@ export const Storefront: React.FC = () => {
             </div>
           );
         })()}
+
+        {/* Banner para Encargo Especial Fuera de Catálogo */}
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-900 via-slate-900 to-emerald-950 text-white flex flex-col sm:flex-row items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+              <Sparkles className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <strong className="text-sm block">¿No encuentras lo que buscas en los catálogos?</strong>
+              <p className="text-xs text-slate-300">
+                Pide cualquier producto o servicio por encargo (duplicados especiales, impresiones, fletes o pedidos de gran volumen).
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsCartOpen(true)}
+            className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs shrink-0 shadow-sm transition-colors cursor-pointer"
+          >
+            Hacer Pedido por Encargo
+          </button>
+        </div>
 
         {/* SECTION: Catalog Results */}
         <section className="space-y-4">

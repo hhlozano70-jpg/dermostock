@@ -46,11 +46,21 @@ export const BROCHURE_COMMISSIONS: GiroCommissionRate[] = [
   { giro: 'Limpieza y hogar', category: 'Limpieza y hogar', commission: 14, rate: 14, type: 'Producto', canAccompanyOrders: true },
   { giro: 'Belleza y cuidado personal', category: 'Belleza y cuidado personal', commission: 15, rate: 15, type: 'Producto', canAccompanyOrders: true },
   { giro: 'Ropa y calzado', category: 'Ropa y calzado', commission: 15, rate: 15, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Cerrajería y duplicado de llaves', category: 'Cerrajería y duplicado de llaves', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: true, description: 'Duplicados estándar, tetra, llaves automotrices con chip, controles remotos y candados' },
+  { giro: 'Tintorería y cuidado textil', category: 'Tintorería y cuidado textil', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: true, description: 'Limpieza en seco ecológica de trajes, vestidos de noche, sacos de lana, abrigos y vaporizado fino' },
+  { giro: 'Lavandería y planchado', category: 'Lavandería y planchado', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: true, description: 'Lavado por kilo por encargo, edredones, cobijas, servicio a domicilio y mayoreo para negocios' },
   { giro: 'Limpieza del hogar', category: 'Limpieza del hogar', commission: 18, rate: 18, type: 'Servicio', canAccompanyOrders: false },
   { giro: 'Plomería y electricidad', category: 'Plomería y electricidad', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: false },
-  { giro: 'Lavandería', category: 'Lavandería', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: true },
   { giro: 'Estética a domicilio', category: 'Estética a domicilio', commission: 18, rate: 18, type: 'Servicio', canAccompanyOrders: false },
 ];
+
+export interface MerchantDocument {
+  id: string;
+  title: string;
+  url: string; // URL o enlace a documento / menú / catálogo
+  type: 'menu' | 'catalogo' | 'lista_precios' | 'pdf' | 'imagen' | 'otro';
+  description?: string;
+}
 
 export interface Merchant {
   id: string;
@@ -90,6 +100,15 @@ export interface Merchant {
   serviceTypeTag?: string;         // Ej. "Trámites e Impresiones", "Segunda Mano / Bazar", "Digital / Web", "Poco Comunes"
   customGiroId?: string;
 
+  // Requerimientos de archivos del cliente para el servicio
+  requiresCustomerFile?: boolean;
+  acceptedFileTypes?: ('image' | 'pdf' | 'doc' | 'excel' | 'otro')[];
+  fileRequirementsInstructions?: string; // Ej. "Envía una foto clara de tu cerradura o el archivo PDF que deseas imprimir"
+
+  // Catálogos, Menús o Documentos ya hechos
+  catalogPdfUrl?: string; // Enlace directo a PDF / Menú digital
+  customDocuments?: MerchantDocument[];
+
   // Opcionales para cada tienda: Mayoreo y Promociones Especiales
   hasWholesale?: boolean;          // Opcional: ¿La tienda ofrece precios a mayoreo?
   wholesaleMinPieces?: number;     // En qué casos aplica: número de piezas mínimas (ej. 3, 6, 12 pzas)
@@ -116,7 +135,7 @@ export interface MerchantSettlement {
 
 export type PriceTier = 'comercial' | 'mayorista' | 'promocion';
 
-export type DeliveryType = 'domicilio' | 'punto_fijo' | 'envio' | 'sucursal';
+export type DeliveryType = 'domicilio' | 'punto_fijo' | 'envio' | 'sucursal' | 'traslado_carga';
 
 export interface Driver {
   id: string;
@@ -137,6 +156,8 @@ export interface StoreSettings {
   state: string; // "Guanajuato"
   hubAddress: string; // "Hub Central de Envíos Silao, Calle 5 de Mayo #45, Silao Centro"
   deliveryCost: number; // Costo único de envío por pedido consolidado
+  freightTransferCost?: number; // Costo base para servicio de traslado/flete en camioneta de carga ($150 MXN)
+  largeVolumeThresholdPieces?: number; // Umbral de piezas para sugerir traslado de carga (ej. 20)
   orderStartTime?: string; // "08:00"
   orderEndTime?: string;   // "20:00"
   maxOrdersPerHour?: number; // ej. 12
@@ -173,6 +194,12 @@ export interface Product {
   hasSpecialPromos?: boolean;      // Opcional para este producto específico
   promoMinPieces?: number;         // Piezas mínimas para promo especial
   promoDescription?: string;       // Descripción de la oferta o promoción
+
+  // Requerimientos de archivos o servicio a la medida
+  requiresCustomerFile?: boolean;
+  acceptedFileTypes?: ('image' | 'pdf' | 'doc' | 'excel' | 'otro')[];
+  fileInstructions?: string;
+  isCustomRequest?: boolean; // Para productos/servicios fuera de catálogo pedidos por encargo
 }
 
 export interface CartItem {
@@ -184,6 +211,9 @@ export interface CartItem {
   isWholesaleApplied?: boolean;
   isDeclaredOffer?: boolean;
   minPiecesWholesale?: number;
+  customerFileAttachment?: { name: string; type: string; dataUrl?: string; notes?: string };
+  customNotes?: string;
+  isCustomRequest?: boolean;
 }
 
 export type MovementType = 'entrada' | 'salida' | 'venta' | 'ajuste';
@@ -242,6 +272,13 @@ export interface Order {
   merchantsNames: string[];
   status: 'completado' | 'pendiente' | 'entregado';
   qrData?: string;
+  // Gran volumen, flete y archivos adjuntos
+  isLargeVolumeOrder?: boolean;
+  requiresFreightOrTransfer?: boolean;
+  freightDetails?: string;
+  freightCost?: number;
+  customerUploadedFiles?: { itemName: string; fileName: string; type: string; notes?: string }[];
+  customRequestsNotes?: string;
 }
 
 export type CreateOrderInput = Omit<Order, 'id' | 'date' | 'status' | 'trackingCode' | 'trackingStatus'> & {

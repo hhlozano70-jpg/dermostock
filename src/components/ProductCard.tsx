@@ -159,6 +159,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   📦 Acompaña tu pedido
                 </span>
               )}
+              {(product.requiresCustomerFile || merchant?.requiresCustomerFile) && (
+                <span 
+                  title={product.fileInstructions || merchant?.fileRequirementsInstructions || 'Requiere que el cliente envíe foto o archivo para este servicio'}
+                  className="text-[9px] font-bold text-blue-800 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded"
+                >
+                  📎 Requiere archivo/foto
+                </span>
+              )}
             </div>
           )}
 

@@ -95,6 +95,10 @@ export const MerchantsManager: React.FC = () => {
     hasSpecialPromos: false,
     promoMinPieces: 2,
     promoTerms: '',
+    requiresCustomerFile: false,
+    acceptedFileTypes: ['image'] as ('image' | 'pdf' | 'doc' | 'excel' | 'otro')[],
+    fileRequirementsInstructions: '',
+    catalogPdfUrl: '',
   });
 
   // Form State for Giro
@@ -175,6 +179,10 @@ export const MerchantsManager: React.FC = () => {
       hasSpecialPromos: false,
       promoMinPieces: 2,
       promoTerms: '',
+      requiresCustomerFile: false,
+      acceptedFileTypes: ['image'],
+      fileRequirementsInstructions: '',
+      catalogPdfUrl: '',
     });
     setIsMerchantModalOpen(true);
   };
@@ -204,6 +212,10 @@ export const MerchantsManager: React.FC = () => {
       hasSpecialPromos: !!m.hasSpecialPromos,
       promoMinPieces: m.promoMinPieces || 2,
       promoTerms: m.promoTerms || '',
+      requiresCustomerFile: !!m.requiresCustomerFile,
+      acceptedFileTypes: m.acceptedFileTypes && m.acceptedFileTypes.length > 0 ? m.acceptedFileTypes : ['image'],
+      fileRequirementsInstructions: m.fileRequirementsInstructions || '',
+      catalogPdfUrl: m.catalogPdfUrl || '',
     });
     setIsMerchantModalOpen(true);
   };
@@ -236,6 +248,10 @@ export const MerchantsManager: React.FC = () => {
       hasSpecialPromos: merchantForm.hasSpecialPromos,
       promoMinPieces: Number(merchantForm.promoMinPieces) || 2,
       promoTerms: merchantForm.promoTerms.trim(),
+      requiresCustomerFile: merchantForm.requiresCustomerFile,
+      acceptedFileTypes: merchantForm.acceptedFileTypes,
+      fileRequirementsInstructions: merchantForm.fileRequirementsInstructions.trim(),
+      catalogPdfUrl: merchantForm.catalogPdfUrl.trim(),
       rating: merchantToEdit ? merchantToEdit.rating : 5.0,
       reviewsCount: merchantToEdit ? merchantToEdit.reviewsCount : 1,
       badge: !merchantForm.isPhysicalLocation 
@@ -1241,6 +1257,97 @@ export const MerchantsManager: React.FC = () => {
                     <Percent className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                 </div>
+              </div>
+
+              {/* Requerimiento de Archivos del Cliente */}
+              <div className="p-3.5 bg-blue-50/70 rounded-2xl border border-blue-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-blue-950 block">¿Requiere que el cliente suba archivos para el servicio?</span>
+                    <span className="text-[11px] text-blue-900 block">Fotos de cerraduras, llaves, prendas delicadas o documentos PDF/Word/Excel a imprimir o tramitar</span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={merchantForm.requiresCustomerFile}
+                      onChange={(e) => setMerchantForm({ ...merchantForm, requiresCustomerFile: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                {merchantForm.requiresCustomerFile && (
+                  <div className="pt-2 border-t border-blue-200/80 space-y-2.5">
+                    <div>
+                      <label className="block font-bold text-blue-950 mb-1 text-[11px]">Formatos Aceptados:</label>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+                        {[
+                          { type: 'image', label: '📷 Imagen' },
+                          { type: 'pdf', label: '📄 PDF' },
+                          { type: 'doc', label: '📝 Word' },
+                          { type: 'excel', label: '📊 Excel' },
+                          { type: 'otro', label: '📎 Otros' },
+                        ].map((fmt) => {
+                          const isSel = merchantForm.acceptedFileTypes.includes(fmt.type as any);
+                          return (
+                            <button
+                              key={fmt.type}
+                              type="button"
+                              onClick={() => {
+                                if (isSel) {
+                                  if (merchantForm.acceptedFileTypes.length === 1) return;
+                                  setMerchantForm({
+                                    ...merchantForm,
+                                    acceptedFileTypes: merchantForm.acceptedFileTypes.filter(t => t !== fmt.type)
+                                  });
+                                } else {
+                                  setMerchantForm({
+                                    ...merchantForm,
+                                    acceptedFileTypes: [...merchantForm.acceptedFileTypes, fmt.type as any]
+                                  });
+                                }
+                              }}
+                              className={`p-2 rounded-lg border text-center font-bold text-[11px] transition-all cursor-pointer ${
+                                isSel
+                                  ? 'bg-white border-blue-600 text-blue-900 shadow-xs ring-1 ring-blue-500'
+                                  : 'bg-blue-100/40 border-blue-200 text-slate-500 hover:bg-white'
+                              }`}
+                            >
+                              {fmt.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold text-blue-950 mb-1 text-[11px]">Instrucciones para el Cliente:</label>
+                      <input
+                        type="text"
+                        placeholder="Ej. Sube foto nítida de tu llave o el archivo PDF que deseas imprimir"
+                        value={merchantForm.fileRequirementsInstructions}
+                        onChange={(e) => setMerchantForm({ ...merchantForm, fileRequirementsInstructions: e.target.value })}
+                        className="w-full px-3 py-2 rounded-xl border border-blue-300 bg-white text-xs"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Catálogo o Menú Digital ya hecho */}
+              <div className="p-3.5 bg-purple-50/70 rounded-2xl border border-purple-200 space-y-2">
+                <div>
+                  <span className="font-bold text-purple-950 block">Catálogo, Menú o Lista de Precios en PDF / Web:</span>
+                  <span className="text-[11px] text-purple-900 block">Enlace directo a menú o catálogo digital del negocio para que los clientes lo consulten</span>
+                </div>
+                <input
+                  type="url"
+                  placeholder="https://ejemplo.com/menu-o-catalogo.pdf"
+                  value={merchantForm.catalogPdfUrl}
+                  onChange={(e) => setMerchantForm({ ...merchantForm, catalogPdfUrl: e.target.value })}
+                  className="w-full px-3 py-2 rounded-xl border border-purple-300 bg-white text-xs font-mono"
+                />
               </div>
 
               {/* Botones de acción */}

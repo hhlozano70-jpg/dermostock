@@ -29,7 +29,7 @@ import {
   Mail
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
-import { Merchant } from '../types/inventory';
+import { Merchant, MerchantDocument } from '../types/inventory';
 
 export const MerchantPortal: React.FC = () => {
   const { 
@@ -70,6 +70,18 @@ export const MerchantPortal: React.FC = () => {
   const [profileClosingTime, setProfileClosingTime] = useState('20:00');
   const [profileServiceDays, setProfileServiceDays] = useState('Lunes a Domingo');
   const [isSavedProfile, setIsSavedProfile] = useState(false);
+
+  // Estados para requerimientos de archivos del cliente
+  const [requiresCustomerFileState, setRequiresCustomerFileState] = useState(false);
+  const [acceptedFileTypesState, setAcceptedFileTypesState] = useState<('image' | 'pdf' | 'doc' | 'excel' | 'otro')[]>(['image']);
+  const [fileInstructionsState, setFileInstructionsState] = useState('');
+
+  // Estados para menús, catálogos y documentos ya hechos
+  const [catalogPdfUrlState, setCatalogPdfUrlState] = useState('');
+  const [customDocumentsState, setCustomDocumentsState] = useState<MerchantDocument[]>([]);
+  const [newDocTitle, setNewDocTitle] = useState('');
+  const [newDocUrl, setNewDocUrl] = useState('');
+  const [newDocType, setNewDocType] = useState<'menu' | 'catalogo' | 'precios' | 'otro'>('menu');
 
 
   if (!loggedMerchant && userRole !== 'admin') {
@@ -170,6 +182,12 @@ export const MerchantPortal: React.FC = () => {
       setProfileOpeningTime(merchant.openingTime || '08:00');
       setProfileClosingTime(merchant.closingTime || '20:00');
       setProfileServiceDays(merchant.serviceDays || 'Lunes a Domingo');
+
+      setRequiresCustomerFileState(Boolean(merchant.requiresCustomerFile));
+      setAcceptedFileTypesState(merchant.acceptedFileTypes && merchant.acceptedFileTypes.length > 0 ? merchant.acceptedFileTypes : ['image']);
+      setFileInstructionsState(merchant.fileRequirementsInstructions || '');
+      setCatalogPdfUrlState(merchant.catalogPdfUrl || '');
+      setCustomDocumentsState(merchant.customDocuments || []);
     }
   }, [
     merchant.id,
@@ -191,7 +209,12 @@ export const MerchantPortal: React.FC = () => {
     merchant.wholesaleMinPieces,
     merchant.hasSpecialPromos,
     merchant.promoMinPieces,
-    merchant.promoTerms
+    merchant.promoTerms,
+    merchant.requiresCustomerFile,
+    merchant.acceptedFileTypes,
+    merchant.fileRequirementsInstructions,
+    merchant.catalogPdfUrl,
+    merchant.customDocuments
   ]);
 
   const handleSavePolicies = (e: React.FormEvent) => {
@@ -225,6 +248,39 @@ export const MerchantPortal: React.FC = () => {
     }
   };
 
+  const toggleAcceptedFileType = (type: 'image' | 'pdf' | 'doc' | 'excel' | 'otro') => {
+    if (acceptedFileTypesState.includes(type)) {
+      if (acceptedFileTypesState.length === 1) {
+        alert('Debes mantener al menos un tipo de archivo permitido si el servicio lo requiere.');
+        return;
+      }
+      setAcceptedFileTypesState(acceptedFileTypesState.filter(t => t !== type));
+    } else {
+      setAcceptedFileTypesState([...acceptedFileTypesState, type]);
+    }
+  };
+
+  const handleAddCustomDocument = () => {
+    if (!newDocTitle.trim() || !newDocUrl.trim()) {
+      alert('Ingresa el título y el enlace (URL o PDF) del documento.');
+      return;
+    }
+    const newDoc: MerchantDocument = {
+      id: `doc-${Date.now()}`,
+      title: newDocTitle.trim(),
+      url: newDocUrl.trim(),
+      type: newDocType,
+    };
+    const updated = [...customDocumentsState, newDoc];
+    setCustomDocumentsState(updated);
+    setNewDocTitle('');
+    setNewDocUrl('');
+  };
+
+  const handleRemoveCustomDocument = (id: string) => {
+    setCustomDocumentsState(customDocumentsState.filter(d => d.id !== id));
+  };
+
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
     const sanitizedPassword = profilePassword.replace(/[^a-zA-Z0-9]/g, '').slice(0, 18);
@@ -242,7 +298,12 @@ export const MerchantPortal: React.FC = () => {
       logoUrl: profileLogoUrl.trim(),
       openingTime: profileOpeningTime || '08:00',
       closingTime: profileClosingTime || '20:00',
-      serviceDays: profileServiceDays.trim() || 'Lunes a Domingo'
+      serviceDays: profileServiceDays.trim() || 'Lunes a Domingo',
+      requiresCustomerFile: requiresCustomerFileState,
+      acceptedFileTypes: acceptedFileTypesState,
+      fileRequirementsInstructions: fileInstructionsState.trim(),
+      catalogPdfUrl: catalogPdfUrlState.trim(),
+      customDocuments: customDocumentsState,
     });
     setIsSavedProfile(true);
     setTimeout(() => setIsSavedProfile(false), 3500);
@@ -1226,6 +1287,222 @@ export const MerchantPortal: React.FC = () => {
                   onChange={(e) => setProfileBankAccount(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-xl border border-emerald-300 bg-white font-mono font-bold text-xs text-slate-900"
                 />
+              </div>
+            </div>
+
+            {/* SECCIÓN 4: REQUERIMIENTOS DE ARCHIVOS DEL CLIENTE */}
+            <div className="p-6 bg-blue-50/70 rounded-2xl border border-blue-200 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h3 className="text-sm font-black text-blue-950 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-blue-700" />
+                    Requerimientos de Archivos del Cliente
+                  </h3>
+                  <p className="text-xs text-blue-900 mt-0.5">
+                    ¿Tu servicio requiere que el cliente te envíe algún archivo (foto de cerradura/llave, documento a imprimir, credencial, etc.)?
+                  </p>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={requiresCustomerFileState}
+                    onChange={(e) => setRequiresCustomerFileState(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {requiresCustomerFileState && (
+                <div className="pt-2 space-y-4 border-t border-blue-200/80 animate-fade-in">
+                  <div>
+                    <label className="block text-xs font-bold text-blue-950 mb-1.5">
+                      Tipos de Archivos Aceptados para este Servicio:
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      {[
+                        { type: 'image', label: '📷 Imagen (JPG/PNG)', desc: 'Fotos de llaves, prendas, etc.' },
+                        { type: 'pdf', label: '📄 PDF', desc: 'Impresiones y trámites' },
+                        { type: 'doc', label: '📝 Word (DOCX)', desc: 'Documentos editables' },
+                        { type: 'excel', label: '📊 Excel (XLSX)', desc: 'Listados y presupuestos' },
+                        { type: 'otro', label: '📎 Otros', desc: 'Archivos generales' },
+                      ].map((item) => {
+                        const isChecked = acceptedFileTypesState.includes(item.type as any);
+                        return (
+                          <button
+                            key={item.type}
+                            type="button"
+                            onClick={() => toggleAcceptedFileType(item.type as any)}
+                            className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                              isChecked
+                                ? 'bg-white border-blue-600 shadow-xs ring-1 ring-blue-500'
+                                : 'bg-blue-100/50 border-blue-200 text-slate-500 hover:bg-white'
+                            }`}
+                          >
+                            <span className="text-xs font-bold text-slate-900">{item.label}</span>
+                            <span className="text-[10px] text-slate-500 mt-0.5">{item.desc}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-blue-950 mb-1">
+                      Instrucciones de archivo para el cliente:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej. Sube una foto clara de tu cerradura o el archivo PDF que deseas imprimir"
+                      value={fileInstructionsState}
+                      onChange={(e) => setFileInstructionsState(e.target.value)}
+                      className="w-full px-3 py-2.5 rounded-xl border border-blue-300 bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400"
+                    />
+                    <span className="text-[10px] text-blue-800 mt-1 block">
+                      * Este mensaje se le mostrará al cliente al añadir tu servicio al carrito y en la confirmación por WhatsApp.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* SECCIÓN 5: CATÁLOGOS, MENÚS O DOCUMENTOS YA HECHOS */}
+            <div className="p-6 bg-purple-50/70 rounded-2xl border border-purple-200 space-y-4">
+              <div>
+                <h3 className="text-sm font-black text-purple-950 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-purple-700" />
+                  Catálogos, Menús o Listas de Precios ya Hechos
+                </h3>
+                <p className="text-xs text-purple-900 mt-0.5">
+                  Comparte tus menús en PDF, catálogos externos o listas de precios para que los clientes en Silao los consulten libremente.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-purple-950 mb-1">
+                  Enlace Directo a Catálogo / Menú Principal (PDF o Web)
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    placeholder="https://ejemplo.com/menu-digital.pdf"
+                    value={catalogPdfUrlState}
+                    onChange={(e) => setCatalogPdfUrlState(e.target.value)}
+                    className="flex-1 px-3 py-2.5 rounded-xl border border-purple-300 bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 font-mono"
+                  />
+                  {catalogPdfUrlState && (
+                    <a
+                      href={catalogPdfUrlState}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                      title="Abrir enlace"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Ver</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Documentos adicionales */}
+              <div className="pt-3 border-t border-purple-200/80 space-y-3">
+                <label className="block text-xs font-bold text-purple-950">
+                  Documentos Adicionales Registrados ({customDocumentsState.length}):
+                </label>
+
+                {customDocumentsState.length > 0 ? (
+                  <div className="space-y-2">
+                    {customDocumentsState.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="p-3 bg-white rounded-xl border border-purple-200 flex items-center justify-between gap-3 text-xs"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="p-2 rounded-lg bg-purple-100 text-purple-800 shrink-0 font-bold text-[10px] uppercase">
+                            {doc.type}
+                          </span>
+                          <div className="truncate">
+                            <strong className="text-slate-900 block truncate">{doc.title}</strong>
+                            <a
+                              href={doc.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[10px] text-purple-700 hover:underline truncate block"
+                            >
+                              {doc.url}
+                            </a>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <a
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 text-slate-500 hover:text-purple-700 hover:bg-purple-50 rounded-lg cursor-pointer"
+                            title="Ver documento"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveCustomDocument(doc.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"
+                            title="Eliminar documento"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-purple-800/80 italic">
+                    No has agregado documentos adicionales. Puedes registrar menús específicos, promociones de temporada o listas de precios abajo:
+                  </p>
+                )}
+
+                {/* Formulario rápido para nuevo documento */}
+                <div className="p-3 bg-purple-100/50 rounded-xl border border-purple-200/70 space-y-2">
+                  <div className="text-[11px] font-bold text-purple-950 flex items-center gap-1.5">
+                    <Plus className="w-3.5 h-3.5 text-purple-700" />
+                    <span>Agregar Nuevo Catálogo / Lista de Precios / Menú:</span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Título (Ej. Menú Ejecutivo / Precios 2026)"
+                      value={newDocTitle}
+                      onChange={(e) => setNewDocTitle(e.target.value)}
+                      className="sm:col-span-5 px-3 py-2 rounded-lg border border-purple-300 bg-white text-xs"
+                    />
+                    <input
+                      type="url"
+                      placeholder="URL o Enlace PDF"
+                      value={newDocUrl}
+                      onChange={(e) => setNewDocUrl(e.target.value)}
+                      className="sm:col-span-4 px-3 py-2 rounded-lg border border-purple-300 bg-white text-xs font-mono"
+                    />
+                    <select
+                      value={newDocType}
+                      onChange={(e) => setNewDocType(e.target.value as any)}
+                      className="sm:col-span-2 px-2 py-2 rounded-lg border border-purple-300 bg-white text-xs"
+                    >
+                      <option value="menu">Menú</option>
+                      <option value="catalogo">Catálogo</option>
+                      <option value="precios">Lista Precios</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                    <button
+                      type="button"
+                      onClick={handleAddCustomDocument}
+                      className="sm:col-span-1 px-3 py-2 bg-purple-700 hover:bg-purple-800 text-white rounded-lg font-bold text-xs flex items-center justify-center cursor-pointer transition-colors"
+                      title="Agregar documento"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
 

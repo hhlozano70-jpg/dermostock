@@ -16,10 +16,16 @@ import {
   Building2,
   PackageCheck,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  Upload,
+  FileText,
+  Paperclip,
+  Sparkles,
+  Plus,
+  Boxes
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
-import { DeliveryType, CartItem } from '../types/inventory';
+import { DeliveryType, CartItem, Product } from '../types/inventory';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
 import { calculateDynamicDeliveryFee } from '../utils/deliveryFee';
 import { 
@@ -37,6 +43,7 @@ export const CartDrawer: React.FC = () => {
     setIsCartOpen, 
     cart, 
     merchants,
+    addToCart,
     updateCartQuantity, 
     removeFromCart, 
     clearCart,
@@ -75,6 +82,21 @@ export const CartDrawer: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'efectivo' | 'transferencia' | 'tarjeta' | 'contra_entrega'>('efectivo');
   const [orderNotes, setOrderNotes] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Estados para Servicio de Traslado / Camioneta de Carga
+  const [freightDetails, setFreightDetails] = useState('');
+  const [needsLoadingHelp, setNeedsLoadingHelp] = useState(false);
+
+  // Estados para Encargo Especial / Fuera de Catálogo
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [customMerchantId, setCustomMerchantId] = useState('');
+  const [customTitle, setCustomTitle] = useState('');
+  const [customDetails, setCustomDetails] = useState('');
+  const [customPriceEst, setCustomPriceEst] = useState('');
+  const [customFile, setCustomFile] = useState<{ name: string; type: string; dataUrl?: string } | null>(null);
+
+  // Archivos adjuntos para ítems del carrito
+  const [itemAttachments, setItemAttachments] = useState<Record<string, { fileName: string; type: string; notes?: string }>>({});
 
   // Group cart items by merchant with operating hours status
   const groupedCartByMerchant = useMemo(() => {
@@ -138,8 +160,66 @@ export const CartDrawer: React.FC = () => {
     });
   }, [groupedCartByMerchant.length, cart, hasColdChainItems]);
 
-  const deliveryFee = deliveryType === 'domicilio' ? deliveryFeeCalc.fee : 0;
+  const freightTransferCost = settings.freightTransferCost || 150;
+  const isLargeVolumeSuggested = totalItemsQuantity >= (settings.largeVolumeThresholdPieces || 20);
+
+  const deliveryFee = deliveryType === 'domicilio' 
+    ? deliveryFeeCalc.fee 
+    : deliveryType === 'traslado_carga'
+      ? freightTransferCost
+      : 0;
   const finalOrderTotal = cartTotal + deliveryFee;
+
+  const handleCreateCustomRequest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customTitle.trim()) {
+      alert('Por favor ingresa qué producto o servicio necesitas solicitar.');
+      return;
+    }
+    const targetMerchant = merchants.find(m => m.id === customMerchantId);
+    const parsedPrice = parseFloat(customPriceEst) || 0;
+
+    const customProduct: Product = {
+      id: `custom-${Date.now()}`,
+      sku: `ENCARGO-${Math.floor(1000 + Math.random() * 9000)}`,
+      name: `[Encargo Especial] ${customTitle.trim()}`,
+      presentation: customDetails.trim() || 'Producto / servicio solicitado fuera de catálogo',
+      brand: targetMerchant ? targetMerchant.name : 'Comercio Local de Silao',
+      category: 'Servicios Personalizados',
+      merchantId: targetMerchant ? targetMerchant.id : (merchants[0]?.id || 'merch-cerrajeria-silao'),
+      merchantName: targetMerchant ? targetMerchant.name : 'Hub Central Silao (Encargo Abierto)',
+      merchantCategory: 'Servicios Personalizados',
+      merchantAddress: targetMerchant?.address || 'Silao Centro',
+      isColdChain: false,
+      commercialPrice: parsedPrice,
+      wholesalePrice: parsedPrice,
+      promoPrice: parsedPrice,
+      stock: 999,
+      minStockAlert: 1,
+      packagingType: 'service',
+      description: customDetails.trim(),
+      isCustomRequest: true,
+      requiresCustomerFile: Boolean(customFile),
+    };
+
+    addToCart(customProduct, 1);
+    if (customFile) {
+      setItemAttachments(prev => ({
+        ...prev,
+        [customProduct.id]: {
+          fileName: customFile.name,
+          type: customFile.type,
+          notes: customDetails.trim(),
+        }
+      }));
+    }
+
+    setCustomTitle('');
+    setCustomDetails('');
+    setCustomPriceEst('');
+    setCustomFile(null);
+    setIsCustomModalOpen(false);
+  };
 
   if (!isCartOpen) return null;
 
@@ -179,12 +259,12 @@ export const CartDrawer: React.FC = () => {
       return;
     }
 
-    if (deliveryType === 'domicilio' && !customerStreet.trim()) {
-      setErrorMsg('Por favor ingresa la calle, número y referencias para la entrega a domicilio en Silao.');
+    if ((deliveryType === 'domicilio' || deliveryType === 'traslado_carga') && !customerStreet.trim()) {
+      setErrorMsg('Por favor ingresa la calle, número y referencias para la entrega o traslado en Silao.');
       return;
     }
 
-    const fullAddress = deliveryType === 'domicilio' 
+    const fullAddress = (deliveryType === 'domicilio' || deliveryType === 'traslado_carga')
       ? `${customerStreet.trim()}, ${selectedColonia}, Silao, Gto.` 
       : undefined;
 
@@ -193,6 +273,16 @@ export const CartDrawer: React.FC = () => {
       : capacityStatus.isSaturated
         ? 'Siguiente Franja Disponible'
         : 'Despacho Inmediato';
+
+    const uploadedFilesArray = Object.entries(itemAttachments).map(([pId, att]) => {
+      const itemFound = cart.find(i => i.product.id === pId);
+      return {
+        itemName: itemFound ? itemFound.product.name : 'Servicio',
+        fileName: att.fileName,
+        type: att.type,
+        notes: att.notes
+      };
+    });
 
     const created = createOrder({
       customerName: customerName.trim(),
@@ -212,6 +302,11 @@ export const CartDrawer: React.FC = () => {
       merchantsCount: groupedCartByMerchant.length,
       merchantsNames: groupedCartByMerchant.map((g) => g.merchantName),
       scheduledTime,
+      isLargeVolumeOrder: isLargeVolumeSuggested || deliveryType === 'traslado_carga',
+      requiresFreightOrTransfer: deliveryType === 'traslado_carga',
+      freightDetails: freightDetails.trim(),
+      freightCost: deliveryType === 'traslado_carga' ? freightTransferCost : 0,
+      customerUploadedFiles: uploadedFilesArray,
     });
 
     if (sendWhatsApp) {
@@ -227,13 +322,32 @@ export const CartDrawer: React.FC = () => {
       groupedCartByMerchant.forEach((g) => {
         merchantsText += `\n🏪 *${g.merchantName}* ${g.isColdChain ? '❄️ [Cadena Fría]' : ''}\n`;
         g.items.forEach((item) => {
-          merchantsText += `   • ${item.quantity}x ${item.product.name} - $${(item.unitPrice * item.quantity).toFixed(2)}\n`;
+          const isCustom = item.product.isCustomRequest ? ' ✨ [ENCARGO ESPECIAL]' : '';
+          merchantsText += `   • ${item.quantity}x ${item.product.name}${isCustom} - $${(item.unitPrice * item.quantity).toFixed(2)}\n`;
         });
       });
 
-      const deliveryInfo = deliveryType === 'domicilio'
-        ? `📍 *Entrega a Domicilio en Silao:*\n   ${fullAddress}`
-        : `🏢 *Punto de Entrega / Recolección en Hub:*\n   ${deliveryPoint.trim() || 'Hub Central Silao - 5 de Mayo #45'}`;
+      let deliveryInfo = '';
+      if (deliveryType === 'traslado_carga') {
+        deliveryInfo = `🚚 *MODALIDAD: SERVICIO DE TRASLADO / CAMIONETA DE CARGA (GRAN VOLUMEN)*\n` +
+          `📍 *Destino en Silao:*\n   ${fullAddress}\n` +
+          (freightDetails ? `📦 *Detalles de Carga:* ${freightDetails.trim()}\n` : '') +
+          (needsLoadingHelp ? `💪 *Requiere chofer de apoyo para maniobra de carga/descarga*\n` : '') +
+          `*Costo Flete Traslado:* $${freightTransferCost.toFixed(2)} MXN`;
+      } else if (deliveryType === 'domicilio') {
+        deliveryInfo = `📍 *Entrega a Domicilio en Silao:*\n   ${fullAddress}\n` +
+          `*Envío Consolidado Hub:* $${deliveryFee.toFixed(2)} MXN (${deliveryFeeCalc.description})`;
+      } else {
+        deliveryInfo = `🏢 *Punto de Entrega / Recolección en Hub:*\n   ${deliveryPoint.trim() || 'Hub Central Silao - 5 de Mayo #45'}\n` +
+          `*Envío:* GRATIS (Recolección en Hub)`;
+      }
+
+      let attachedFilesText = '';
+      if (uploadedFilesArray.length > 0) {
+        attachedFilesText = `\n📎 *ARCHIVOS / DOCUMENTOS SUBIDOS POR EL CLIENTE:*\n` +
+          uploadedFilesArray.map(f => `   • Para: ${f.itemName} -> Archivo: ${f.fileName} (${f.type})`).join('\n') +
+          `\n   *(El cliente enviará el documento/foto por este chat si se requiere reconfirmar)*\n`;
+      }
 
       const message = `🛒 *NUEVO PEDIDO CONSOLIDADO - SILAOMARKET ON LINE (SILAO, GTO)*\n\n` +
         `*Folio:* #${created.id}\n` +
@@ -245,10 +359,12 @@ export const CartDrawer: React.FC = () => {
         `⏱️ *Tiempo de Recolección Previa:* ${collectionLeadTime.hoursFormatted} (${collectionLeadTime.minutes} min antes de entrega)\n` +
         `📋 *Logística Hub Silao:* ${collectionLeadTime.breakdown}\n` +
         (hasColdChainItems ? `❄️ *ATENCIÓN HUB:* Este pedido incluye productos de Cadena Fría (Aguas/Helados/Paletas/Cerveza). Despachar con hielera térmica.\n` : '') +
+        (isLargeVolumeSuggested ? `📦 *AVISO GRAN VOLUMEN:* Pedido de ${totalItemsQuantity} piezas.\n` : '') +
         (orderNotes ? `📝 *Notas del cliente:* ${orderNotes.trim()}\n` : '') +
+        attachedFilesText +
         `\n*DETALLE DE COMPRA:*${merchantsText}\n` +
         `*Subtotal Productos:* $${cartTotal.toFixed(2)} MXN\n` +
-        (deliveryFee > 0 ? `*Costo de Envío Consolidado Hub Silao:* $${deliveryFee.toFixed(2)} MXN (${deliveryFeeCalc.description})\n` : `*Envío:* GRATIS (Recolección en Hub)\n`) +
+        `*Envío / Flete:* $${deliveryFee.toFixed(2)} MXN\n` +
         `*TOTAL A PAGAR (UN SOLO PAGO):* $${finalOrderTotal.toFixed(2)} MXN\n\n` +
         `¿Me confirman de recibido en el Hub Silao para preparar el pedido? ¡Gracias!`;
 
@@ -349,6 +465,31 @@ export const CartDrawer: React.FC = () => {
           {checkoutStep === 'cart' ? (
             cart.length > 0 ? (
               <div className="space-y-4">
+                {/* Alerta de Gran Volumen (si >= 20 piezas) */}
+                {isLargeVolumeSuggested && (
+                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-300 text-xs text-amber-950 flex items-center justify-between gap-2 shadow-2xs">
+                    <div className="flex items-center gap-2">
+                      <Boxes className="w-5 h-5 text-amber-700 shrink-0" />
+                      <div>
+                        <strong>Gran Volumen Detectado ({totalItemsQuantity} piezas):</strong>
+                        <p className="text-[11px] text-amber-900">
+                          Te sugerimos seleccionar el <strong>Servicio de Traslado / Camioneta de Carga</strong> en el siguiente paso para transportar tu pedido de forma segura en Silao.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Botón para Encargo Especial Fuera de Catálogo */}
+                <button
+                  type="button"
+                  onClick={() => setIsCustomModalOpen(true)}
+                  className="w-full p-3 rounded-xl border-2 border-dashed border-emerald-400 bg-emerald-50/70 hover:bg-emerald-100/70 text-emerald-950 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+                >
+                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                  <span>¿No encuentras lo que buscas? Pide un Producto o Servicio por Encargo</span>
+                </button>
+
                 {/* Alerta de Comercios que aún no han abierto */}
                 {merchantsScheduleValidation.hasEarlyMerchants && (
                   <div className="p-3 bg-amber-50 rounded-xl border border-amber-300 text-xs text-amber-950 space-y-1 shadow-2xs">
@@ -425,76 +566,134 @@ export const CartDrawer: React.FC = () => {
 
                     {/* Merchant Items List */}
                     <div className="divide-y divide-slate-100 p-2 space-y-1">
-                      {group.items.map((item) => (
-                        <div key={item.product.id} className="py-2 px-1 flex items-center gap-3">
-                          {/* Thumbnail */}
-                          <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 shrink-0 flex items-center justify-center p-1 overflow-hidden">
-                            {item.product.imageUrl ? (
-                              <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-contain" />
-                            ) : (
-                              <span className="text-[10px] font-bold text-slate-400">Silao</span>
+                      {group.items.map((item) => {
+                        const targetMerchant = merchants.find(m => m.id === item.product.merchantId || m.name === item.product.merchantName);
+                        const requiresFile = item.product.requiresCustomerFile || targetMerchant?.requiresCustomerFile || item.product.isCustomRequest;
+                        const attached = itemAttachments[item.product.id];
+
+                        return (
+                          <div key={item.product.id} className="py-2.5 px-1 space-y-2">
+                            <div className="flex items-center gap-3">
+                              {/* Thumbnail */}
+                              <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 shrink-0 flex items-center justify-center p-1 overflow-hidden">
+                                {item.product.imageUrl ? (
+                                  <img src={item.product.imageUrl} alt={item.product.name} className="w-full h-full object-contain" />
+                                ) : (
+                                  <span className="text-[10px] font-bold text-slate-400">Silao</span>
+                                )}
+                              </div>
+
+                              {/* Info */}
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-xs font-semibold text-slate-900 line-clamp-1">
+                                  {item.product.name}
+                                </h4>
+                                <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                  <span className="text-[11px] font-mono font-bold text-slate-800">
+                                    ${item.unitPrice.toFixed(2)} c/u
+                                  </span>
+                                  {item.isDeclaredOffer && (
+                                    <span className="text-[9px] bg-rose-100 text-rose-800 px-1.5 py-0.2 rounded font-bold">
+                                      🏷️ Oferta
+                                    </span>
+                                  )}
+                                  {item.isWholesaleApplied && (
+                                    <span className="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-bold">
+                                      📦 Mayoreo ({item.quantity} pzas)
+                                    </span>
+                                  )}
+                                  {!item.isDeclaredOffer && !item.isWholesaleApplied && item.minPiecesWholesale && item.quantity < item.minPiecesWholesale && (
+                                    <span className="text-[9px] text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded font-medium">
+                                      💡 Lleva {item.minPiecesWholesale - item.quantity} más para mayoreo (${item.product.wholesalePrice.toFixed(2)})
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Quantity Controls */}
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
+                                  className="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer"
+                                >
+                                  -
+                                </button>
+                                <span className="w-6 text-center text-xs font-mono font-bold text-slate-800">
+                                  {item.quantity}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
+                                  disabled={item.quantity >= item.product.stock}
+                                  className="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center disabled:opacity-40 cursor-pointer"
+                                >
+                                  +
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => removeFromCart(item.product.id)}
+                                  className="p-1 text-slate-300 hover:text-rose-500 rounded transition-colors ml-1 cursor-pointer"
+                                  title="Eliminar producto"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Subida de Archivo si el producto o servicio lo requiere */}
+                            {requiresFile && (
+                              <div className="ml-14 p-2 bg-blue-50/70 rounded-xl border border-blue-200 text-xs space-y-1.5">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="font-bold text-blue-950 text-[11px] flex items-center gap-1">
+                                    <Paperclip className="w-3 h-3 text-blue-600" />
+                                    <span>Requiere archivo / foto del cliente:</span>
+                                  </span>
+                                  {attached && (
+                                    <span className="text-[10px] text-emerald-700 font-bold flex items-center gap-0.5">
+                                      <CheckCircle2 className="w-3 h-3" />
+                                      <span>Adjunto listo</span>
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div className="text-[10px] text-blue-900/90 leading-tight">
+                                  {item.product.fileInstructions || targetMerchant?.fileRequirementsInstructions || 'Sube una foto clara o el documento para realizar este servicio.'}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <label className="px-2.5 py-1 bg-white hover:bg-blue-50 text-blue-800 font-bold rounded-lg border border-blue-300 cursor-pointer text-[10px] flex items-center gap-1 transition-colors">
+                                    <Upload className="w-3 h-3" />
+                                    <span>{attached ? 'Cambiar archivo' : 'Seleccionar foto / documento'}</span>
+                                    <input
+                                      type="file"
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          setItemAttachments(prev => ({
+                                            ...prev,
+                                            [item.product.id]: {
+                                              fileName: file.name,
+                                              type: file.type || 'documento',
+                                            }
+                                          }));
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                  {attached && (
+                                    <span className="text-[11px] text-slate-700 truncate max-w-[170px]" title={attached.fileName}>
+                                      {attached.fileName}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             )}
                           </div>
-
-                          {/* Info */}
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-xs font-semibold text-slate-900 line-clamp-1">
-                              {item.product.name}
-                            </h4>
-                            <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
-                              <span className="text-[11px] font-mono font-bold text-slate-800">
-                                ${item.unitPrice.toFixed(2)} c/u
-                              </span>
-                              {item.isDeclaredOffer && (
-                                <span className="text-[9px] bg-rose-100 text-rose-800 px-1.5 py-0.2 rounded font-bold">
-                                  🏷️ Oferta
-                                </span>
-                              )}
-                              {item.isWholesaleApplied && (
-                                <span className="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-bold">
-                                  📦 Mayoreo ({item.quantity} pzas)
-                                </span>
-                              )}
-                              {!item.isDeclaredOffer && !item.isWholesaleApplied && item.minPiecesWholesale && item.quantity < item.minPiecesWholesale && (
-                                <span className="text-[9px] text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded font-medium">
-                                  💡 Lleva {item.minPiecesWholesale - item.quantity} más para mayoreo (${item.product.wholesalePrice.toFixed(2)})
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Quantity Controls */}
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <button
-                              type="button"
-                              onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
-                              className="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center cursor-pointer"
-                            >
-                              -
-                            </button>
-                            <span className="w-6 text-center text-xs font-mono font-bold text-slate-800">
-                              {item.quantity}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
-                              disabled={item.quantity >= item.product.stock}
-                              className="w-6 h-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center disabled:opacity-40 cursor-pointer"
-                            >
-                              +
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() => removeFromCart(item.product.id)}
-                              className="p-1 text-slate-300 hover:text-rose-500 rounded transition-colors ml-1 cursor-pointer"
-                              title="Eliminar producto"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                   </div>
@@ -594,13 +793,13 @@ export const CartDrawer: React.FC = () => {
               {/* Delivery Type Switcher */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 mb-1.5">
-                  Modalidad de Entrega
+                  Modalidad de Entrega en Silao
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => setDeliveryType('domicilio')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col gap-1 ${
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1 ${
                       deliveryType === 'domicilio'
                         ? 'border-emerald-600 bg-emerald-50 text-emerald-950 ring-1 ring-emerald-600'
                         : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
@@ -608,17 +807,35 @@ export const CartDrawer: React.FC = () => {
                   >
                     <div className="flex items-center gap-1.5 font-bold text-xs">
                       <Truck className="w-4 h-4 text-emerald-600" />
-                      <span>A Domicilio en Silao</span>
+                      <span>A Domicilio</span>
                     </div>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[10px] text-slate-500">
                       Ruta consolidada Hub: <strong className="text-slate-800">${deliveryFeeCalc.fee.toFixed(2)} MXN</strong> ($25 a $40 según comercios y piezas)
                     </span>
                   </button>
 
                   <button
                     type="button"
+                    onClick={() => setDeliveryType('traslado_carga')}
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1 ${
+                      deliveryType === 'traslado_carga'
+                        ? 'border-amber-600 bg-amber-50 text-amber-950 ring-1 ring-amber-600 shadow-xs'
+                        : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-1.5 font-bold text-xs text-amber-950">
+                      <Boxes className="w-4 h-4 text-amber-700" />
+                      <span>Traslado / Camioneta de Carga</span>
+                    </div>
+                    <span className="text-[10px] text-amber-900">
+                      Gran volumen, mudanzas ligeras y mayoreo: <strong className="text-amber-950">${freightTransferCost.toFixed(2)} MXN</strong>
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => setDeliveryType('punto_fijo')}
-                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col gap-1 ${
+                    className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-1 ${
                       deliveryType === 'punto_fijo'
                         ? 'border-emerald-600 bg-emerald-50 text-emerald-950 ring-1 ring-emerald-600'
                         : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
@@ -628,12 +845,45 @@ export const CartDrawer: React.FC = () => {
                       <Building2 className="w-4 h-4 text-blue-600" />
                       <span>Recoger en Hub Silao</span>
                     </div>
-                    <span className="text-[11px] text-slate-500">
-                      Sin costo de envío en 5 de Mayo #45, Centro
+                    <span className="text-[10px] text-slate-500">
+                      Sin costo de envío en 5 de Mayo #45, Silao Centro
                     </span>
                   </button>
                 </div>
               </div>
+
+              {/* Especificaciones adicionales si eligió Traslado / Camioneta de Carga */}
+              {deliveryType === 'traslado_carga' && (
+                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-300 space-y-2.5 animate-fade-in text-xs">
+                  <div className="flex items-center gap-1.5 font-bold text-amber-950 text-xs">
+                    <Boxes className="w-4 h-4 text-amber-700" />
+                    <span>Detalles del Traslado en Camioneta de Carga:</span>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-amber-900 mb-1">
+                      ¿Qué tipo de carga o volumen trasladarás?
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej. Cajas de mayoreo, edredones voluminosos, bultos de comida para mascotas..."
+                      value={freightDetails}
+                      onChange={(e) => setFreightDetails(e.target.value)}
+                      className="w-full px-3 py-2 text-xs border border-amber-300 rounded-lg bg-white"
+                    />
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer pt-1">
+                    <input
+                      type="checkbox"
+                      checked={needsLoadingHelp}
+                      onChange={(e) => setNeedsLoadingHelp(e.target.checked)}
+                      className="rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+                    />
+                    <span className="text-[11px] font-bold text-amber-950">
+                      Requiere apoyo de chofer para maniobra de carga / descarga
+                    </span>
+                  </label>
+                </div>
+              )}
 
               {/* Contact Information */}
               <div className="space-y-3 pt-2">
@@ -667,7 +917,7 @@ export const CartDrawer: React.FC = () => {
                   </div>
                 </div>
 
-                {deliveryType === 'domicilio' ? (
+                {(deliveryType === 'domicilio' || deliveryType === 'traslado_carga') ? (
                   <div className="space-y-2">
                     <div>
                       <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -795,6 +1045,22 @@ export const CartDrawer: React.FC = () => {
                 </div>
               )}
 
+              {checkoutStep === 'checkout' && deliveryType === 'traslado_carga' && (
+                <div className="bg-amber-50/90 p-2.5 rounded-xl border border-amber-300 space-y-1">
+                  <div className="flex justify-between items-center text-amber-950 font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <Boxes className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Flete Traslado / Camioneta de Carga:</span>
+                    </span>
+                    <span className="font-mono font-black text-amber-900 text-sm">${deliveryFee.toFixed(2)} MXN</span>
+                  </div>
+                  <div className="text-[10px] text-amber-800 flex items-center justify-between">
+                    <span>Servicio especial para gran volumen o mudanzas en Silao:</span>
+                    <span className="font-bold">Tarifa Base Flete</span>
+                  </div>
+                </div>
+              )}
+
               {checkoutStep === 'cart' && (
                 <div className="flex justify-between items-center text-[11px] text-slate-600 bg-slate-100/80 px-2.5 py-1.5 rounded-lg border border-slate-200">
                   <span className="flex items-center gap-1.5">
@@ -877,6 +1143,149 @@ export const CartDrawer: React.FC = () => {
         )}
 
       </div>
+
+      {/* MODAL DE ENCARGO ESPECIAL / PEDIDO FUERA DE CATÁLOGO */}
+      {isCustomModalOpen && (
+        <div className="fixed inset-0 z-60 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-5">
+          <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-fade-in flex flex-col max-h-[92vh]">
+            {/* Header */}
+            <div className="p-4 sm:p-5 bg-gradient-to-r from-emerald-900 to-slate-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold">Solicitar Producto o Servicio por Encargo</h3>
+                  <p className="text-xs text-emerald-300">Pide algo que no esté en el catálogo o un servicio a tu medida</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCustomModalOpen(false)}
+                className="p-1.5 text-white/80 hover:text-white rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleCreateCustomRequest} className="p-5 space-y-3.5 overflow-y-auto text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Comercio o Proveedor de Silao:
+                </label>
+                <select
+                  value={customMerchantId}
+                  onChange={(e) => setCustomMerchantId(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs bg-white font-medium"
+                >
+                  <option value="">🏢 Hub Central Silao (Asignar comercio correspondiente)</option>
+                  {merchants.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name} ({m.category})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  ¿Qué producto o trabajo necesitas encargar? *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. Duplicado de llave automotriz codificada Ford / Vestido de fiesta tintorería / Impresión de planos"
+                  value={customTitle}
+                  onChange={(e) => setCustomTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Detalles específicos, especificaciones o medidas:
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Describe color, talla, modelo, número de hojas, material o cualquier detalle para realizarlo exactamente como lo necesitas..."
+                  value={customDetails}
+                  onChange={(e) => setCustomDetails(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Precio Estimado ($ MXN)
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    placeholder="0.00 (o a cotizar)"
+                    value={customPriceEst}
+                    onChange={(e) => setCustomPriceEst(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono font-bold"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-0.5 block">
+                    * Puedes dejar en $0 para cotizar con el encargado en WhatsApp
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Adjuntar Archivo o Foto de Muestra:
+                  </label>
+                  <label className="w-full px-3 py-2 border border-dashed border-emerald-400 rounded-xl bg-emerald-50/50 hover:bg-emerald-100/50 flex items-center justify-center gap-1.5 cursor-pointer text-emerald-900 font-bold transition-colors">
+                    <Upload className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="truncate max-w-[150px]">{customFile ? customFile.name : 'Subir foto o documento'}</span>
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setCustomFile({
+                            name: file.name,
+                            type: file.type || 'archivo',
+                          });
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 space-y-1">
+                <strong>¿Cómo funciona el Encargo Especial?</strong>
+                <p>
+                  Se sumará a tu pedido y viajará en la misma entrega consolidada del Hub Silao. El comercio validará el trabajo o cotización antes de recolectarlo.
+                </p>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setIsCustomModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer shadow-sm flex items-center gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Agregar Encargo a Mi Carrito</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
