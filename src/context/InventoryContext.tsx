@@ -15,7 +15,8 @@ import {
   MerchantSettlement,
   Driver,
   GiroCommissionRate,
-  BROCHURE_COMMISSIONS
+  BROCHURE_COMMISSIONS,
+  RegisteredCustomer
 } from '../types/inventory';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
@@ -116,6 +117,12 @@ interface InventoryContextType {
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
 
+  // Registered Customer Profile & Orders Privacy
+  registeredCustomer: RegisteredCustomer | null;
+  registerCustomer: (customerData: { name: string; phone: string; email?: string; address?: string; colonia?: string }) => RegisteredCustomer;
+  loginCustomer: (phone: string, name?: string) => { success: boolean; customer?: RegisteredCustomer; message?: string };
+  logoutCustomer: () => void;
+
   // Merchant Management
   addMerchant: (merchantData: Omit<Merchant, 'id'>) => string;
   updateMerchant: (id: string, updated: Partial<Merchant>) => void;
@@ -175,6 +182,8 @@ const STORAGE_KEYS = {
   GIROS: 'silaomarket_giros_v4',
   SETTLEMENTS: 'silaomarket_settlements_v4',
   ADMIN_PIN: 'silaomarket_admin_pin_v4',
+  CUSTOMER: 'silaomarket_customer_v1',
+  CUSTOMER_ACCOUNTS: 'silaomarket_customer_accounts_v1',
 };
 
 const SESSION_KEYS = {
@@ -296,6 +305,90 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setAdminPinState(sanitized);
     try {
       localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, sanitized);
+    } catch {}
+  };
+
+  // Registered Customer State & Storage
+  const [registeredCustomer, setRegisteredCustomer] = useState<RegisteredCustomer | null>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.CUSTOMER);
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return null;
+  });
+
+  const registerCustomer = (customerData: { name: string; phone: string; email?: string; address?: string; colonia?: string }): RegisteredCustomer => {
+    const newCust: RegisteredCustomer = {
+      id: `cust-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      name: customerData.name.trim(),
+      phone: customerData.phone.trim(),
+      email: customerData.email?.trim(),
+      address: customerData.address?.trim(),
+      colonia: customerData.colonia?.trim(),
+      registeredAt: new Date().toISOString(),
+    };
+    setRegisteredCustomer(newCust);
+    try {
+      localStorage.setItem(STORAGE_KEYS.CUSTOMER, JSON.stringify(newCust));
+      const accountsRaw = localStorage.getItem(STORAGE_KEYS.CUSTOMER_ACCOUNTS);
+      const accounts: RegisteredCustomer[] = accountsRaw ? JSON.parse(accountsRaw) : [];
+      const cleanPhone = newCust.phone.replace(/\D/g, '').slice(-10);
+      const filtered = accounts.filter(a => a.phone.replace(/\D/g, '').slice(-10) !== cleanPhone);
+      localStorage.setItem(STORAGE_KEYS.CUSTOMER_ACCOUNTS, JSON.stringify([...filtered, newCust]));
+    } catch {}
+    return newCust;
+  };
+
+  const loginCustomer = (phoneInput: string, nameInput?: string): { success: boolean; customer?: RegisteredCustomer; message?: string } => {
+    const clean = phoneInput.replace(/\D/g, '').slice(-10);
+    if (clean.length < 8) {
+      return { success: false, message: 'Por favor ingresa un número de teléfono válido (mínimo 8 a 10 dígitos).' };
+    }
+    try {
+      const accountsRaw = localStorage.getItem(STORAGE_KEYS.CUSTOMER_ACCOUNTS);
+      const accounts: RegisteredCustomer[] = accountsRaw ? JSON.parse(accountsRaw) : [];
+      const found = accounts.find(a => a.phone.replace(/\D/g, '').slice(-10) === clean);
+      if (found) {
+        if (nameInput && nameInput.trim() && nameInput.trim().toLowerCase() !== found.name.toLowerCase()) {
+          found.name = nameInput.trim();
+        }
+        setRegisteredCustomer(found);
+        localStorage.setItem(STORAGE_KEYS.CUSTOMER, JSON.stringify(found));
+        return { success: true, customer: found };
+      }
+
+      // Check if there are past orders placed with this phone number
+      const matchingOrder = orders.find(o => o.customerPhone && o.customerPhone.replace(/\D/g, '').slice(-10) === clean);
+      const resolvedName = nameInput?.trim() || (matchingOrder ? matchingOrder.customerName : 'Cliente Silao');
+      const newProfile: RegisteredCustomer = {
+        id: `cust-${Date.now().toString(36)}`,
+        name: resolvedName,
+        phone: phoneInput.trim(),
+        address: matchingOrder?.customerAddress,
+        colonia: matchingOrder?.deliveryColonia,
+        registeredAt: new Date().toISOString(),
+      };
+      setRegisteredCustomer(newProfile);
+      localStorage.setItem(STORAGE_KEYS.CUSTOMER, JSON.stringify(newProfile));
+      const filtered = accounts.filter(a => a.phone.replace(/\D/g, '').slice(-10) !== clean);
+      localStorage.setItem(STORAGE_KEYS.CUSTOMER_ACCOUNTS, JSON.stringify([...filtered, newProfile]));
+      return { success: true, customer: newProfile };
+    } catch {
+      const fallback: RegisteredCustomer = {
+        id: `cust-${Date.now().toString(36)}`,
+        name: nameInput?.trim() || 'Cliente Silao',
+        phone: phoneInput.trim(),
+        registeredAt: new Date().toISOString(),
+      };
+      setRegisteredCustomer(fallback);
+      return { success: true, customer: fallback };
+    }
+  };
+
+  const logoutCustomer = () => {
+    setRegisteredCustomer(null);
+    try {
+      localStorage.removeItem(STORAGE_KEYS.CUSTOMER);
     } catch {}
   };
 
@@ -1320,6 +1413,26 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     clearCart();
     setLastCompletedOrder(newOrder);
     setActiveTrackingOrder(newOrder);
+
+    // Guardar / asociar perfil del cliente para que pueda consultar sus pedidos de inmediato
+    try {
+      const cleanPhone = newOrder.customerPhone.replace(/\D/g, '').slice(-10);
+      const updatedCust: RegisteredCustomer = {
+        id: registeredCustomer?.id || `cust-${Date.now().toString(36)}`,
+        name: newOrder.customerName.trim(),
+        phone: newOrder.customerPhone.trim(),
+        address: newOrder.customerAddress || registeredCustomer?.address,
+        colonia: newOrder.deliveryColonia || registeredCustomer?.colonia,
+        registeredAt: registeredCustomer?.registeredAt || new Date().toISOString(),
+      };
+      setRegisteredCustomer(updatedCust);
+      localStorage.setItem(STORAGE_KEYS.CUSTOMER, JSON.stringify(updatedCust));
+      const accountsRaw = localStorage.getItem(STORAGE_KEYS.CUSTOMER_ACCOUNTS);
+      const accounts: RegisteredCustomer[] = accountsRaw ? JSON.parse(accountsRaw) : [];
+      const filtered = accounts.filter(a => a.phone.replace(/\D/g, '').slice(-10) !== cleanPhone);
+      localStorage.setItem(STORAGE_KEYS.CUSTOMER_ACCOUNTS, JSON.stringify([...filtered, updatedCust]));
+    } catch {}
+
     return newOrder;
   };
 
@@ -1552,6 +1665,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         assignDriverToOrder,
         updateOrderStatus,
         resetOrdersToInitial,
+        registeredCustomer,
+        registerCustomer,
+        loginCustomer,
+        logoutCustomer,
       }}
     >
       {children}

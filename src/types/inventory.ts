@@ -135,6 +135,16 @@ export interface MerchantSettlement {
 
 export type PriceTier = 'comercial' | 'mayorista' | 'promocion';
 
+export interface RegisteredCustomer {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  address?: string;
+  colonia?: string;
+  registeredAt: string;
+}
+
 export type DeliveryType = 'domicilio' | 'punto_fijo' | 'envio' | 'sucursal' | 'traslado_carga';
 
 export interface Driver {

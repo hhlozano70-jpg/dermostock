@@ -47,7 +47,8 @@ export const Navbar: React.FC = () => {
     setIsAuthModalOpen,
     setIsBrochureModalOpen,
     setIsMerchantManagerOpen,
-    logoutRole
+    logoutRole,
+    registeredCustomer
   } = useInventory();
 
   return (
@@ -276,15 +277,27 @@ export const Navbar: React.FC = () => {
                 )}
               </button>
             ) : (
-              /* Enlace discreto para comercios que deseen iniciar sesión sin saturar la barra del cliente */
-              <button
-                onClick={() => setIsAuthModalOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-medium transition-all shadow-2xs cursor-pointer"
-                title="Acceso para Negocios Afiliados y Administración Central"
-              >
-                <Store className="w-3.5 h-3.5 text-slate-500" />
-                <span className="hidden sm:inline">Acceso Negocios</span>
-              </button>
+              <div className="flex items-center gap-1.5">
+                {registeredCustomer && (
+                  <button
+                    onClick={() => setActiveTab('pedidos')}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                    title={`Cliente: ${registeredCustomer.name} (${registeredCustomer.phone}). Clic para ver tus pedidos.`}
+                  >
+                    <User className="w-3.5 h-3.5 text-emerald-700" />
+                    <span className="hidden sm:inline max-w-[110px] truncate">{registeredCustomer.name.split(' ')[0]}</span>
+                  </button>
+                )}
+                {/* Enlace discreto para comercios que deseen iniciar sesión sin saturar la barra del cliente */}
+                <button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-medium transition-all shadow-2xs cursor-pointer"
+                  title="Acceso para Negocios Afiliados y Administración Central"
+                >
+                  <Store className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="hidden sm:inline">Acceso Negocios</span>
+                </button>
+              </div>
             )}
 
             {/* Logout button if logged as merchant or admin */}

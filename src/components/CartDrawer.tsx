@@ -55,7 +55,8 @@ export const CartDrawer: React.FC = () => {
     orders,
     settings,
     setIsSettingsModalOpen,
-    setIsCustomOrderModalOpen
+    setIsCustomOrderModalOpen,
+    registeredCustomer
   } = useInventory();
 
   // Validación de horario de pedidos del Hub (8:00 AM a 8:00 PM)
@@ -74,15 +75,25 @@ export const CartDrawer: React.FC = () => {
   }, [orders, settings.maxOrdersPerHour]);
 
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'checkout'>('cart');
-  const [customerName, setCustomerName] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [selectedColonia, setSelectedColonia] = useState(SILAO_COLONIAS[0]);
-  const [customerStreet, setCustomerStreet] = useState('');
+  const [customerName, setCustomerName] = useState(() => registeredCustomer?.name || '');
+  const [customerPhone, setCustomerPhone] = useState(() => registeredCustomer?.phone || '');
+  const [selectedColonia, setSelectedColonia] = useState(() => registeredCustomer?.colonia || SILAO_COLONIAS[0]);
+  const [customerStreet, setCustomerStreet] = useState(() => registeredCustomer?.address || '');
   const [deliveryPoint, setDeliveryPoint] = useState(settings.defaultPickupPoint || '');
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('domicilio');
   const [paymentMethod, setPaymentMethod] = useState<'efectivo' | 'transferencia' | 'tarjeta' | 'contra_entrega'>('efectivo');
   const [orderNotes, setOrderNotes] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  // Auto-fill si el cliente inicia sesión o se actualiza
+  useEffect(() => {
+    if (registeredCustomer) {
+      if (!customerName) setCustomerName(registeredCustomer.name);
+      if (!customerPhone) setCustomerPhone(registeredCustomer.phone);
+      if (!customerStreet && registeredCustomer.address) setCustomerStreet(registeredCustomer.address);
+      if (registeredCustomer.colonia) setSelectedColonia(registeredCustomer.colonia);
+    }
+  }, [registeredCustomer]);
 
   // Estados para Servicio de Traslado / Camioneta de Carga
   const [freightDetails, setFreightDetails] = useState('');

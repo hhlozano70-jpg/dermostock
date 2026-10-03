@@ -28,7 +28,10 @@ export const AuthModal: React.FC = () => {
     logoutRole,
     merchants,
     setActiveTab,
-    setIsBrochureModalOpen
+    setIsBrochureModalOpen,
+    registeredCustomer,
+    loginCustomer,
+    logoutCustomer
   } = useInventory();
 
   const [selectedRole, setSelectedRole] = useState<UserRole>(userRole || 'cliente');
@@ -37,6 +40,8 @@ export const AuthModal: React.FC = () => {
   );
   const [merchantPin, setMerchantPin] = useState<string>('');
   const [adminPin, setAdminPin] = useState<string>('');
+  const [clientPhone, setClientPhone] = useState(() => registeredCustomer?.phone || '');
+  const [clientName, setClientName] = useState(() => registeredCustomer?.name || '');
   const [showMerchantPass, setShowMerchantPass] = useState(false);
   const [showAdminPass, setShowAdminPass] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -50,9 +55,16 @@ export const AuthModal: React.FC = () => {
     setSuccessMessage(null);
 
     if (selectedRole === 'cliente') {
+      if (clientPhone.trim()) {
+        const loginRes = loginCustomer(clientPhone.trim(), clientName.trim());
+        if (!loginRes.success) {
+          setErrorMessage(loginRes.message || 'Error en teléfono.');
+          return;
+        }
+      }
       const res = loginRole('cliente');
       if (res.success) {
-        setSuccessMessage('Has iniciado sesión como Cliente.');
+        setSuccessMessage(clientPhone.trim() ? '¡Sesión de Cliente iniciada!' : 'Has entrado como Cliente a la Tienda.');
         setTimeout(() => {
           setIsAuthModalOpen(false);
           setActiveTab('tienda');
@@ -244,20 +256,75 @@ export const AuthModal: React.FC = () => {
 
           {/* Contenido según el Rol Seleccionado */}
           {selectedRole === 'cliente' && (
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
                   🛒
                 </div>
                 <div>
-                  <h4 className="font-bold text-xs text-slate-900">Acceso Libre de Cliente</h4>
-                  <p className="text-xs text-slate-500">Sin contraseñas complicadas. Agrega al carrito y pide a domicilio.</p>
+                  <h4 className="font-bold text-xs text-slate-900">Perfil de Cliente</h4>
+                  <p className="text-xs text-slate-500">
+                    {registeredCustomer 
+                      ? `Identificado como ${registeredCustomer.name} (${registeredCustomer.phone})`
+                      : 'Ingresa tu teléfono para consultar tus pedidos anteriores o comprar.'}
+                  </p>
                 </div>
               </div>
-              <ul className="text-xs text-slate-600 space-y-1 list-disc list-inside">
-                <li>Acceso para ver y comprar productos de todas las tiendas de Silao en un solo carrito consolidado.</li>
-                <li>Tarifa de envío municipal accesible ($25 a $40 dependiendo de tiendas y artículos).</li>
-                <li>Rastreo con código QR y entrega programada de 8:00 AM a 8:00 PM.</li>
+
+              {registeredCustomer ? (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-emerald-950 block">Sesión activa: {registeredCustomer.name}</span>
+                    <span className="text-emerald-800 text-[11px]">Teléfono: {registeredCustomer.phone}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logoutCustomer();
+                      setClientPhone('');
+                      setClientName('');
+                    }}
+                    className="text-red-700 hover:text-red-800 font-bold underline cursor-pointer text-xs"
+                  >
+                    Cerrar Sesión Cliente
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3 pt-1">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Teléfono Celular (WhatsApp)
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="Ej. 472 123 4567"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                    />
+                    <span className="text-[10px] text-slate-500 mt-0.5 block">
+                      Requerido para consultar exclusivamente tus pedidos anteriores en "Mis Pedidos".
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Nombre Completo
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Ej. María López"
+                      value={clientName}
+                      onChange={(e) => setClientName(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <ul className="text-xs text-slate-600 space-y-1 list-disc list-inside pt-1">
+                <li>Tus compras están protegidas: solo tú con tu teléfono puedes ver tus pedidos anteriores.</li>
+                <li>Pide de varios comercios de Silao en un solo carrito y un solo envío.</li>
               </ul>
             </div>
           )}
