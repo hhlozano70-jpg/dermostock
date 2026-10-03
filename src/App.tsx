@@ -81,12 +81,12 @@ const MainContent: React.FC = () => {
       {/* Main View Router with Strict Role Guards */}
       <main className="flex-1 pb-16 md:pb-0">
         {activeTab === 'tienda' && <Storefront />}
-        {activeTab === 'inventario' && <InventoryManager />}
+        {activeTab === 'inventario' && (userRole === 'cliente' ? <Storefront /> : <InventoryManager />)}
         {activeTab === 'mi_negocio' && (userRole === 'cliente' ? <Storefront /> : <MerchantPortal />)}
         {activeTab === 'finanzas' && (userRole === 'admin' ? <FinancialDashboard /> : <Storefront />)}
         {activeTab === 'hub_pedidos' && (userRole === 'admin' ? <HubOrdersManager /> : <Storefront />)}
         {activeTab === 'reportes' && (userRole === 'admin' ? <ReportsDashboard /> : <Storefront />)}
-        {activeTab === 'movimientos' && <MovementsHistory />}
+        {activeTab === 'movimientos' && (userRole === 'cliente' ? <Storefront /> : <MovementsHistory />)}
         {activeTab === 'pedidos' && <OrdersHistory />}
       </main>
 

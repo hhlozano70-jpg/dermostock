@@ -199,8 +199,8 @@ export const Storefront: React.FC = () => {
           <div className="flex flex-col items-center justify-center">
             <div 
               className="relative group cursor-pointer inline-block" 
-              onClick={() => setIsBrochureModalOpen(true)}
-              title="Ver Folleto Oficial de Afiliación"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              title="SILAOMARKET ON LINE · Silao, Gto"
             >
               <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 opacity-30 blur-md group-hover:opacity-60 transition-opacity"></div>
               <img 
