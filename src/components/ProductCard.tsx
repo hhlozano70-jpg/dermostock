@@ -140,6 +140,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
           </div>
 
+          {/* Badges de negocio independiente o que acompaña pedido */}
+          {(merchant?.isPhysicalLocation === false || merchant?.canAccompanyOrders) && (
+            <div className="flex items-center gap-1 mb-1.5 flex-wrap">
+              {merchant?.isPhysicalLocation === false && (
+                <span 
+                  title="Servicio independiente o digital sin mostrador físico en Silao"
+                  className="text-[9px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.2 rounded"
+                >
+                  🏠 Sin local físico
+                </span>
+              )}
+              {merchant?.canAccompanyOrders && (
+                <span 
+                  title="Este producto o trabajo viaja en tu entrega consolidada del Hub"
+                  className="text-[9px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded"
+                >
+                  📦 Acompaña tu pedido
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Product Name */}
           <h3 
             onClick={() => setSelectedProductForQuickView(product)}

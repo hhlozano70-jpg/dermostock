@@ -23,26 +23,33 @@ export interface GiroCommissionRate {
   commission: number; // e.g. 8, 10, 12, 14, 15, 18
   rate: number; // Alias for commission
   type: 'Producto' | 'Servicio';
+  description?: string;
+  canAccompanyOrders?: boolean; // Permite que sus trabajos o productos viajen junto a pedidos del Hub Central
+  isCustom?: boolean; // Creado o editado por el administrador
 }
 
 export const BROCHURE_COMMISSIONS: GiroCommissionRate[] = [
-  { giro: 'Restaurantes y comida preparada', category: 'Restaurantes y comida preparada', commission: 18, rate: 18, type: 'Producto' },
-  { giro: 'Farmacias', category: 'Farmacias', commission: 10, rate: 10, type: 'Producto' },
-  { giro: 'Abarrotes y mini-súper', category: 'Abarrotes y mini-súper', commission: 8, rate: 8, type: 'Producto' },
-  { giro: 'Fruterías y verdulerías', category: 'Fruterías y verdulerías', commission: 9, rate: 9, type: 'Producto' },
-  { giro: 'Botanas y dulcería', category: 'Botanas y dulcería', commission: 12, rate: 12, type: 'Producto' },
-  { giro: 'Ferretería y materiales', category: 'Ferretería y materiales', commission: 10, rate: 10, type: 'Producto' },
-  { giro: 'Tortillerías y panaderías', category: 'Tortillerías y panaderías', commission: 8, rate: 8, type: 'Producto' },
-  { giro: 'Mascotas (alimento y accesorios)', category: 'Mascotas (alimento y accesorios)', commission: 14, rate: 14, type: 'Producto' },
-  { giro: 'Papelería y oficina', category: 'Papelería y oficina', commission: 12, rate: 12, type: 'Producto' },
-  { giro: 'Flores y regalos', category: 'Flores y regalos', commission: 18, rate: 18, type: 'Producto' },
-  { giro: 'Limpieza y hogar', category: 'Limpieza y hogar', commission: 14, rate: 14, type: 'Producto' },
-  { giro: 'Belleza y cuidado personal', category: 'Belleza y cuidado personal', commission: 15, rate: 15, type: 'Producto' },
-  { giro: 'Ropa y calzado', category: 'Ropa y calzado', commission: 15, rate: 15, type: 'Producto' },
-  { giro: 'Limpieza del hogar', category: 'Limpieza del hogar', commission: 18, rate: 18, type: 'Servicio' },
-  { giro: 'Plomería y electricidad', category: 'Plomería y electricidad', commission: 15, rate: 15, type: 'Servicio' },
-  { giro: 'Lavandería', category: 'Lavandería', commission: 15, rate: 15, type: 'Servicio' },
-  { giro: 'Estética a domicilio', category: 'Estética a domicilio', commission: 18, rate: 18, type: 'Servicio' },
+  { giro: 'Impresiones y trámites oficiales', category: 'Impresiones y trámites oficiales', commission: 10, rate: 10, type: 'Servicio', canAccompanyOrders: true, description: 'Copias, impresiones urgentes, actas de nacimiento, CURP, RFC y documentos oficiales que viajan con los pedidos' },
+  { giro: 'Venta de cosas usadas y bazar', category: 'Venta de cosas usadas y bazar', commission: 12, rate: 12, type: 'Producto', canAccompanyOrders: true, description: 'Artículos de segunda mano garantizados, ropa de bazar, antigüedades y oportunidades de ocasión' },
+  { giro: 'Páginas web y aplicaciones', category: 'Páginas web y aplicaciones', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: false, description: 'Desarrollo de sitios web, menús con código QR, tiendas en línea y aplicaciones para negocios locales' },
+  { giro: 'Productos poco comunes y coleccionables', category: 'Productos poco comunes y coleccionables', commission: 14, rate: 14, type: 'Producto', canAccompanyOrders: true, description: 'Artículos raros, piezas descatalogadas, monedas de colección, antigüedades y productos difíciles de conseguir' },
+  { giro: 'Restaurantes y comida preparada', category: 'Restaurantes y comida preparada', commission: 18, rate: 18, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Farmacias', category: 'Farmacias', commission: 10, rate: 10, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Abarrotes y mini-súper', category: 'Abarrotes y mini-súper', commission: 8, rate: 8, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Fruterías y verdulerías', category: 'Fruterías y verdulerías', commission: 9, rate: 9, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Botanas y dulcería', category: 'Botanas y dulcería', commission: 12, rate: 12, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Ferretería y materiales', category: 'Ferretería y materiales', commission: 10, rate: 10, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Tortillerías y panaderías', category: 'Tortillerías y panaderías', commission: 8, rate: 8, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Mascotas (alimento y accesorios)', category: 'Mascotas (alimento y accesorios)', commission: 14, rate: 14, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Papelería y oficina', category: 'Papelería y oficina', commission: 12, rate: 12, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Flores y regalos', category: 'Flores y regalos', commission: 18, rate: 18, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Limpieza y hogar', category: 'Limpieza y hogar', commission: 14, rate: 14, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Belleza y cuidado personal', category: 'Belleza y cuidado personal', commission: 15, rate: 15, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Ropa y calzado', category: 'Ropa y calzado', commission: 15, rate: 15, type: 'Producto', canAccompanyOrders: true },
+  { giro: 'Limpieza del hogar', category: 'Limpieza del hogar', commission: 18, rate: 18, type: 'Servicio', canAccompanyOrders: false },
+  { giro: 'Plomería y electricidad', category: 'Plomería y electricidad', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: false },
+  { giro: 'Lavandería', category: 'Lavandería', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: true },
+  { giro: 'Estética a domicilio', category: 'Estética a domicilio', commission: 18, rate: 18, type: 'Servicio', canAccompanyOrders: false },
 ];
 
 export interface Merchant {
@@ -76,6 +83,12 @@ export interface Merchant {
   closingTime?: string;            // Formato 24h ej. "20:00" (Cierre)
   serviceDays?: string;            // ej. "Lunes a Domingo", "Lunes a Sábado"
   serviceHoursNote?: string;       // Nota opcional ej. "Abre 8:30 AM - Cierra 8:00 PM"
+
+  // Modalidad física vs. Independiente / Sin local físico
+  isPhysicalLocation?: boolean;    // true = Local con mostrador; false = Sin local físico (independiente / trabajo desde casa / digital)
+  canAccompanyOrders?: boolean;    // true = Sus entregas/trabajos pueden viajar junto a pedidos consolidados del Hub Central
+  serviceTypeTag?: string;         // Ej. "Trámites e Impresiones", "Segunda Mano / Bazar", "Digital / Web", "Poco Comunes"
+  customGiroId?: string;
 
   // Opcionales para cada tienda: Mayoreo y Promociones Especiales
   hasWholesale?: boolean;          // Opcional: ¿La tienda ofrece precios a mayoreo?

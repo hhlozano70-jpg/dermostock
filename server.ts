@@ -177,6 +177,7 @@ async function readFirestoreStore() {
       priceTier: config?.priceTier || 'comercial',
       settings: config?.settings || null,
       merchants: config?.merchants || null,
+      giros: config?.giros || null,
       settlements: config?.settlements || [],
       lastUpdated: config?.lastUpdated || new Date().toISOString(),
     };
@@ -194,6 +195,7 @@ async function writeFirestoreStore(data: {
   priceTier?: string;
   settings?: any;
   merchants?: any[];
+  giros?: any[];
   settlements?: any[];
   lastUpdated?: string;
 }) {
@@ -206,6 +208,7 @@ async function writeFirestoreStore(data: {
       priceTier = 'comercial', 
       settings = null, 
       merchants = null,
+      giros = null,
       settlements = [],
       lastUpdated = new Date().toISOString() 
     } = data;
@@ -218,6 +221,7 @@ async function writeFirestoreStore(data: {
       priceTier,
       settings,
       merchants,
+      giros,
       settlements,
       lastUpdated,
     });
@@ -297,7 +301,7 @@ app.get('/api/data', async (_req, res) => {
 
 // POST full synchronized state (called by client on changes)
 app.post('/api/data', async (req, res) => {
-  const { products, movements, orders, priceTier, settings, merchants, settlements } = req.body;
+  const { products, movements, orders, priceTier, settings, merchants, settlements, giros } = req.body;
   if (!products || !Array.isArray(products)) {
     return res.status(400).json({ error: 'Invalid payload: products array required' });
   }
@@ -309,6 +313,7 @@ app.post('/api/data', async (req, res) => {
     priceTier: priceTier || 'comercial',
     settings: settings || null,
     merchants: merchants || [],
+    giros: giros || null,
     settlements: settlements || [],
     lastUpdated: new Date().toISOString(),
   };

@@ -27,7 +27,8 @@ export const Storefront: React.FC = () => {
     openProductModal, 
     openScanner,
     setIsBrochureModalOpen,
-    setIsAuthModalOpen
+    setIsAuthModalOpen,
+    giros
   } = useInventory();
 
   // Filters
@@ -35,19 +36,24 @@ export const Storefront: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [onlyColdChain, setOnlyColdChain] = useState<boolean>(false);
 
-  const categories = [
-    'all',
-    'Supermercados y Ofertas',
-    'Abarrotes y Cremería',
-    'Cadena Fría (Aguas, Paletas, Cervezas)',
-    'Cuidado Personal y Belleza',
-    'Farmacia y Salud',
-    'Ferretería y Tlapalería',
-    'Refaccionaria y Automotriz',
-    'Mascotas y Veterinaria',
-    'Flores y Regalos',
-    'Servicios Personalizados',
-  ];
+  const categories = useMemo(() => {
+    const base = [
+      'all',
+      'Supermercados y Ofertas',
+      'Abarrotes y Cremería',
+      'Cadena Fría (Aguas, Paletas, Cervezas)',
+      'Cuidado Personal y Belleza',
+      'Farmacia y Salud',
+      'Ferretería y Tlapalería',
+      'Refaccionaria y Automotriz',
+      'Mascotas y Veterinaria',
+      'Flores y Regalos',
+      'Servicios Personalizados',
+    ];
+    const customList = (giros || []).map(g => g.giro);
+    const combined = new Set([...base, ...customList]);
+    return Array.from(combined);
+  }, [giros]);
 
   const filteredProducts = useMemo(() => {
     return products.filter((p) => {
@@ -389,6 +395,21 @@ export const Storefront: React.FC = () => {
                     }`}>
                       {schedule.isOpen ? `🟢 Abierto ahora (Cierra ${schedule.closingTime12h})` : `⏰ ${schedule.statusLabel}`}
                     </span>
+                    {selMerchant.isPhysicalLocation === false && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 border border-purple-200">
+                        🏠 Sin local físico · Independiente
+                      </span>
+                    )}
+                    {selMerchant.canAccompanyOrders && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+                        📦 Acompaña pedidos del Hub
+                      </span>
+                    )}
+                    {selMerchant.serviceTypeTag && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200">
+                        🏷️ {selMerchant.serviceTypeTag}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
                     {selMerchant.category} · 📍 {selMerchant.address} ({selMerchant.silaoZone || 'Silao Centro'})

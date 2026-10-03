@@ -13,7 +13,9 @@ import {
   CreateOrderInput,
   UserRole,
   MerchantSettlement,
-  Driver
+  Driver,
+  GiroCommissionRate,
+  BROCHURE_COMMISSIONS
 } from '../types/inventory';
 import { INITIAL_PRODUCTS } from '../data/initialProducts';
 import { INITIAL_ORDERS } from '../data/initialOrders';
@@ -121,6 +123,18 @@ interface InventoryContextType {
   isMerchantManagerOpen: boolean;
   setIsMerchantManagerOpen: (open: boolean) => void;
 
+  // Giros / Categories Management
+  giros: GiroCommissionRate[];
+  addGiro: (giroData: {
+    giro: string;
+    commission: number;
+    type?: 'Producto' | 'Servicio';
+    description?: string;
+    canAccompanyOrders?: boolean;
+  }) => void;
+  updateGiro: (giroName: string, updated: Partial<GiroCommissionRate>) => void;
+  deleteGiro: (giroName: string) => void;
+
   // Financials & Settlements
   settlements: MerchantSettlement[];
   recordSettlement: (
@@ -154,6 +168,7 @@ const STORAGE_KEYS = {
   TIER: 'silaomarket_tier_v4',
   SETTINGS: 'silaomarket_settings_v4',
   MERCHANTS: 'silaomarket_merchants_v4',
+  GIROS: 'silaomarket_giros_v4',
   SETTLEMENTS: 'silaomarket_settlements_v4',
   ADMIN_PIN: 'silaomarket_admin_pin_v4',
 };
@@ -393,19 +408,127 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setActiveTab('tienda');
   };
 
-  // CRUD for Merchants
+  // Giros / Categories State
+  const [giros, setGiros] = useState<GiroCommissionRate[]>(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.GIROS);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const map = new Map<string, GiroCommissionRate>();
+          BROCHURE_COMMISSIONS.forEach(b => map.set(b.giro.toLowerCase(), b));
+          parsed.forEach((p: GiroCommissionRate) => {
+            if (p && p.giro) {
+              const prev = map.get(p.giro.toLowerCase());
+              map.set(p.giro.toLowerCase(), { ...prev, ...p });
+            }
+          });
+          return Array.from(map.values());
+        }
+      }
+    } catch {}
+    return BROCHURE_COMMISSIONS;
+  });
+  const girosRef = React.useRef(giros);
+  girosRef.current = giros;
+
+  const addGiro = (giroData: {
+    giro: string;
+    commission: number;
+    type?: 'Producto' | 'Servicio';
+    description?: string;
+    canAccompanyOrders?: boolean;
+  }) => {
+    const trimmed = giroData.giro.trim();
+    if (!trimmed) return;
+    const comm = Number(giroData.commission) || 10;
+    const newGiro: GiroCommissionRate = {
+      giro: trimmed,
+      category: trimmed,
+      commission: comm,
+      rate: comm,
+      type: giroData.type || 'Producto',
+      description: giroData.description || '',
+      canAccompanyOrders: giroData.canAccompanyOrders !== undefined ? giroData.canAccompanyOrders : (giroData.type === 'Producto'),
+      isCustom: true,
+    };
+
+    setGiros(prev => {
+      const idx = prev.findIndex(g => g.giro.toLowerCase() === trimmed.toLowerCase());
+      let updated: GiroCommissionRate[];
+      if (idx >= 0) {
+        updated = prev.map((g, i) => i === idx ? { ...g, ...newGiro } : g);
+      } else {
+        updated = [newGiro, ...prev];
+      }
+      girosRef.current = updated;
+      try {
+        localStorage.setItem(STORAGE_KEYS.GIROS, JSON.stringify(updated));
+      } catch {}
+      syncToServer(products, movements, orders, priceTier, settingsRef.current, merchantsRef.current, settlementsRef.current, updated);
+      return updated;
+    });
+  };
+
+  const updateGiro = (giroName: string, updatedFields: Partial<GiroCommissionRate>) => {
+    setGiros(prev => {
+      const updatedList = prev.map(g => {
+        if (g.giro.toLowerCase() === giroName.toLowerCase() || g.category?.toLowerCase() === giroName.toLowerCase()) {
+          const comm = updatedFields.commission !== undefined ? Number(updatedFields.commission) : g.commission;
+          return {
+            ...g,
+            ...updatedFields,
+            commission: comm,
+            rate: comm,
+          };
+        }
+        return g;
+      });
+      girosRef.current = updatedList;
+      try {
+        localStorage.setItem(STORAGE_KEYS.GIROS, JSON.stringify(updatedList));
+      } catch {}
+      syncToServer(products, movements, orders, priceTier, settingsRef.current, merchantsRef.current, settlementsRef.current, updatedList);
+      return updatedList;
+    });
+  };
+
+  const deleteGiro = (giroName: string) => {
+    setGiros(prev => {
+      const filtered = prev.filter(g => g.giro.toLowerCase() !== giroName.toLowerCase() && g.category?.toLowerCase() !== giroName.toLowerCase());
+      girosRef.current = filtered;
+      try {
+        localStorage.setItem(STORAGE_KEYS.GIROS, JSON.stringify(filtered));
+      } catch {}
+      syncToServer(products, movements, orders, priceTier, settingsRef.current, merchantsRef.current, settlementsRef.current, filtered);
+      return filtered;
+    });
+  };
+
+  // CRUD for Merchants (Con local físico o independientes / sin local)
   const addMerchant = (merchantData: Omit<Merchant, 'id'>): string => {
     const newId = `merch-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
+    const isPhysical = merchantData.isPhysicalLocation !== undefined ? merchantData.isPhysicalLocation : true;
+    const pass = (merchantData.password || merchantData.pin || '1234').trim();
     const newMerchant: Merchant = {
       ...merchantData,
       id: newId,
       rating: merchantData.rating || 5.0,
       reviewsCount: merchantData.reviewsCount || 1,
-      badge: merchantData.badge || 'Nuevo Comercio Silao',
-      iconName: merchantData.iconName || 'Store',
+      badge: merchantData.badge || (!isPhysical ? 'Servicio Independiente' : 'Nuevo Comercio Silao'),
+      iconName: merchantData.iconName || (!isPhysical ? 'Sparkles' : 'Store'),
       commissionRate: merchantData.commissionRate || 10,
       type: merchantData.type || 'Producto',
-      pin: merchantData.pin || '1234'
+      pin: pass,
+      password: pass,
+      isPhysicalLocation: isPhysical,
+      canAccompanyOrders: !!merchantData.canAccompanyOrders,
+      serviceTypeTag: merchantData.serviceTypeTag || (!isPhysical ? 'Servicio / Independiente' : ''),
+      openingTime: merchantData.openingTime || '08:30',
+      closingTime: merchantData.closingTime || '20:00',
+      serviceDays: merchantData.serviceDays || 'Lunes a Domingo',
+      silaoZone: merchantData.silaoZone || 'Silao Centro',
+      address: merchantData.address || (!isPhysical ? 'Servicio a Domicilio / Digital en Silao (Sin local físico)' : 'Silao Centro, Gto.'),
     };
 
     const updatedList = [...merchants, newMerchant];
@@ -414,18 +537,26 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(updatedList));
     } catch {}
-    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlements);
+    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlementsRef.current, girosRef.current);
     return newId;
   };
 
   const updateMerchant = (id: string, updated: Partial<Merchant>) => {
-    const updatedList = merchants.map(m => m.id === id ? { ...m, ...updated } : m);
+    const updatedList = merchants.map(m => {
+      if (m.id === id) {
+        const merged = { ...m, ...updated };
+        if (updated.password && !updated.pin) merged.pin = updated.password;
+        if (updated.pin && !updated.password) merged.password = updated.pin;
+        return merged;
+      }
+      return m;
+    });
     setMerchants(updatedList);
     merchantsRef.current = updatedList;
     try {
       localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(updatedList));
     } catch {}
-    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlements);
+    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlementsRef.current, girosRef.current);
   };
 
   const deleteMerchant = (id: string) => {
@@ -435,7 +566,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(updatedList));
     } catch {}
-    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlements);
+    syncToServer(products, movements, orders, priceTier, settingsRef.current, updatedList, settlementsRef.current, girosRef.current);
   };
 
   // Financial settlements management
@@ -720,7 +851,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     currentTier: PriceTier,
     currentSettings?: StoreSettings,
     currentMerchants?: Merchant[],
-    currentSettlements?: MerchantSettlement[]
+    currentSettlements?: MerchantSettlement[],
+    currentGiros?: GiroCommissionRate[]
   ) => {
     try {
       setSyncStatus('syncing');
@@ -736,6 +868,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           settings: currentSettings || settingsRef.current,
           merchants: currentMerchants || merchantsRef.current,
           settlements: currentSettlements || settlementsRef.current,
+          giros: currentGiros || girosRef.current,
         }),
       });
       if (res.ok) {
@@ -799,6 +932,13 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
               localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(mergedMerchants));
             } catch {}
           }
+          if (Array.isArray(data.giros) && data.giros.length > 0) {
+            setGiros(data.giros);
+            girosRef.current = data.giros;
+            try {
+              localStorage.setItem(STORAGE_KEYS.GIROS, JSON.stringify(data.giros));
+            } catch {}
+          }
           if (Array.isArray(data.settlements)) {
             setSettlements(data.settlements);
             settlementsRef.current = data.settlements;
@@ -819,7 +959,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         }
       } else if (!isInitialLoadDoneRef.current || (data && Array.isArray(data.products) && data.products.length < INITIAL_PRODUCTS.length)) {
         // Server was empty or has outdated smaller catalog, seed server with current master 500-product state
-        await syncToServer(INITIAL_PRODUCTS, movements, orders, priceTier, settingsRef.current, merchantsRef.current, settlementsRef.current);
+        await syncToServer(INITIAL_PRODUCTS, movements, orders, priceTier, settingsRef.current, merchantsRef.current, settlementsRef.current, girosRef.current);
       }
       setSyncStatus('synced');
     } catch (err) {
@@ -1392,6 +1532,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         deleteMerchant,
         isMerchantManagerOpen,
         setIsMerchantManagerOpen,
+        giros,
+        addGiro,
+        updateGiro,
+        deleteGiro,
         settlements,
         recordSettlement,
         markSettlementPaid,

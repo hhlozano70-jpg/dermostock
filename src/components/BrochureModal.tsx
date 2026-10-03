@@ -21,7 +21,8 @@ import { BROCHURE_COMMISSIONS } from '../types/inventory';
 import { useInventory } from '../context/InventoryContext';
 
 export const BrochureModal: React.FC = () => {
-  const { isBrochureModalOpen, setIsBrochureModalOpen, setIsAuthModalOpen } = useInventory();
+  const { isBrochureModalOpen, setIsBrochureModalOpen, setIsAuthModalOpen, giros } = useInventory();
+  const activeCommissions = giros && giros.length > 0 ? giros : BROCHURE_COMMISSIONS;
   const [activeTab, setActiveTab] = useState<'folleto' | 'comisiones' | 'registro'>('folleto');
   const [registroForm, setRegistroForm] = useState({
     nombreNegocio: '',
@@ -310,7 +311,7 @@ export const BrochureModal: React.FC = () => {
 
                 {/* Grid de Comisiones */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 my-6">
-                  {BROCHURE_COMMISSIONS.map((item, idx) => {
+                  {activeCommissions.map((item, idx) => {
                     const categoryName = item.category || item.giro || 'Giro Comercial';
                     const commissionRate = typeof item.rate === 'number' ? item.rate : (typeof item.commission === 'number' ? item.commission : 10);
                     const itemType = item.type || 'Producto';
@@ -399,7 +400,7 @@ export const BrochureModal: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-medium">
-                    {BROCHURE_COMMISSIONS.map((c, i) => {
+                    {activeCommissions.map((c, i) => {
                       const categoryName = c.category || c.giro || 'Giro Comercial';
                       const rate = typeof c.rate === 'number' ? c.rate : (typeof c.commission === 'number' ? c.commission : 10);
                       const commissionAmount = (100 * rate) / 100;
@@ -500,7 +501,7 @@ export const BrochureModal: React.FC = () => {
                         onChange={e => setRegistroForm({...registroForm, giro: e.target.value})}
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
                       >
-                        {BROCHURE_COMMISSIONS.map((item, i) => {
+                        {activeCommissions.map((item, i) => {
                           const name = item.category || item.giro || 'Giro Comercial';
                           const rate = typeof item.rate === 'number' ? item.rate : (typeof item.commission === 'number' ? item.commission : 10);
                           return (
