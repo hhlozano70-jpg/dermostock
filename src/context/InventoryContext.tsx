@@ -152,6 +152,10 @@ interface InventoryContextType {
   isBrochureModalOpen: boolean;
   setIsBrochureModalOpen: (open: boolean) => void;
 
+  // Custom Order Off-Catalog Modal
+  isCustomOrderModalOpen: boolean;
+  setIsCustomOrderModalOpen: (open: boolean) => void;
+
   // Hub Dispatch & Drivers
   drivers: Driver[];
   assignDriverToOrder: (orderId: string, driverId: string) => boolean;
@@ -627,6 +631,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Cart
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCustomOrderModalOpen, setIsCustomOrderModalOpen] = useState(false);
 
   // Orders (20 pedidos para evaluación operativa)
   const [orders, setOrders] = useState<Order[]>(() => {
@@ -1541,6 +1546,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         markSettlementPaid,
         isBrochureModalOpen,
         setIsBrochureModalOpen,
+        isCustomOrderModalOpen,
+        setIsCustomOrderModalOpen,
         drivers,
         assignDriverToOrder,
         updateOrderStatus,

@@ -22,6 +22,7 @@ import { FinancialDashboard } from './components/FinancialDashboard';
 import { MerchantsManager } from './components/MerchantsManager';
 import { HubOrdersManager } from './components/HubOrdersManager';
 import { InitialAccessGate } from './components/InitialAccessGate';
+import { CustomOrderModal } from './components/CustomOrderModal';
 
 const MainContent: React.FC = () => {
   const { 
@@ -109,6 +110,9 @@ const MainContent: React.FC = () => {
 
       {/* Role Access Control Modal */}
       <AuthModal />
+
+      {/* Custom Order Request Modal */}
+      <CustomOrderModal />
 
       {/* Official 2-Page Business Brochure & Commission Table Modal */}
       <BrochureModal />
