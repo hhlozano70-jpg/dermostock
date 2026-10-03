@@ -3,6 +3,7 @@ import { X, ShoppingBag, Check, ShieldCheck, Truck, Edit3, ExternalLink, Sparkle
 import { useInventory } from '../context/InventoryContext';
 import { ProductVisual } from './ProductVisual';
 import { calculateEffectiveProductPrice } from '../utils/pricing';
+import { checkMerchantOperatingStatus } from '../utils/operatingHours';
 
 export const ProductQuickView: React.FC = () => {
   const { 
@@ -23,6 +24,7 @@ export const ProductQuickView: React.FC = () => {
   const product = selectedProductForQuickView;
 
   const merchant = merchants.find((m) => m.id === product.merchantId);
+  const merchantScheduleStatus = checkMerchantOperatingStatus(merchant);
   const inCart = cart.find((i) => i.product.id === product.id);
   const qtyInCart = inCart ? inCart.quantity : 0;
   const maxAvailableToAdd = Math.max(0, product.stock - qtyInCart);
@@ -94,12 +96,28 @@ export const ProductQuickView: React.FC = () => {
                 <span>{product.merchantName || 'Comercio Silao'}</span>
               </span>
 
-              {product.isColdChain && (
-                <span className="text-xs font-bold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded-full border border-cyan-300 flex items-center gap-1">
-                  <span>❄️</span>
-                  <span>Cadena Fría</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {/* Operating hours pill */}
+                <span 
+                  title={`Horario de servicio: ${merchantScheduleStatus.scheduleText}`}
+                  className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
+                    merchantScheduleStatus.isOpen
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : merchantScheduleStatus.isBeforeOpening
+                      ? 'bg-amber-100 text-amber-900 border-amber-300 font-extrabold'
+                      : 'bg-slate-100 text-slate-600 border-slate-200'
+                  }`}
+                >
+                  🕒 {merchantScheduleStatus.scheduleText} · {merchantScheduleStatus.statusLabel}
                 </span>
-              )}
+
+                {product.isColdChain && (
+                  <span className="text-xs font-bold bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded-full border border-cyan-300 flex items-center gap-1">
+                    <span>❄️</span>
+                    <span>Cadena Fría</span>
+                  </span>
+                )}
+              </div>
             </div>
             
             <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">

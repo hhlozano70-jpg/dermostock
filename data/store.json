@@ -14386,7 +14386,10 @@
       "pin": "1234",
       "bankAccount": "BBVA CLABE 012215000000001450",
       "ownerName": "Don José Providencia",
-      "email": "providencia.silao@gmail.com"
+      "email": "providencia.silao@gmail.com",
+      "openingTime": "07:30",
+      "closingTime": "21:00",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-cadena-fria",
@@ -14406,7 +14409,10 @@
       "pin": "1234",
       "bankAccount": "Santander CLABE 014215000000005512",
       "ownerName": "María Luisa Michoacana",
-      "email": "michoacana.silao@gmail.com"
+      "email": "michoacana.silao@gmail.com",
+      "openingTime": "10:30",
+      "closingTime": "21:00",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-cerveceria",
@@ -14426,7 +14432,10 @@
       "pin": "1234",
       "bankAccount": "Banorte CLABE 072215000000008800",
       "ownerName": "Carlos El Bajío",
-      "email": "cerveceria.bajio.silao@gmail.com"
+      "email": "cerveceria.bajio.silao@gmail.com",
+      "openingTime": "11:00",
+      "closingTime": "22:00",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-refacciones",
@@ -14446,7 +14455,10 @@
       "pin": "1234",
       "bankAccount": "Citibanamex CLABE 002215000000003890",
       "ownerName": "Manuel El Güero",
-      "email": "refacciones.guero.silao@gmail.com"
+      "email": "refacciones.guero.silao@gmail.com",
+      "openingTime": "08:30",
+      "closingTime": "19:30",
+      "serviceDays": "Lunes a Sábado"
     },
     {
       "id": "merch-farmacia",
@@ -14466,7 +14478,10 @@
       "pin": "1234",
       "bankAccount": "BBVA CLABE 012215000000000941",
       "ownerName": "Lic. Farmacéutico Juan",
-      "email": "farmacia.sanjuan.silao@gmail.com"
+      "email": "farmacia.sanjuan.silao@gmail.com",
+      "openingTime": "08:00",
+      "closingTime": "22:00",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-ferreteria",
@@ -14486,7 +14501,10 @@
       "pin": "1234",
       "bankAccount": "HSBC CLABE 021215000000006723",
       "ownerName": "Ing. Roberto Tornillo",
-      "email": "ferreteria.tornillo.silao@gmail.com"
+      "email": "ferreteria.tornillo.silao@gmail.com",
+      "openingTime": "08:30",
+      "closingTime": "19:00",
+      "serviceDays": "Lunes a Sábado"
     },
     {
       "id": "merch-mascotas",
@@ -14506,7 +14524,10 @@
       "pin": "1234",
       "bankAccount": "Santander CLABE 014215000000009901",
       "ownerName": "Dra. Andrea Huellitas",
-      "email": "huellitas.silao@gmail.com"
+      "email": "huellitas.silao@gmail.com",
+      "openingTime": "09:00",
+      "closingTime": "20:00",
+      "serviceDays": "Lunes a Sábado"
     },
     {
       "id": "merch-flores",
@@ -14526,7 +14547,10 @@
       "pin": "1234",
       "bankAccount": "BanCoppel CLABE 137215000000004418",
       "ownerName": "Rosa Elena Flores",
-      "email": "rosadeoro.silao@gmail.com"
+      "email": "rosadeoro.silao@gmail.com",
+      "openingTime": "09:00",
+      "closingTime": "20:00",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-servicios",
@@ -14546,7 +14570,10 @@
       "pin": "1234",
       "bankAccount": "BBVA CLABE 012215000000001122",
       "ownerName": "Maestro Cerrajerías Exprés",
-      "email": "servicios.expres.silao@gmail.com"
+      "email": "servicios.expres.silao@gmail.com",
+      "openingTime": "09:00",
+      "closingTime": "19:00",
+      "serviceDays": "Lunes a Sábado"
     },
     {
       "id": "merch-maret-silao",
@@ -14566,7 +14593,10 @@
       "pin": "1234",
       "bankAccount": "BBVA CLABE 012215000000007788",
       "ownerName": "MARET SILAO Central",
-      "email": "contacto@maretsilao.com"
+      "email": "contacto@maretsilao.com",
+      "openingTime": "09:00",
+      "closingTime": "20:30",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-aurrera-silao",
@@ -14589,7 +14619,10 @@
       "ownerName": "Bodega Aurrera Silao (Plaza La Joya)",
       "email": "aurrera.silao@silaomarket.com",
       "websiteUrl": "https://despensa.bodegaaurrera.com.mx/",
-      "brochureUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital"
+      "brochureUrl": "https://despensa.bodegaaurrera.com.mx/c/folleto-digital",
+      "openingTime": "07:00",
+      "closingTime": "22:00",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-soriana-silao",
@@ -14612,7 +14645,10 @@
       "ownerName": "Soriana Silao Centro",
       "email": "soriana.silao@silaomarket.com",
       "websiteUrl": "https://www.soriana.com/",
-      "brochureUrl": "https://www.soriana.com/folleto-digital.html"
+      "brochureUrl": "https://www.soriana.com/folleto-digital.html",
+      "openingTime": "07:00",
+      "closingTime": "22:00",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-tiendas-3b",
@@ -14634,7 +14670,10 @@
       "ownerName": "Tiendas 3B Silao Centro",
       "email": "tiendas3b.silao@silaomarket.com",
       "websiteUrl": "https://tiendas3b.com/",
-      "brochureUrl": "https://tiendas3b.com/productos/"
+      "brochureUrl": "https://tiendas3b.com/productos/",
+      "openingTime": "08:00",
+      "closingTime": "21:00",
+      "serviceDays": "Lunes a Domingo"
     },
     {
       "id": "merch-super-bara",
@@ -14656,7 +14695,10 @@
       "ownerName": "Super Bara Silao Sopeña",
       "email": "superbara.silao@silaomarket.com",
       "websiteUrl": "https://bara.com.mx/",
-      "brochureUrl": "https://bara.com.mx/promociones"
+      "brochureUrl": "https://bara.com.mx/promociones",
+      "openingTime": "07:30",
+      "closingTime": "21:30",
+      "serviceDays": "Lunes a Domingo"
     }
   ],
   "settlements": [],

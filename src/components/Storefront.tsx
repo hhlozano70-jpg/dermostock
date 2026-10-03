@@ -7,13 +7,16 @@ import {
   Plus, 
   Scan,
   FileText,
-  Building2
+  Building2,
+  Clock,
+  AlertTriangle
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
 import { SilaoLandmarksShowcase } from './SilaoLandmarksShowcase';
 import { SupermarketOffersSection } from './SupermarketOffersSection';
+import { checkMerchantOperatingStatus } from '../utils/operatingHours';
 
 export const Storefront: React.FC = () => {
   const { 
@@ -306,6 +309,8 @@ export const Storefront: React.FC = () => {
                   ? '🔑' 
                   : '🧀';
 
+                const schedule = checkMerchantOperatingStatus(m);
+
                 return (
                   <button
                     key={m.id}
@@ -332,9 +337,22 @@ export const Storefront: React.FC = () => {
                       )}
                       <div className="truncate">
                         <strong className="text-xs block truncate">{isMaret ? 'MARET SILAO' : m.name}</strong>
-                        <span className={`text-[10px] block truncate ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
-                          {merchantItemCount} arts
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className={`text-[10px] block truncate ${isSelected ? 'text-white/80' : 'text-slate-400'}`}>
+                            {merchantItemCount} arts
+                          </span>
+                          <span className={`text-[9px] px-1 rounded ${
+                            isSelected 
+                              ? 'bg-white/20 text-white' 
+                              : schedule.isOpen 
+                              ? 'text-emerald-700 bg-emerald-50' 
+                              : schedule.isBeforeOpening 
+                              ? 'text-amber-700 bg-amber-50 font-bold' 
+                              : 'text-slate-500 bg-slate-100'
+                          }`}>
+                            {schedule.isOpen ? 'Abierto' : `Abre ${schedule.openingTime12h}`}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </button>
@@ -343,6 +361,62 @@ export const Storefront: React.FC = () => {
             </div>
           </div>
         </section>
+
+        {/* Selected Merchant Details Header Banner */}
+        {selectedMerchantId !== 'all' && (() => {
+          const selMerchant = merchants.find(m => m.id === selectedMerchantId);
+          if (!selMerchant) return null;
+          const schedule = checkMerchantOperatingStatus(selMerchant);
+          return (
+            <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4 animate-fade-in">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
+                  {selMerchant.logoUrl ? (
+                    <img src={selMerchant.logoUrl} alt={selMerchant.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-2xl">🏪</span>
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-base font-bold text-slate-900">{selMerchant.name}</h3>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      schedule.isOpen 
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                        : schedule.isBeforeOpening 
+                        ? 'bg-amber-100 text-amber-900 border-amber-300 font-extrabold' 
+                        : 'bg-slate-100 text-slate-700 border-slate-200'
+                    }`}>
+                      {schedule.isOpen ? `🟢 Abierto ahora (Cierra ${schedule.closingTime12h})` : `⏰ ${schedule.statusLabel}`}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {selMerchant.category} · 📍 {selMerchant.address} ({selMerchant.silaoZone || 'Silao Centro'})
+                  </p>
+                </div>
+              </div>
+
+              {/* Horario de Servicio Oficial */}
+              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs shrink-0 space-y-1 w-full md:w-auto">
+                <div className="flex items-center gap-1.5 font-bold text-slate-800">
+                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Horario de Servicio:</span>
+                  <span className="font-mono text-emerald-900 bg-white px-2 py-0.5 rounded border border-slate-200 font-bold">
+                    {schedule.scheduleText}
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-500 flex items-center justify-between gap-3">
+                  <span>Días: <strong>{selMerchant.serviceDays || 'Lunes a Domingo'}</strong></span>
+                  {schedule.isBeforeOpening && (
+                    <span className="text-amber-800 font-bold bg-amber-100 px-1.5 py-0.2 rounded border border-amber-300">
+                      Restricción: Abre a las {schedule.openingTime12h}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* SECTION: Catalog Results */}
         <section className="space-y-4">

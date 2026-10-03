@@ -291,11 +291,19 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const stored = localStorage.getItem(STORAGE_KEYS.MERCHANTS);
       if (stored) {
         const parsed: Merchant[] = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length >= SILAO_MERCHANTS.length) return parsed;
         if (Array.isArray(parsed)) {
           const existingIds = new Set(parsed.map(m => m.id));
           const missing = SILAO_MERCHANTS.filter(m => !existingIds.has(m.id));
-          const merged = [...parsed, ...missing];
+          const merged = [...parsed, ...missing].map(m => {
+            const def = SILAO_MERCHANTS.find(s => s.id === m.id);
+            return {
+              ...def,
+              ...m,
+              openingTime: m.openingTime || def?.openingTime || '08:00',
+              closingTime: m.closingTime || def?.closingTime || '20:00',
+              serviceDays: m.serviceDays || def?.serviceDays || 'Lunes a Domingo',
+            };
+          });
           try {
             localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(merged));
           } catch {}
@@ -775,10 +783,20 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             } catch {}
           }
           if (Array.isArray(data.merchants) && data.merchants.length > 0) {
-            setMerchants(data.merchants);
-            merchantsRef.current = data.merchants;
+            const mergedMerchants = data.merchants.map((m: any) => {
+              const def = SILAO_MERCHANTS.find(s => s.id === m.id);
+              return {
+                ...def,
+                ...m,
+                openingTime: m.openingTime || def?.openingTime || '08:00',
+                closingTime: m.closingTime || def?.closingTime || '20:00',
+                serviceDays: m.serviceDays || def?.serviceDays || 'Lunes a Domingo',
+              };
+            });
+            setMerchants(mergedMerchants);
+            merchantsRef.current = mergedMerchants;
             try {
-              localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(data.merchants));
+              localStorage.setItem(STORAGE_KEYS.MERCHANTS, JSON.stringify(mergedMerchants));
             } catch {}
           }
           if (Array.isArray(data.settlements)) {

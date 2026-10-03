@@ -1,4 +1,4 @@
-import { Order, StoreSettings } from '../types/inventory';
+import { Order, StoreSettings, Merchant, CartItem } from '../types/inventory';
 
 export interface OperatingHoursStatus {
   isOpen: boolean;
@@ -7,6 +7,233 @@ export interface OperatingHoursStatus {
   message: string;
   formattedRange: string;
   nextOpenTimeStr: string;
+}
+
+/**
+ * Formatea una hora en formato HH:mm (24h) a formato legible 12h (ej. "8:30 AM", "1:00 PM").
+ */
+export function formatTime12h(timeStr?: string): string {
+  if (!timeStr) return '8:00 AM';
+  const parts = timeStr.split(':');
+  const h = parseInt(parts[0] || '8', 10);
+  const m = parseInt(parts[1] || '0', 10);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  const mStr = m.toString().padStart(2, '0');
+  return `${h12}:${mStr} ${period}`;
+}
+
+export interface MerchantOperatingStatus {
+  isOpen: boolean;
+  isBeforeOpening: boolean;
+  isAfterClosing: boolean;
+  openingTime: string;
+  closingTime: string;
+  openingTime12h: string;
+  closingTime12h: string;
+  scheduleText: string;
+  statusLabel: string;
+  statusColor: 'green' | 'amber' | 'slate';
+  minutesUntilOpening: number;
+}
+
+/**
+ * Evalúa el horario de servicio específico de un negocio individual.
+ */
+export function checkMerchantOperatingStatus(
+  merchant?: Partial<Merchant> | null,
+  customNow?: Date
+): MerchantOperatingStatus {
+  const openingTime = merchant?.openingTime || '08:00';
+  const closingTime = merchant?.closingTime || '20:00';
+
+  const [openH, openM] = openingTime.split(':').map(Number);
+  const [closeH, closeM] = closingTime.split(':').map(Number);
+
+  const now = customNow || new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const openMinutes = (openH || 8) * 60 + (openM || 0);
+  const closeMinutes = (closeH || 20) * 60 + (closeM || 0);
+
+  const isBeforeOpening = currentMinutes < openMinutes;
+  const isAfterClosing = currentMinutes >= closeMinutes;
+  const isOpen = !isBeforeOpening && !isAfterClosing;
+
+  const openingTime12h = formatTime12h(openingTime);
+  const closingTime12h = formatTime12h(closingTime);
+  const scheduleText = `${openingTime12h} - ${closingTime12h}`;
+
+  let statusLabel = 'Abierto';
+  let statusColor: 'green' | 'amber' | 'slate' = 'green';
+  let minutesUntilOpening = 0;
+
+  if (isBeforeOpening) {
+    statusLabel = `Aún no abre · Abre ${openingTime12h}`;
+    statusColor = 'amber';
+    minutesUntilOpening = openMinutes - currentMinutes;
+  } else if (isAfterClosing) {
+    statusLabel = `Cerrado · Abre mañana ${openingTime12h}`;
+    statusColor = 'slate';
+  } else {
+    statusLabel = `Abierto hasta ${closingTime12h}`;
+    statusColor = 'green';
+  }
+
+  return {
+    isOpen,
+    isBeforeOpening,
+    isAfterClosing,
+    openingTime,
+    closingTime,
+    openingTime12h,
+    closingTime12h,
+    scheduleText,
+    statusLabel,
+    statusColor,
+    minutesUntilOpening,
+  };
+}
+
+export interface EarlyOrClosedMerchantDetail {
+  merchantId: string;
+  merchantName: string;
+  isBeforeOpening: boolean;
+  isAfterClosing: boolean;
+  openingTime: string;
+  closingTime: string;
+  openingTime12h: string;
+  closingTime12h: string;
+  minutesUntilOpening: number;
+  itemsCount: number;
+  productNames: string[];
+}
+
+export interface CartMerchantsScheduleValidation {
+  canProceedToCheckout: boolean;
+  hasEarlyMerchants: boolean;
+  hasClosedMerchants: boolean;
+  earlyMerchants: EarlyOrClosedMerchantDetail[];
+  closedMerchants: EarlyOrClosedMerchantDetail[];
+  latestOpeningTime12h: string;
+  restrictionReason?: string;
+}
+
+/**
+ * Valida si todos los negocios involucrados en el carrito están actualmente abiertos
+ * y coloca la restricción si el pedido se intenta realizar tan temprano cuando algún comercio aún no abre.
+ */
+export function validateCartMerchantsSchedule(
+  cart: CartItem[],
+  merchants: Merchant[],
+  customNow?: Date
+): CartMerchantsScheduleValidation {
+  if (!cart || cart.length === 0) {
+    return {
+      canProceedToCheckout: true,
+      hasEarlyMerchants: false,
+      hasClosedMerchants: false,
+      earlyMerchants: [],
+      closedMerchants: [],
+      latestOpeningTime12h: '8:00 AM',
+    };
+  }
+
+  // Agrupar items por comercio
+  const merchantMap = new Map<string, { merchant: Merchant; items: CartItem[] }>();
+
+  cart.forEach(item => {
+    const mId = item.product.merchantId || item.product.merchantName;
+    if (!merchantMap.has(mId)) {
+      const found = merchants.find(m => m.id === item.product.merchantId || m.name === item.product.merchantName);
+      const fallbackMerchant: Merchant = found || {
+        id: item.product.merchantId || 'm-gen',
+        name: item.product.merchantName || 'Comercio Silao',
+        category: item.product.merchantCategory || 'Comercio Local',
+        address: item.product.merchantAddress || 'Silao, Gto.',
+        silaoZone: 'Silao Centro',
+        rating: 4.8,
+        reviewsCount: 10,
+        badge: 'Local',
+        iconName: 'Store',
+        description: '',
+        openingTime: '08:00',
+        closingTime: '20:00',
+      };
+      merchantMap.set(mId, { merchant: fallbackMerchant, items: [] });
+    }
+    merchantMap.get(mId)!.items.push(item);
+  });
+
+  const earlyMerchants: EarlyOrClosedMerchantDetail[] = [];
+  const closedMerchants: EarlyOrClosedMerchantDetail[] = [];
+  let latestOpenMinutes = 0;
+  let latestOpeningTimeStr = '08:00';
+
+  merchantMap.forEach(({ merchant, items }) => {
+    const status = checkMerchantOperatingStatus(merchant, customNow);
+    const itemsCount = items.reduce((acc, i) => acc + i.quantity, 0);
+    const productNames = items.map(i => i.product.name);
+
+    const [h, m] = status.openingTime.split(':').map(Number);
+    const openMin = (h || 8) * 60 + (m || 0);
+    if (openMin > latestOpenMinutes) {
+      latestOpenMinutes = openMin;
+      latestOpeningTimeStr = status.openingTime;
+    }
+
+    if (status.isBeforeOpening) {
+      earlyMerchants.push({
+        merchantId: merchant.id,
+        merchantName: merchant.name,
+        isBeforeOpening: true,
+        isAfterClosing: false,
+        openingTime: status.openingTime,
+        closingTime: status.closingTime,
+        openingTime12h: status.openingTime12h,
+        closingTime12h: status.closingTime12h,
+        minutesUntilOpening: status.minutesUntilOpening,
+        itemsCount,
+        productNames,
+      });
+    } else if (status.isAfterClosing) {
+      closedMerchants.push({
+        merchantId: merchant.id,
+        merchantName: merchant.name,
+        isBeforeOpening: false,
+        isAfterClosing: true,
+        openingTime: status.openingTime,
+        closingTime: status.closingTime,
+        openingTime12h: status.openingTime12h,
+        closingTime12h: status.closingTime12h,
+        minutesUntilOpening: 0,
+        itemsCount,
+        productNames,
+      });
+    }
+  });
+
+  const hasEarlyMerchants = earlyMerchants.length > 0;
+  const hasClosedMerchants = closedMerchants.length > 0;
+  const canProceedToCheckout = !hasEarlyMerchants && !hasClosedMerchants;
+
+  let restrictionReason = '';
+  if (hasEarlyMerchants) {
+    const names = earlyMerchants.map(m => `"${m.merchantName}" (abre a las ${m.openingTime12h})`).join(', ');
+    restrictionReason = `Restricción de horario: No se pueden solicitar pedidos tan temprano a ${names} porque el negocio aún no ha abierto sus puertas. Espera a su horario de apertura (${formatTime12h(latestOpeningTimeStr)}) o retira sus productos del carrito.`;
+  } else if (hasClosedMerchants) {
+    const names = closedMerchants.map(m => `"${m.merchantName}"`).join(', ');
+    restrictionReason = `Restricción de horario: ${names} ya cerró por el día de hoy.`;
+  }
+
+  return {
+    canProceedToCheckout,
+    hasEarlyMerchants,
+    hasClosedMerchants,
+    earlyMerchants,
+    closedMerchants,
+    latestOpeningTime12h: formatTime12h(latestOpeningTimeStr),
+    restrictionReason,
+  };
 }
 
 export interface HourCapacityStatus {

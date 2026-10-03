@@ -4,6 +4,7 @@ import { Product } from '../types/inventory';
 import { useInventory } from '../context/InventoryContext';
 import { ProductVisual } from './ProductVisual';
 import { calculateEffectiveProductPrice } from '../utils/pricing';
+import { checkMerchantOperatingStatus } from '../utils/operatingHours';
 
 interface ProductCardProps {
   product: Product;
@@ -30,6 +31,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   // Merchant lookup and pricing calculation
   const merchant = merchants.find((m) => m.id === product.merchantId);
+  const merchantScheduleStatus = checkMerchantOperatingStatus(merchant);
   const effectivePricing = calculateEffectiveProductPrice(
     product, 
     merchant, 
@@ -103,11 +105,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       {/* Product Content & Details */}
       <div className="p-4 flex flex-col flex-1 justify-between">
         <div>
-          {/* Merchant tag */}
-          <div className="flex items-center justify-between gap-1 mb-1.5">
+          {/* Merchant tag and operating schedule */}
+          <div className="flex items-center justify-between gap-1 mb-1.5 flex-wrap">
             <span 
-              className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md truncate max-w-[200px] flex items-center gap-1.5"
-              title={product.merchantName}
+              className="text-[11px] font-semibold text-emerald-800 bg-emerald-50 border border-emerald-100 px-2 py-0.5 rounded-md truncate max-w-[190px] flex items-center gap-1.5"
+              title={`${product.merchantName} · Horario: ${merchantScheduleStatus.scheduleText}`}
             >
               {merchant?.logoUrl ? (
                 <img 
@@ -120,8 +122,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               )}
               <span className="truncate">{product.merchantName || 'Comercio Silao'}</span>
             </span>
-            <span className="text-[10px] text-slate-400 font-mono">
-              Stock: {product.stock}
+
+            {/* Operating status badge */}
+            <span 
+              title={`Horario de atención: ${merchantScheduleStatus.scheduleText}`}
+              className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${
+                merchantScheduleStatus.isOpen
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : merchantScheduleStatus.isBeforeOpening
+                  ? 'bg-amber-100 text-amber-900 border-amber-300 font-extrabold'
+                  : 'bg-slate-100 text-slate-600 border-slate-200'
+              }`}
+            >
+              {merchantScheduleStatus.isOpen 
+                ? `Abierto · Cierra ${merchantScheduleStatus.closingTime12h}` 
+                : `Abre ${merchantScheduleStatus.openingTime12h}`}
             </span>
           </div>
 

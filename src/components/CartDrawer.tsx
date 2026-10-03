@@ -22,7 +22,13 @@ import { useInventory } from '../context/InventoryContext';
 import { DeliveryType, CartItem } from '../types/inventory';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
 import { calculateDynamicDeliveryFee } from '../utils/deliveryFee';
-import { checkOperatingHours, checkHourCapacity } from '../utils/operatingHours';
+import { 
+  checkOperatingHours, 
+  checkHourCapacity, 
+  validateCartMerchantsSchedule, 
+  checkMerchantOperatingStatus,
+  MerchantOperatingStatus 
+} from '../utils/operatingHours';
 import { calculateCollectionLeadTime } from '../utils/collectionTime';
 
 export const CartDrawer: React.FC = () => {
@@ -30,6 +36,7 @@ export const CartDrawer: React.FC = () => {
     isCartOpen, 
     setIsCartOpen, 
     cart, 
+    merchants,
     updateCartQuantity, 
     removeFromCart, 
     clearCart,
@@ -43,10 +50,15 @@ export const CartDrawer: React.FC = () => {
     setIsSettingsModalOpen
   } = useInventory();
 
-  // Validación de horario de pedidos (8:00 AM a 8:00 PM)
+  // Validación de horario de pedidos del Hub (8:00 AM a 8:00 PM)
   const operatingHours = useMemo(() => {
     return checkOperatingHours(settings);
   }, [settings]);
+
+  // Validación de horarios de servicio específicos de cada comercio en el carrito (restricción por apertura)
+  const merchantsScheduleValidation = useMemo(() => {
+    return validateCartMerchantsSchedule(cart, merchants);
+  }, [cart, merchants]);
 
   // Validación de capacidad anti-saturación
   const capacityStatus = useMemo(() => {
@@ -64,31 +76,43 @@ export const CartDrawer: React.FC = () => {
   const [orderNotes, setOrderNotes] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Group cart items by merchant
+  // Group cart items by merchant with operating hours status
   const groupedCartByMerchant = useMemo(() => {
-    const map = new Map<string, { merchantName: string; merchantAddress?: string; isColdChain?: boolean; items: CartItem[] }>();
+    const map = new Map<string, { 
+      merchantId: string;
+      merchantName: string; 
+      merchantAddress?: string; 
+      isColdChain?: boolean; 
+      scheduleStatus: MerchantOperatingStatus;
+      items: CartItem[] 
+    }>();
 
     cart.forEach((item) => {
       const mName = item.product.merchantName || 'Comercio Local de Silao';
+      const mId = item.product.merchantId || mName;
       const mAddress = item.product.merchantAddress || 'Silao, Gto.';
       const isCold = Boolean(item.product.isColdChain);
+      const merchantObj = merchants.find(m => m.id === item.product.merchantId || m.name === item.product.merchantName);
+      const scheduleStatus = checkMerchantOperatingStatus(merchantObj);
 
-      if (!map.has(mName)) {
-        map.set(mName, {
+      if (!map.has(mId)) {
+        map.set(mId, {
+          merchantId: mId,
           merchantName: mName,
           merchantAddress: mAddress,
           isColdChain: isCold,
+          scheduleStatus,
           items: [],
         });
       }
 
-      const entry = map.get(mName)!;
+      const entry = map.get(mId)!;
       entry.items.push(item);
       if (isCold) entry.isColdChain = true;
     });
 
     return Array.from(map.values());
-  }, [cart]);
+  }, [cart, merchants]);
 
   // Check if any product requires cold chain
   const hasColdChainItems = useMemo(() => {
@@ -141,6 +165,15 @@ export const CartDrawer: React.FC = () => {
   };
 
   const processOrderSubmission = (sendWhatsApp: boolean) => {
+    // Restricción de horario: no se puede pedir tan temprano si algún negocio aún no abre
+    if (merchantsScheduleValidation.hasEarlyMerchants) {
+      setErrorMsg(
+        merchantsScheduleValidation.restrictionReason || 
+        'No es posible realizar el pedido tan temprano porque hay comercios que aún no han abierto sus puertas.'
+      );
+      return;
+    }
+
     if (!customerName.trim() || !customerPhone.trim()) {
       setErrorMsg('Por favor ingresa tu nombre y número de teléfono.');
       return;
@@ -315,26 +348,80 @@ export const CartDrawer: React.FC = () => {
           
           {checkoutStep === 'cart' ? (
             cart.length > 0 ? (
-              <div className="space-y-5">
+              <div className="space-y-4">
+                {/* Alerta de Comercios que aún no han abierto */}
+                {merchantsScheduleValidation.hasEarlyMerchants && (
+                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-300 text-xs text-amber-950 space-y-1 shadow-2xs">
+                    <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                      <Clock className="w-4 h-4 text-amber-700 shrink-0" />
+                      <span>Atención: Hay comercios que aún no han abierto</span>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-amber-900">
+                      No es posible procesar pedidos tan temprano antes de que los negocios abran. Podrás pedir a partir de las <strong>{merchantsScheduleValidation.latestOpeningTime12h}</strong> o puedes retirar sus productos para pedir de los que ya están abiertos.
+                    </p>
+                  </div>
+                )}
+
                 {/* Grouped Items by Merchant */}
                 {groupedCartByMerchant.map((group) => (
                   <div key={group.merchantName} className="rounded-xl border border-slate-200 bg-white shadow-2xs overflow-hidden">
                     
                     {/* Merchant Header Bar */}
-                    <div className="px-3.5 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <div className="px-3.5 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-wrap gap-1">
                       <div className="flex items-center gap-2 min-w-0">
                         <Store className="w-4 h-4 text-emerald-600 shrink-0" />
                         <span className="text-xs font-bold text-slate-800 truncate">
                           {group.merchantName}
                         </span>
                       </div>
-                      {group.isColdChain && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 shrink-0 flex items-center gap-0.5">
-                          <Snowflake className="w-2.5 h-2.5" />
-                          <span>Cadena Fría</span>
-                        </span>
-                      )}
+                      
+                      <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+                        {group.scheduleStatus && (
+                          <span 
+                            title={`Horario de servicio: ${group.scheduleStatus.scheduleText}`}
+                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border ${
+                              group.scheduleStatus.isOpen 
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200' 
+                                : group.scheduleStatus.isBeforeOpening 
+                                ? 'bg-amber-100 text-amber-900 border-amber-300' 
+                                : 'bg-slate-100 text-slate-700 border-slate-200'
+                            }`}
+                          >
+                            <Clock className="w-2.5 h-2.5" />
+                            <span>{group.scheduleStatus.statusLabel}</span>
+                          </span>
+                        )}
+
+                        {group.isColdChain && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-100 text-cyan-800 shrink-0 flex items-center gap-0.5">
+                            <Snowflake className="w-2.5 h-2.5" />
+                            <span>Cadena Fría</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Notice if this merchant has not opened yet */}
+                    {group.scheduleStatus?.isBeforeOpening && (
+                      <div className="mx-2 mt-2 p-2 rounded-lg bg-amber-50/90 border border-amber-200 text-amber-950 text-[11px] flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                          <span className="truncate">
+                            <strong>Aún cerrado:</strong> Abre a las {group.scheduleStatus.openingTime12h}. Horario: {group.scheduleStatus.scheduleText}.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            group.items.forEach(i => removeFromCart(i.product.id));
+                          }}
+                          className="text-[10px] font-bold text-rose-700 hover:text-rose-900 bg-white px-2 py-0.5 rounded border border-rose-200 shrink-0 cursor-pointer shadow-2xs hover:bg-rose-50"
+                          title="Quitar productos de este comercio que aún no abre"
+                        >
+                          Quitar tienda
+                        </button>
+                      </div>
+                    )}
 
                     {/* Merchant Items List */}
                     <div className="divide-y divide-slate-100 p-2 space-y-1">
@@ -430,6 +517,51 @@ export const CartDrawer: React.FC = () => {
                 <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
                   <span>{errorMsg}</span>
+                </div>
+              )}
+
+              {/* Restricción de Negocios que aún no han abierto (No se puede pedir tan temprano) */}
+              {merchantsScheduleValidation.hasEarlyMerchants && (
+                <div className="p-4 rounded-2xl bg-rose-50 border-2 border-rose-300 text-xs text-rose-950 space-y-2.5 shadow-sm animate-fade-in">
+                  <div className="flex items-center gap-2 font-black text-rose-900 text-sm">
+                    <Clock className="w-5 h-5 text-rose-600 shrink-0" />
+                    <span>⛔ Restricción: No se puede pedir tan temprano</span>
+                  </div>
+                  <p className="text-[11px] leading-relaxed text-rose-800">
+                    Tu orden contiene artículos de negocios locales que <strong>aún no han abierto sus puertas</strong>. Por política del servicio de envíos del Hub Silao, no se pueden realizar pedidos a comercios cerrados:
+                  </p>
+                  <div className="bg-white/90 p-3 rounded-xl border border-rose-200 space-y-2">
+                    {merchantsScheduleValidation.earlyMerchants.map((em) => (
+                      <div key={em.merchantId} className="flex items-center justify-between text-[11px] gap-2">
+                        <div className="truncate">
+                          <strong className="text-slate-800 block truncate">🏪 {em.merchantName}</strong>
+                          <span className="text-[10px] text-slate-500">Horario oficial: {em.scheduleText}</span>
+                        </div>
+                        <span className="font-mono font-black text-rose-700 bg-rose-100 px-2 py-0.5 rounded text-[11px] shrink-0 border border-rose-200">
+                          Abre a las {em.openingTime12h}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-amber-100/70 border border-amber-300 text-amber-950 text-[11px] space-y-1">
+                    <div className="font-bold flex items-center gap-1.5">
+                      <span>⏰ Horario habilitado a partir de:</span>
+                      <span className="font-mono font-black text-rose-900 bg-white px-2 py-0.5 rounded shadow-2xs">
+                        {merchantsScheduleValidation.latestOpeningTime12h}
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-amber-900 leading-tight">
+                      Espera a que todos los negocios abran sus puertas o regresa a tu carrito para retirar los productos de estas tiendas y solicitar tu pedido de inmediato.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCheckoutStep('cart')}
+                    className="w-full py-2 px-3 rounded-xl bg-white hover:bg-rose-100 text-rose-800 border border-rose-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Volver al carrito para modificar productos</span>
+                  </button>
                 </div>
               )}
 
@@ -705,20 +837,38 @@ export const CartDrawer: React.FC = () => {
               <div className="space-y-2">
                 <button
                   type="button"
+                  disabled={merchantsScheduleValidation.hasEarlyMerchants}
                   onClick={() => processOrderSubmission(true)}
-                  className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className={`w-full py-3 px-4 font-bold rounded-xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 ${
+                    merchantsScheduleValidation.hasEarlyMerchants
+                      ? 'bg-slate-300 text-slate-500 cursor-not-allowed shadow-none border border-slate-300'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
+                  }`}
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Enviar Pedido al Hub Silao por WhatsApp</span>
+                  <span>
+                    {merchantsScheduleValidation.hasEarlyMerchants
+                      ? `🚫 Bloqueado: Abre hasta las ${merchantsScheduleValidation.latestOpeningTime12h}`
+                      : 'Enviar Pedido al Hub Silao por WhatsApp'}
+                  </span>
                 </button>
 
                 <button
                   type="button"
+                  disabled={merchantsScheduleValidation.hasEarlyMerchants}
                   onClick={() => processOrderSubmission(false)}
-                  className="w-full py-2 px-4 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  className={`w-full py-2 px-4 font-semibold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 ${
+                    merchantsScheduleValidation.hasEarlyMerchants
+                      ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200'
+                      : 'bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 cursor-pointer'
+                  }`}
                 >
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                  <span>Registrar Pedido sin abrir WhatsApp</span>
+                  <CheckCircle2 className={`w-4 h-4 ${merchantsScheduleValidation.hasEarlyMerchants ? 'text-slate-400' : 'text-emerald-600'}`} />
+                  <span>
+                    {merchantsScheduleValidation.hasEarlyMerchants
+                      ? 'Restricción de Apertura de Negocios Activa'
+                      : 'Registrar Pedido sin abrir WhatsApp'}
+                  </span>
                 </button>
               </div>
             )}

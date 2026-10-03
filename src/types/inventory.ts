@@ -71,6 +71,12 @@ export interface Merchant {
   sourceUrl?: string;
   status?: 'active' | 'inactive';
 
+  // Horario de atención y servicio del negocio (Apertura y Cierre)
+  openingTime?: string;            // Formato 24h ej. "08:30" (Apertura)
+  closingTime?: string;            // Formato 24h ej. "20:00" (Cierre)
+  serviceDays?: string;            // ej. "Lunes a Domingo", "Lunes a Sábado"
+  serviceHoursNote?: string;       // Nota opcional ej. "Abre 8:30 AM - Cierra 8:00 PM"
+
   // Opcionales para cada tienda: Mayoreo y Promociones Especiales
   hasWholesale?: boolean;          // Opcional: ¿La tienda ofrece precios a mayoreo?
   wholesaleMinPieces?: number;     // En qué casos aplica: número de piezas mínimas (ej. 3, 6, 12 pzas)

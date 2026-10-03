@@ -66,6 +66,9 @@ export const MerchantPortal: React.FC = () => {
   const [profilePassword, setProfilePassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [profileLogoUrl, setProfileLogoUrl] = useState('');
+  const [profileOpeningTime, setProfileOpeningTime] = useState('08:00');
+  const [profileClosingTime, setProfileClosingTime] = useState('20:00');
+  const [profileServiceDays, setProfileServiceDays] = useState('Lunes a Domingo');
   const [isSavedProfile, setIsSavedProfile] = useState(false);
 
 
@@ -164,6 +167,9 @@ export const MerchantPortal: React.FC = () => {
       setProfileBankAccount(merchant.bankAccount || '');
       setProfilePassword(merchant.password || merchant.pin || '1234');
       setProfileLogoUrl(merchant.logoUrl || '');
+      setProfileOpeningTime(merchant.openingTime || '08:00');
+      setProfileClosingTime(merchant.closingTime || '20:00');
+      setProfileServiceDays(merchant.serviceDays || 'Lunes a Domingo');
     }
   }, [
     merchant.id,
@@ -178,6 +184,9 @@ export const MerchantPortal: React.FC = () => {
     merchant.password,
     merchant.pin,
     merchant.logoUrl,
+    merchant.openingTime,
+    merchant.closingTime,
+    merchant.serviceDays,
     merchant.hasWholesale,
     merchant.wholesaleMinPieces,
     merchant.hasSpecialPromos,
@@ -230,7 +239,10 @@ export const MerchantPortal: React.FC = () => {
       bankAccount: profileBankAccount.trim(),
       password: sanitizedPassword || '1234',
       pin: sanitizedPassword || '1234',
-      logoUrl: profileLogoUrl.trim()
+      logoUrl: profileLogoUrl.trim(),
+      openingTime: profileOpeningTime || '08:00',
+      closingTime: profileClosingTime || '20:00',
+      serviceDays: profileServiceDays.trim() || 'Lunes a Domingo'
     });
     setIsSavedProfile(true);
     setTimeout(() => setIsSavedProfile(false), 3500);
@@ -1116,6 +1128,81 @@ export const MerchantPortal: React.FC = () => {
                   onChange={(e) => setProfileDescription(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-semibold text-slate-900"
                 />
+              </div>
+            </div>
+
+            {/* SECCIÓN: HORARIOS DE ATENCIÓN Y RESTRICCIÓN DE PEDIDOS */}
+            <div className="p-6 bg-amber-50/60 rounded-2xl border border-amber-200 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
+                  <h3 className="text-sm font-black text-amber-950 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-amber-700" />
+                    Horario de Servicio y Restricción de Pedidos
+                  </h3>
+                  <p className="text-xs text-amber-900 mt-0.5">
+                    Define la hora de apertura y cierre para que los clientes no puedan pedir antes de que abras tu negocio.
+                  </p>
+                </div>
+                <span className="text-[11px] font-bold text-amber-800 bg-amber-100/90 border border-amber-300 px-2.5 py-1 rounded-full">
+                  🛡️ Restricción Automática Activa
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Hora de Apertura * (No se puede pedir antes)
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={profileOpeningTime}
+                    onChange={(e) => setProfileOpeningTime(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-amber-300 bg-white text-xs font-bold text-slate-900 font-mono"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Ej. 08:30 (8:30 AM)
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Hora de Cierre *
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={profileClosingTime}
+                    onChange={(e) => setProfileClosingTime(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-amber-300 bg-white text-xs font-bold text-slate-900 font-mono"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Ej. 20:00 (8:00 PM)
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Días de Servicio
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Ej. Lunes a Domingo"
+                    value={profileServiceDays}
+                    onChange={(e) => setProfileServiceDays(e.target.value)}
+                    className="w-full px-3 py-2.5 rounded-xl border border-amber-300 bg-white text-xs font-semibold text-slate-900"
+                  />
+                  <span className="text-[10px] text-slate-500 mt-1 block">
+                    Ej. Lunes a Domingo / Lunes a Sábado
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-amber-200 text-xs text-amber-950 flex items-start gap-2.5">
+                <span className="text-base shrink-0">⏰</span>
+                <div className="text-[11px] leading-relaxed">
+                  <strong>Protección contra pedidos anticipados:</strong> Si un cliente añade productos de tu tienda cuando aún no has abierto (por ejemplo, muy temprano en la mañana), el sistema colocará una restricción bloqueando el pedido hasta que den las <strong>{profileOpeningTime || '08:00'} hrs</strong>.
+                </div>
               </div>
             </div>
 
