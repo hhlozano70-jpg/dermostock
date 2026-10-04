@@ -37,7 +37,7 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
       )
       .join('\n');
 
-    const msg = `¡Hola ${settings.businessName || 'DermoStock'}! Confirmo mi pedido:\n\n` +
+    const msg = `¡Hola ${settings.businessName || 'Silaomarket on line'}! Confirmo mi pedido:\n\n` +
       `*No. Pedido:* #${order.id}\n` +
       `*Cliente:* ${order.customerName}\n` +
       `*Teléfono:* ${order.customerPhone}\n` +
@@ -200,8 +200,8 @@ export const OrderReceiptModal: React.FC<OrderReceiptModalProps> = ({ order, onC
           </div>
 
           <div className="mt-4 pt-3 border-t border-dashed border-slate-200 text-center text-[10px] text-slate-400">
-            <p>¡Gracias por su compra en DermoStock!</p>
-            <p className="mt-0.5">El inventario físico ha sido descontado automáticamente del almacén.</p>
+            <p>¡Gracias por apoyar el comercio local de Silao con Silaomarket on line!</p>
+            <p className="mt-0.5">Hub Central Silao · Calle 5 de Mayo #45, Silao Centro, Guanajuato.</p>
           </div>
         </div>
 

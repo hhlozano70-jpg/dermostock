@@ -27,6 +27,8 @@ import { ProductCardSkeletonGrid } from './ProductCardSkeleton';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
 import { SilaoLandmarksShowcase } from './SilaoLandmarksShowcase';
 import { checkMerchantOperatingStatus } from '../utils/operatingHours';
+import { InstallPwaBanner } from './InstallPwaBanner';
+import { matchesProductWithSynonyms } from '../utils/localSearchSynonyms';
 
 export const Storefront: React.FC = () => {
   const { 
@@ -172,11 +174,7 @@ export const Storefront: React.FC = () => {
 
       const matchSearch =
         !search ||
-        pName.includes(search) ||
-        pPres.includes(search) ||
-        pMerch.includes(search) ||
-        pCat.includes(search) ||
-        pBrand.includes(search);
+        matchesProductWithSynonyms(p, search);
 
       const parentMerchant = merchantMap.get(p.merchantId);
       const isCold = Boolean(p.isColdChain || parentMerchant?.isColdChain);
@@ -210,6 +208,9 @@ export const Storefront: React.FC = () => {
   return (
     <div className="space-y-8 pb-16">
       
+      {/* Aviso de Instalación PWA para Dispositivos Móviles y Escritorio */}
+      <InstallPwaBanner />
+
       {/* Header Banner Profesional con Fondos de Cristo Rey y Logo SilaoMarket */}
       <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/95 to-emerald-50/50 text-slate-900 py-5 sm:py-10 px-4 sm:px-6 lg:px-8 border-b border-slate-200">
         
