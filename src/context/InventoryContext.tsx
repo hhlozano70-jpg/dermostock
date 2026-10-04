@@ -159,6 +159,10 @@ interface InventoryContextType {
   isBrochureModalOpen: boolean;
   setIsBrochureModalOpen: (open: boolean) => void;
 
+  // General User & Operations Manual Modal
+  isManualModalOpen: boolean;
+  setIsManualModalOpen: (open: boolean) => void;
+
   // Custom Order Off-Catalog Modal
   isCustomOrderModalOpen: boolean;
   setIsCustomOrderModalOpen: (open: boolean) => void;
@@ -405,9 +409,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     } catch {}
   };
 
-  // Modals for Auth, Brochure, and Merchant Management
+  // Modals for Auth, Brochure, Manual, and Merchant Management
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isBrochureModalOpen, setIsBrochureModalOpen] = useState(false);
+  const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [isMerchantManagerOpen, setIsMerchantManagerOpen] = useState(false);
 
   // Local Silao Merchants state (reactive with local & server persistence)
@@ -1672,6 +1677,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         markSettlementPaid,
         isBrochureModalOpen,
         setIsBrochureModalOpen,
+        isManualModalOpen,
+        setIsManualModalOpen,
         isCustomOrderModalOpen,
         setIsCustomOrderModalOpen,
         drivers,

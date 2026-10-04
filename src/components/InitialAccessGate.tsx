@@ -16,7 +16,8 @@ import {
   Truck,
   Eye,
   EyeOff,
-  UserCheck
+  UserCheck,
+  BookOpen
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { UserRole } from '../types/inventory';
@@ -29,6 +30,7 @@ export const InitialAccessGate: React.FC = () => {
     setHasAccessSelected, 
     setActiveTab, 
     setIsBrochureModalOpen,
+    setIsManualModalOpen,
     registeredCustomer,
     registerCustomer,
     loginCustomer
@@ -175,13 +177,21 @@ export const InitialAccessGate: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-between relative overflow-hidden text-slate-100 font-sans">
       
-      {/* Background with Cristo Rey Silao overlay */}
+      {/* Background with Cristo Rey Silao overlay & Silaomarket logo watermark */}
       <div 
         className="absolute inset-0 bg-cover bg-center opacity-30 pointer-events-none scale-105"
         style={{
           backgroundImage: `url('/images/cristo_rey_silao.jpg'), url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg/1280px-Cristo_Rey_-_Cerro_del_Cubilete_-_Silao%2C_Guanajuato_-_Explanada.jpg')`
         }}
       />
+      {/* Silaomarket logo watermark centered in background */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+        <img 
+          src="/images/silaomarket_logo.jpg" 
+          alt="" 
+          className="w-96 h-96 sm:w-[500px] sm:h-[500px] object-contain rounded-full blur-xs mix-blend-screen"
+        />
+      </div>
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-slate-900/80 to-slate-950/95 pointer-events-none" />
 
       {/* Decorative ambient lights */}
@@ -193,23 +203,35 @@ export const InitialAccessGate: React.FC = () => {
         
         {/* Top Branding Section */}
         <header className="text-center space-y-3 mb-8 md:mb-10 max-w-3xl">
-          <div className="inline-flex items-center gap-3 p-1.5 pr-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-xl">
-            <img 
-              src="/images/silaomarket_logo.jpg" 
-              alt="Silaomarket Logo" 
-              className="w-12 h-12 rounded-xl object-contain bg-white p-0.5 border border-amber-400/40 shadow-xs" 
-            />
-            <div className="text-left">
-              <div className="flex items-center gap-1.5">
-                <span className="text-lg font-black tracking-tight text-white">Silaomarket</span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500 text-slate-950 px-1.5 py-0.2 rounded font-mono">
-                  on line
-                </span>
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="inline-flex items-center gap-3 p-1.5 pr-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 shadow-xl">
+              <img 
+                src="/images/silaomarket_logo.jpg" 
+                alt="Silaomarket Logo" 
+                className="w-12 h-12 rounded-xl object-contain bg-white p-0.5 border border-amber-400/40 shadow-xs" 
+              />
+              <div className="text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg font-black tracking-tight text-white">Silaomarket</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500 text-slate-950 px-1.5 py-0.2 rounded font-mono">
+                    on line
+                  </span>
+                </div>
+                <p className="text-[11px] text-amber-300 font-semibold flex items-center gap-1">
+                  <span>⛰️ Silao de la Victoria · Guanajuato</span>
+                </p>
               </div>
-              <p className="text-[11px] text-amber-300 font-semibold flex items-center gap-1">
-                <span>⛰️ Silao de la Victoria · Guanajuato</span>
-              </p>
             </div>
+
+            {/* Quick Manual Button */}
+            <button
+              type="button"
+              onClick={() => setIsManualModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-400/40 text-xs font-bold transition-all shadow-md cursor-pointer hover:scale-105"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+              <span>📖 Manual de Operaciones (PDF)</span>
+            </button>
           </div>
 
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
@@ -689,11 +711,20 @@ export const InitialAccessGate: React.FC = () => {
         <footer className="mt-10 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400 text-center">
           <button
             type="button"
+            onClick={() => setIsManualModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-400/30 font-bold cursor-pointer transition-all shadow-xs"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+            <span>📖 Manual de Usuario y Operación (PDF)</span>
+          </button>
+          <span>•</span>
+          <button
+            type="button"
             onClick={() => setIsBrochureModalOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-amber-300 border border-amber-400/20 font-semibold cursor-pointer transition-colors"
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>📄 Ver Folleto Oficial de Afiliación (0% Entrada, 8-18% Comisión)</span>
+            <span>📄 Ver Folleto Oficial de Afiliación (0% Entrada)</span>
           </button>
           <span>•</span>
           <span className="text-slate-400">

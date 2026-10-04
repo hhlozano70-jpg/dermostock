@@ -23,7 +23,8 @@ import {
   X,
   Package,
   Sparkles,
-  LogOut
+  LogOut,
+  BookOpen
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { PriceTier } from '../types/inventory';
@@ -46,6 +47,7 @@ export const Navbar: React.FC = () => {
     loggedMerchant,
     setIsAuthModalOpen,
     setIsBrochureModalOpen,
+    setIsManualModalOpen,
     setIsMerchantManagerOpen,
     logoutRole,
     registeredCustomer,
@@ -370,6 +372,16 @@ export const Navbar: React.FC = () => {
               </button>
             )}
 
+            {/* Manual de Usuario / Operaciones Trigger */}
+            <button
+              onClick={() => setIsManualModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+              title="Consultar y Descargar Manual de Usuario y Operación (PDF)"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-emerald-700" />
+              <span className="hidden md:inline">Manual (PDF)</span>
+            </button>
+
             {/* Cart Trigger - Primordial para Clientes */}
             <button
               onClick={() => setIsCartOpen(true)}
@@ -493,6 +505,16 @@ export const Navbar: React.FC = () => {
             <span className="text-[10px]">Carrito</span>
           </button>
         )}
+
+        {/* Manual de Usuario Móvil */}
+        <button
+          onClick={() => setIsManualModalOpen(true)}
+          className="flex flex-col items-center justify-center py-1 px-1.5 rounded-lg text-xs transition-colors text-emerald-800 cursor-pointer"
+          title="Ver o descargar manual de usuario"
+        >
+          <BookOpen className="w-4 h-4 mb-0.5 text-emerald-700" />
+          <span className="text-[10px]">Manual</span>
+        </button>
 
         {/* Acceso para negocios y administración */}
         <button

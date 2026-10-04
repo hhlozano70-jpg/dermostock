@@ -18,7 +18,8 @@ import {
   Tag,
   ShieldCheck,
   User,
-  UserCheck
+  UserCheck,
+  BookOpen
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
@@ -35,6 +36,7 @@ export const Storefront: React.FC = () => {
     openProductModal, 
     openScanner,
     setIsBrochureModalOpen,
+    setIsManualModalOpen,
     setIsAuthModalOpen,
     setIsCustomOrderModalOpen,
     giros,
@@ -206,47 +208,89 @@ export const Storefront: React.FC = () => {
   return (
     <div className="space-y-8 pb-16">
       
-      {/* Header Banner Limpio y Luminoso (Sin fondo negro masivo) */}
-      <section className="bg-gradient-to-b from-white via-slate-50/90 to-emerald-50/40 text-slate-900 py-8 sm:py-10 px-4 sm:px-6 lg:px-8 border-b border-slate-200">
-        <div className="max-w-6xl mx-auto text-center space-y-4">
+      {/* Header Banner Profesional con Fondos de Cristo Rey y Logo SilaoMarket */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/95 to-emerald-50/50 text-slate-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8 border-b border-slate-200">
+        
+        {/* Fondo sutil de Cristo Rey (Cerro del Cubilete, Silao) */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-15 pointer-events-none mix-blend-multiply scale-105 transition-transform duration-1000"
+          style={{ backgroundImage: `url('/images/cristo_rey_silao.jpg')` }}
+        />
+
+        {/* Marca de agua flotante del Logo SilaoMarket */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 opacity-5 pointer-events-none hidden md:block">
+          <img 
+            src="/images/silaomarket_logo.jpg" 
+            alt="" 
+            className="w-[450px] h-[450px] object-contain rounded-full blur-xs"
+          />
+        </div>
+
+        {/* Ambient Gradient Overlay for text contrast and clarity */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/80 to-emerald-50/80 pointer-events-none" />
+
+        <div className="relative z-10 max-w-6xl mx-auto text-center space-y-4 sm:space-y-5">
           
-          {/* Logo Principal SilaoMarket */}
+          {/* Logo Principal SilaoMarket con Insignia de Silao */}
           <div className="flex flex-col items-center justify-center">
             <div 
               className="relative group cursor-pointer inline-block" 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              title="SILAOMARKET ON LINE · Silao, Gto"
+              title="SILAOMARKET ON LINE · Silao de la Victoria, Guanajuato"
             >
-              <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 opacity-30 blur-md group-hover:opacity-60 transition-opacity"></div>
+              <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 opacity-30 blur-md group-hover:opacity-70 transition-opacity"></div>
               <img 
                 src="/images/silaomarket_logo.jpg" 
                 alt="SILAOMARKET ON LINE Logo Oficial" 
-                className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-contain shadow-lg border-2 border-white bg-white p-1 transition-transform duration-300 group-hover:scale-105" 
+                className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl object-contain shadow-xl border-2 border-white bg-white p-1 transition-transform duration-300 group-hover:scale-105" 
               />
-              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm whitespace-nowrap border border-white">
+              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-[10px] sm:text-xs font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md whitespace-nowrap border border-white">
                 Silao · Gto
               </span>
             </div>
           </div>
 
-          {/* Badge de Silao */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white border border-amber-300 text-slate-800 text-xs font-bold uppercase tracking-wider shadow-2xs">
-            <span>⛰️ Silao de la Victoria, Guanajuato</span>
-            <span className="text-amber-500" aria-hidden="true">·</span>
-            <span className="text-emerald-700 font-extrabold">Hub Central de Comercio Local</span>
+          {/* Badge de Silao y Hub Central */}
+          <div className="inline-flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-amber-300 text-slate-800 text-xs font-bold uppercase tracking-wider shadow-xs">
+            <span className="flex items-center gap-1">⛰️ Cerro del Cubilete & Cristo Rey</span>
+            <span className="text-amber-500 hidden sm:inline" aria-hidden="true">·</span>
+            <span className="text-emerald-800 font-black">Hub Central: Calle 5 de Mayo #45, Silao Centro</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-slate-900 max-w-3xl mx-auto leading-tight">
-            Todos los Comercios de Silao en <span className="text-emerald-700">un Solo Carrito</span>
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 max-w-4xl mx-auto leading-tight sm:leading-none">
+            Todos los Comercios de Silao en <span className="text-emerald-700 underline decoration-amber-400 decoration-wavy decoration-2">un Solo Carrito</span>
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Compra de abarrotes, farmacias, ferreterías, tintorería, cerrajería, supermercados y cadena fría. Pagas un solo envío y nuestro <strong>Hub Central Silao</strong> consolida y entrega todo en tu puerta en una sola vuelta.
+          <p className="text-xs sm:text-sm md:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Compra abarrotes, farmacias, ferreterías, tintorería, cerrajería, supermercados y cadena fría. Pagas <strong>un solo envío</strong> ($25 MXN) y nuestro <strong>Hub Central Silao</strong> consolida y entrega todo en tu puerta en una sola vuelta.
           </p>
 
+          {/* Botones de Acción Rápida: Manual de Usuario & Folleto de Afiliación */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => setIsManualModalOpen(true)}
+              className="px-4 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-900/10 transition-all flex items-center gap-2 cursor-pointer hover:scale-105"
+              title="Ver o descargar el Manual Oficial de Usuario y Operaciones en PDF"
+            >
+              <BookOpen className="w-4 h-4 text-amber-300" />
+              <span>📖 Descargar Manual de Usuario (PDF)</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsBrochureModalOpen(true)}
+              className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-emerald-950 text-xs sm:text-sm font-black shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 cursor-pointer hover:scale-105"
+              title="Ver Folleto Oficial para Negocios (0% Entrada, 8-18% Comisión)"
+            >
+              <FileText className="w-4 h-4 text-emerald-950" />
+              <span>📄 Folleto para Negocios (0% Entrada)</span>
+            </button>
+          </div>
+
           {/* 3 Pasos del Hub Logístico Limpio */}
-          <div className="pt-2 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
-            <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
+          <div className="pt-3 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
+            <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-300 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
                   1
@@ -258,7 +302,7 @@ export const Storefront: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
+            <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-cyan-300 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-6 h-6 rounded-lg bg-cyan-100 text-cyan-800 flex items-center justify-center font-bold text-xs">
                   2
@@ -273,7 +317,7 @@ export const Storefront: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-2xs">
+            <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-amber-300 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-6 h-6 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs">
                   3
@@ -788,6 +832,14 @@ export const Storefront: React.FC = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full lg:w-auto shrink-0">
+              <button
+                onClick={() => setIsManualModalOpen(true)}
+                className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm border border-emerald-400/40 flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md"
+              >
+                <BookOpen className="w-4 h-4 text-amber-300" />
+                <span>Manual de Operaciones (PDF)</span>
+              </button>
+
               <button
                 onClick={() => setIsBrochureModalOpen(true)}
                 className="px-6 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-emerald-950 font-black text-xs sm:text-sm shadow-lg shadow-amber-400/20 flex items-center justify-center gap-2 transition-all cursor-pointer"

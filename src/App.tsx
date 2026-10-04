@@ -23,6 +23,7 @@ import { MerchantsManager } from './components/MerchantsManager';
 import { HubOrdersManager } from './components/HubOrdersManager';
 import { InitialAccessGate } from './components/InitialAccessGate';
 import { CustomOrderModal } from './components/CustomOrderModal';
+import { UserManualModal } from './components/UserManualModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
 
 const MainContent: React.FC = () => {
@@ -42,6 +43,7 @@ const MainContent: React.FC = () => {
     closeScanner,
     scannerMode,
     setIsBrochureModalOpen,
+    setIsManualModalOpen,
     setIsAuthModalOpen,
     userRole,
     hasAccessSelected
@@ -70,6 +72,7 @@ const MainContent: React.FC = () => {
       <>
         <InitialAccessGate />
         <BrochureModal />
+        <UserManualModal />
       </>
     );
   }
@@ -120,6 +123,9 @@ const MainContent: React.FC = () => {
       {/* Official 2-Page Business Brochure & Commission Table Modal */}
       <BrochureModal />
 
+      {/* Official User and Operations Manual (Downloadable/Printable PDF) */}
+      <UserManualModal />
+
       {/* Affiliated Merchants Manager CRUD Modal */}
       <MerchantsManager />
 
@@ -137,8 +143,13 @@ const MainContent: React.FC = () => {
       />
 
       {/* Footer */}
-      <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 mt-auto py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 mt-auto py-10 relative overflow-hidden">
+        {/* Cristo Rey background watermark in footer */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-5 pointer-events-none"
+          style={{ backgroundImage: `url('/images/cristo_rey_silao.jpg')` }}
+        />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-slate-800">
             <div className="flex items-center gap-3 text-center md:text-left">
               <img 
@@ -163,6 +174,12 @@ const MainContent: React.FC = () => {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-2.5 text-xs">
+              <button
+                onClick={() => setIsManualModalOpen(true)}
+                className="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+              >
+                <span>📖 Manual de Usuario (PDF)</span>
+              </button>
               <button
                 onClick={() => setIsBrochureModalOpen(true)}
                 className="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold transition-all cursor-pointer"
