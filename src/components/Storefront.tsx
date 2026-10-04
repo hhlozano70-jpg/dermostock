@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Search, 
   Truck, 
@@ -49,7 +49,20 @@ export const Storefront: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [onlyColdChain, setOnlyColdChain] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const ITEMS_PER_PAGE = 16;
 
+  // Reset pagination when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, selectedMerchantId, onlyColdChain]);
+
+  // Map of merchants for fast, decoupled property access
+  const merchantMap = useMemo(() => {
+    return new Map((merchants || []).map(m => [m.id, m]));
+  }, [merchants]);
+
+  // Dynamic categories extracted cleanly from products, merchants and giros
   const categories = useMemo(() => {
     const base = [
       'all',
@@ -69,66 +82,49 @@ export const Storefront: React.FC = () => {
     return Array.from(combined);
   }, [giros]);
 
-  // Comercios de ejemplo asociados dinámicamente a la pestaña seleccionada
+  // Helper function to check if a category matches an item or merchant without hardcoding IDs
+  const matchesCategoryFilter = (catKey: string, pCategory?: string, mCategory?: string, isCold?: boolean, isServ?: boolean) => {
+    if (catKey === 'all') return true;
+
+    if (catKey.includes('Cadena Fría')) {
+      return Boolean(isCold);
+    }
+
+    if (catKey.includes('Servicio')) {
+      return Boolean(isServ) ||
+        Boolean(pCategory && pCategory.toLowerCase().includes('servicio')) ||
+        Boolean(mCategory && mCategory.toLowerCase().includes('servicio'));
+    }
+
+    if (catKey.includes('Supermercado')) {
+      return (
+        Boolean(pCategory && pCategory.toLowerCase().includes('supermercado')) ||
+        Boolean(mCategory && mCategory.toLowerCase().includes('supermercado'))
+      );
+    }
+
+    // Normalized keyword search across category strings
+    const target = catKey.toLowerCase().split(/\s+/).filter(w => w.length > 3 && !['para', 'como', 'todas', 'las'].includes(w));
+    const pStr = (pCategory || '').toLowerCase();
+    const mStr = (mCategory || '').toLowerCase();
+
+    return target.some(word => pStr.includes(word) || mStr.includes(word));
+  };
+
+  // Comercios de ejemplo asociados dinámicamente a la categoría seleccionada (sin IDs quemados a mano)
   const activeCategoryMerchants = useMemo(() => {
     if (selectedCategory === 'all') {
       return merchants;
     }
-    if (selectedCategory === 'Supermercados y Ofertas') {
-      return merchants.filter(m => 
-        m.category.includes('Supermercados') || 
-        m.id.includes('aurrera') || 
-        m.id.includes('soriana') || 
-        m.id.includes('tiendas-3b') || 
-        m.id.includes('super-bara')
+    return merchants.filter(m => {
+      return matchesCategoryFilter(
+        selectedCategory,
+        m.category,
+        m.serviceTypeTag,
+        Boolean(m.isColdChain),
+        Boolean(m.type === 'Servicio' || (m.category && m.category.toLowerCase().includes('servicio')))
       );
-    }
-    if (selectedCategory === 'Abarrotes y Cremería') {
-      return merchants.filter(m => m.category.includes('Abarrotes') || m.id === 'merch-abarrotes');
-    }
-    if (selectedCategory === 'Cadena Fría (Aguas, Paletas, Cervezas)') {
-      return merchants.filter(m => m.isColdChain || m.category.includes('Cadena Fría') || m.id === 'merch-cadena-fria' || m.id === 'merch-cerveceria');
-    }
-    if (selectedCategory === 'Cuidado Personal y Belleza') {
-      return merchants.filter(m => m.id === 'merch-maret-silao' || m.category.includes('Belleza') || m.category.includes('Cuidado Personal'));
-    }
-    if (selectedCategory === 'Farmacia y Salud') {
-      return merchants.filter(m => m.category.includes('Farmacia') || m.id === 'merch-farmacia');
-    }
-    if (selectedCategory === 'Ferretería y Tlapalería') {
-      return merchants.filter(m => m.category.includes('Ferretería') || m.id === 'merch-ferreteria');
-    }
-    if (selectedCategory === 'Refaccionaria y Automotriz') {
-      return merchants.filter(m => m.category.includes('Refaccionaria') || m.category.includes('Automotriz') || m.id === 'merch-refacciones');
-    }
-    if (selectedCategory === 'Mascotas y Veterinaria') {
-      return merchants.filter(m => m.category.includes('Mascotas') || m.category.includes('Veterinaria') || m.id === 'merch-mascotas');
-    }
-    if (selectedCategory === 'Flores y Regalos') {
-      return merchants.filter(m => m.category.includes('Flores') || m.id === 'merch-flores');
-    }
-    if (selectedCategory === 'Servicios Personalizados') {
-      return merchants.filter(m => 
-        m.type === 'Servicio' ||
-        m.category.includes('Servicio') ||
-        m.category.includes('Cerrajería') ||
-        m.category.includes('Tintorería') ||
-        m.category.includes('Lavandería') ||
-        m.category.includes('Trámites') ||
-        m.category.includes('Impresiones') ||
-        m.id === 'merch-cerrajeria-silao' ||
-        m.id === 'merch-tintoreria-silao' ||
-        m.id === 'merch-lavanderia-silao' ||
-        m.id === 'merch-tramites-silao' ||
-        m.id === 'merch-impresiones-tramites' ||
-        m.id === 'merch-web-apps-silao'
-      );
-    }
-    return merchants.filter(m => 
-      m.category.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      selectedCategory.toLowerCase().includes(m.category.toLowerCase()) ||
-      (m.serviceTypeTag && m.serviceTypeTag.toLowerCase().includes(selectedCategory.toLowerCase()))
-    );
+    });
   }, [selectedCategory, merchants]);
 
   const filteredProducts = useMemo(() => {
@@ -150,60 +146,31 @@ export const Storefront: React.FC = () => {
         pCat.includes(search) ||
         pBrand.includes(search);
 
+      const parentMerchant = merchantMap.get(p.merchantId);
+      const isCold = Boolean(p.isColdChain || parentMerchant?.isColdChain);
+      const isService = p.type === 'Servicio' || parentMerchant?.type === 'Servicio';
+
       const matchCategory =
         selectedCategory === 'all' || 
         p.category === selectedCategory || 
         p.merchantCategory === selectedCategory ||
-        (selectedCategory === 'Supermercados y Ofertas' && (
-          p.category === 'Supermercados y Ofertas' || 
-          p.merchantCategory === 'Supermercados y Ofertas' ||
-          Boolean(p.merchantId?.includes('aurrera') ||
-          p.merchantId?.includes('soriana') ||
-          p.merchantId?.includes('tiendas-3b') ||
-          p.merchantId?.includes('super-bara'))
-        )) ||
-        (selectedCategory === 'Cuidado Personal y Belleza' && (
-          p.merchantId === 'merch-maret-silao' || 
-          (p.category && p.category.includes('Belleza')) ||
-          (p.category && p.category.includes('Cuidado Personal'))
-        )) ||
-        (selectedCategory === 'Servicios Personalizados' && (
-          p.type === 'Servicio' ||
-          (p.category && p.category.includes('Servicio')) ||
-          (p.category && p.category.includes('Cerrajería')) ||
-          (p.category && p.category.includes('Tintorería')) ||
-          (p.category && p.category.includes('Lavandería')) ||
-          (p.category && p.category.includes('Trámites')) ||
-          (p.category && p.category.includes('Impresiones')) ||
-          (p.merchantCategory && p.merchantCategory.includes('Servicio')) ||
-          (p.merchantCategory && p.merchantCategory.includes('Cerrajería')) ||
-          (p.merchantCategory && p.merchantCategory.includes('Tintorería')) ||
-          (p.merchantCategory && p.merchantCategory.includes('Lavandería')) ||
-          (p.merchantCategory && p.merchantCategory.includes('Trámites')) ||
-          (p.merchantCategory && p.merchantCategory.includes('Impresiones')) ||
-          p.merchantId === 'merch-cerrajeria-silao' ||
-          p.merchantId === 'merch-tintoreria-silao' ||
-          p.merchantId === 'merch-lavanderia-silao' ||
-          p.merchantId === 'merch-tramites-silao' ||
-          p.merchantId === 'merch-impresiones-tramites' ||
-          p.merchantId === 'merch-web-apps-silao'
-        )) ||
-        (selectedCategory === 'Cadena Fría (Aguas, Paletas, Cervezas)' && (
-          p.isColdChain || 
-          (p.category && p.category.includes('Cadena Fría')) || 
-          (p.merchantCategory && p.merchantCategory.includes('Cadena Fría')) ||
-          p.merchantId === 'merch-cadena-fria' ||
-          p.merchantId === 'merch-cerveceria'
-        ));
+        matchesCategoryFilter(selectedCategory, p.category, parentMerchant?.category || p.merchantCategory, isCold, isService);
 
       const matchMerchant =
         selectedMerchantId === 'all' || p.merchantId === selectedMerchantId;
 
-      const matchCold = !onlyColdChain || Boolean(p.isColdChain);
+      const matchCold = !onlyColdChain || isCold;
 
       return matchSearch && matchCategory && matchMerchant && matchCold;
     });
-  }, [products, searchTerm, selectedCategory, selectedMerchantId, onlyColdChain]);
+  }, [products, searchTerm, selectedCategory, selectedMerchantId, onlyColdChain, merchantMap]);
+
+  // Paginated slice for optimal DOM rendering performance
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
+  const paginatedProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage, ITEMS_PER_PAGE]);
 
   return (
     <div className="space-y-8 pb-16">
@@ -509,8 +476,17 @@ export const Storefront: React.FC = () => {
                 return (
                   <div
                     key={m.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
                     onClick={() => setSelectedMerchantId(isSelected ? 'all' : m.id)}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer bg-white flex flex-col justify-between gap-2.5 ${
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedMerchantId(isSelected ? 'all' : m.id);
+                      }
+                    }}
+                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer bg-white flex flex-col justify-between gap-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 ${
                       isSelected
                         ? 'border-emerald-600 ring-2 ring-emerald-500/30 shadow-md bg-emerald-50/20'
                         : 'border-slate-200 hover:border-emerald-400 hover:shadow-xs'
@@ -766,10 +742,92 @@ export const Storefront: React.FC = () => {
           </div>
 
           {filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {paginatedProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+
+              {/* Controles de Paginación Accesibles */}
+              {totalPages > 1 && (
+                <nav
+                  aria-label="Paginación del catálogo"
+                  className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-slate-200"
+                >
+                  <p className="text-xs text-slate-500 font-medium">
+                    Mostrando del <strong className="text-slate-800 font-bold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</strong> al{' '}
+                    <strong className="text-slate-800 font-bold">
+                      {Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)}
+                    </strong>{' '}
+                    de <strong className="text-slate-800 font-bold">{filteredProducts.length}</strong> productos
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCurrentPage(p => Math.max(1, p - 1));
+                        window.scrollTo({ top: 480, behavior: 'smooth' });
+                      }}
+                      disabled={currentPage === 1}
+                      className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed shadow-2xs transition-all"
+                    >
+                      ← Anterior
+                    </button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }).map((_, idx) => {
+                        const pageNum = idx + 1;
+                        // Mostrar páginas cercanas si hay muchas
+                        if (
+                          totalPages > 7 &&
+                          pageNum !== 1 &&
+                          pageNum !== totalPages &&
+                          Math.abs(pageNum - currentPage) > 2
+                        ) {
+                          if (pageNum === 2 || pageNum === totalPages - 1) {
+                            return <span key={pageNum} className="text-xs text-slate-400 px-1">...</span>;
+                          }
+                          return null;
+                        }
+
+                        const isCur = pageNum === currentPage;
+                        return (
+                          <button
+                            key={pageNum}
+                            type="button"
+                            onClick={() => {
+                              setCurrentPage(pageNum);
+                              window.scrollTo({ top: 480, behavior: 'smooth' });
+                            }}
+                            aria-current={isCur ? 'page' : undefined}
+                            className={`w-8 h-8 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                              isCur
+                                ? 'bg-emerald-700 text-white shadow-xs'
+                                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCurrentPage(p => Math.min(totalPages, p + 1));
+                        window.scrollTo({ top: 480, behavior: 'smooth' });
+                      }}
+                      disabled={currentPage === totalPages}
+                      className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed shadow-2xs transition-all"
+                    >
+                      Siguiente →
+                    </button>
+                  </div>
+                </nav>
+              )}
             </div>
           ) : (
             <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-3">

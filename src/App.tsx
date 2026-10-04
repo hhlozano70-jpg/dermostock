@@ -1,30 +1,33 @@
-import React, { useEffect } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { InventoryProvider, useInventory } from './context/InventoryContext';
 import { Navbar } from './components/Navbar';
 import { Storefront } from './components/Storefront';
-import { InventoryManager } from './components/InventoryManager';
-import { MovementsHistory } from './components/MovementsHistory';
-import { OrdersHistory } from './components/OrdersHistory';
-import { ReportsDashboard } from './components/ReportsDashboard';
 import { CartDrawer } from './components/CartDrawer';
 import { ProductQuickView } from './components/ProductQuickView';
-import { OrderReceiptModal } from './components/OrderReceiptModal';
-import { OrderTrackingModal } from './components/OrderTrackingModal';
 import { ProductEditModal } from './components/ProductEditModal';
-import { DeviceSyncModal } from './components/DeviceSyncModal';
-import { SettingsModal } from './components/SettingsModal';
-import { BarcodeScannerModal } from './components/BarcodeScannerModal';
-import { SilaoEmblem } from './components/SilaoEmblem';
-import { BrochureModal } from './components/BrochureModal';
 import { AuthModal } from './components/AuthModal';
-import { MerchantPortal } from './components/MerchantPortal';
-import { FinancialDashboard } from './components/FinancialDashboard';
-import { MerchantsManager } from './components/MerchantsManager';
-import { HubOrdersManager } from './components/HubOrdersManager';
+import { OrderReceiptModal } from './components/OrderReceiptModal';
+import { OrdersHistory } from './components/OrdersHistory';
 import { InitialAccessGate } from './components/InitialAccessGate';
-import { CustomOrderModal } from './components/CustomOrderModal';
-import { UserManualModal } from './components/UserManualModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
+
+// Dynamic lazy imports for dashboards and modals to split chunks and speed up initial load
+const ReportsDashboard = lazy(() => import('./components/ReportsDashboard').then(m => ({ default: m.ReportsDashboard })));
+const FinancialDashboard = lazy(() => import('./components/FinancialDashboard').then(m => ({ default: m.FinancialDashboard })));
+const BarcodeScannerModal = lazy(() => import('./components/BarcodeScannerModal').then(m => ({ default: m.BarcodeScannerModal })));
+const BrochureModal = lazy(() => import('./components/BrochureModal').then(m => ({ default: m.BrochureModal })));
+const UserManualModal = lazy(() => import('./components/UserManualModal').then(m => ({ default: m.UserManualModal })));
+const MerchantsManager = lazy(() => import('./components/MerchantsManager').then(m => ({ default: m.MerchantsManager })));
+const HubOrdersManager = lazy(() => import('./components/HubOrdersManager').then(m => ({ default: m.HubOrdersManager })));
+const InventoryManager = lazy(() => import('./components/InventoryManager').then(m => ({ default: m.InventoryManager })));
+const MerchantPortal = lazy(() => import('./components/MerchantPortal').then(m => ({ default: m.MerchantPortal })));
+const MovementsHistory = lazy(() => import('./components/MovementsHistory').then(m => ({ default: m.MovementsHistory })));
+const DeviceSyncModal = lazy(() => import('./components/DeviceSyncModal').then(m => ({ default: m.DeviceSyncModal })));
+const SettingsModal = lazy(() => import('./components/SettingsModal').then(m => ({ default: m.SettingsModal })));
+const CustomOrderModal = lazy(() => import('./components/CustomOrderModal').then(m => ({ default: m.CustomOrderModal })));
+const OrderTrackingModal = lazy(() => import('./components/OrderTrackingModal').then(m => ({ default: m.OrderTrackingModal })));
+
+const ModalFallback: React.FC = () => null;
 
 const MainContent: React.FC = () => {
   const { 
@@ -42,8 +45,12 @@ const MainContent: React.FC = () => {
     isScannerOpen,
     closeScanner,
     scannerMode,
+    isBrochureModalOpen,
     setIsBrochureModalOpen,
+    isManualModalOpen,
     setIsManualModalOpen,
+    isCustomOrderModalOpen,
+    isMerchantManagerOpen,
     setIsAuthModalOpen,
     userRole,
     hasAccessSelected
@@ -71,8 +78,10 @@ const MainContent: React.FC = () => {
     return (
       <>
         <InitialAccessGate />
-        <BrochureModal />
-        <UserManualModal />
+        <Suspense fallback={<ModalFallback />}>
+          {isBrochureModalOpen && <BrochureModal />}
+          {isManualModalOpen && <UserManualModal />}
+        </Suspense>
       </>
     );
   }
@@ -82,65 +91,67 @@ const MainContent: React.FC = () => {
       {/* Top Bar following contract */}
       <Navbar />
 
-      {/* Main View Router with Strict Role Guards */}
+      {/* Main View Router with Strict Role Guards & Suspense */}
       <main className="flex-1 pb-16 md:pb-0">
-        {activeTab === 'tienda' && <Storefront />}
-        {activeTab === 'inventario' && (userRole === 'cliente' ? <Storefront /> : <InventoryManager />)}
-        {activeTab === 'mi_negocio' && (userRole === 'cliente' ? <Storefront /> : <MerchantPortal />)}
-        {activeTab === 'finanzas' && (userRole === 'admin' ? <FinancialDashboard /> : <Storefront />)}
-        {activeTab === 'hub_pedidos' && (userRole === 'admin' ? <HubOrdersManager /> : <Storefront />)}
-        {activeTab === 'reportes' && (userRole === 'admin' ? <ReportsDashboard /> : <Storefront />)}
-        {activeTab === 'movimientos' && (userRole === 'cliente' ? <Storefront /> : <MovementsHistory />)}
-        {activeTab === 'pedidos' && <OrdersHistory />}
-        {/* Router Fallback para evitar pantalla en blanco si no hay coincidencia */}
-        {!['tienda', 'inventario', 'mi_negocio', 'finanzas', 'hub_pedidos', 'reportes', 'movimientos', 'pedidos'].includes(activeTab) && <Storefront />}
+        <Suspense fallback={<div className="p-12 text-center text-slate-500 font-medium">Cargando módulo...</div>}>
+          {activeTab === 'tienda' && <Storefront />}
+          {activeTab === 'inventario' && (userRole === 'cliente' ? <Storefront /> : <InventoryManager />)}
+          {activeTab === 'mi_negocio' && (userRole === 'cliente' ? <Storefront /> : <MerchantPortal />)}
+          {activeTab === 'finanzas' && (userRole === 'admin' ? <FinancialDashboard /> : <Storefront />)}
+          {activeTab === 'hub_pedidos' && (userRole === 'admin' ? <HubOrdersManager /> : <Storefront />)}
+          {activeTab === 'reportes' && (userRole === 'admin' ? <ReportsDashboard /> : <Storefront />)}
+          {activeTab === 'movimientos' && (userRole === 'cliente' ? <Storefront /> : <MovementsHistory />)}
+          {activeTab === 'pedidos' && <OrdersHistory />}
+          {/* Router Fallback para evitar pantalla en blanco si no hay coincidencia */}
+          {!['tienda', 'inventario', 'mi_negocio', 'finanzas', 'hub_pedidos', 'reportes', 'movimientos', 'pedidos'].includes(activeTab) && <Storefront />}
+        </Suspense>
       </main>
 
-      {/* Persistent slide-overs and modals */}
+      {/* Persistent lightweight slide-overs and core modals */}
       <CartDrawer />
       <ProductQuickView />
       <ProductEditModal />
-      <DeviceSyncModal 
-        isOpen={isSyncModalOpen} 
-        onClose={() => setIsSyncModalOpen(false)} 
-      />
-      <SettingsModal 
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-      />
-      <BarcodeScannerModal
-        isOpen={isScannerOpen}
-        onClose={closeScanner}
-        initialMode={scannerMode}
-      />
-
-      {/* Role Access Control Modal */}
       <AuthModal />
 
-      {/* Custom Order Request Modal */}
-      <CustomOrderModal />
-
-      {/* Official 2-Page Business Brochure & Commission Table Modal */}
-      <BrochureModal />
-
-      {/* Official User and Operations Manual (Downloadable/Printable PDF) */}
-      <UserManualModal />
-
-      {/* Affiliated Merchants Manager CRUD Modal */}
-      <MerchantsManager />
-
-      {/* Live Order Tracking Modal with QR Code */}
-      <OrderTrackingModal
-        order={activeTrackingOrder}
-        isOpen={Boolean(activeTrackingOrder)}
-        onClose={closeTrackingModal}
-      />
-
-      {/* Automatic receipt popup upon completing an order */}
-      <OrderReceiptModal
-        order={lastCompletedOrder}
-        onClose={() => setLastCompletedOrder(null)}
-      />
+      {/* Heavy modals loaded on-demand via Suspense */}
+      <Suspense fallback={<ModalFallback />}>
+        {isSyncModalOpen && (
+          <DeviceSyncModal 
+            isOpen={isSyncModalOpen} 
+            onClose={() => setIsSyncModalOpen(false)} 
+          />
+        )}
+        {isSettingsModalOpen && (
+          <SettingsModal 
+            isOpen={isSettingsModalOpen}
+            onClose={() => setIsSettingsModalOpen(false)}
+          />
+        )}
+        {isScannerOpen && (
+          <BarcodeScannerModal
+            isOpen={isScannerOpen}
+            onClose={closeScanner}
+            initialMode={scannerMode}
+          />
+        )}
+        {isCustomOrderModalOpen && <CustomOrderModal />}
+        {isBrochureModalOpen && <BrochureModal />}
+        {isManualModalOpen && <UserManualModal />}
+        {isMerchantManagerOpen && <MerchantsManager />}
+        {Boolean(activeTrackingOrder) && (
+          <OrderTrackingModal
+            order={activeTrackingOrder}
+            isOpen={Boolean(activeTrackingOrder)}
+            onClose={closeTrackingModal}
+          />
+        )}
+        {Boolean(lastCompletedOrder) && (
+          <OrderReceiptModal
+            order={lastCompletedOrder}
+            onClose={() => setLastCompletedOrder(null)}
+          />
+        )}
+      </Suspense>
 
       {/* Footer */}
       <footer className="bg-slate-900 text-slate-300 border-t border-slate-800 mt-auto py-10 relative overflow-hidden">
