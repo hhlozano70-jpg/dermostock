@@ -101,6 +101,7 @@ export const SilaoLandmarksShowcase: React.FC = () => {
                 alt={landmark.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                 loading="lazy"
+                decoding="async"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
               
@@ -156,6 +157,7 @@ export const SilaoLandmarksShowcase: React.FC = () => {
               <img 
                 src={selectedLandmark.imageUrl} 
                 alt={selectedLandmark.name}
+                decoding="async"
                 className="w-full h-full object-cover" 
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />

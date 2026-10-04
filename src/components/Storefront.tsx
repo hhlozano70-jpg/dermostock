@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useTransition, useDeferredValue } from 'react';
 import { 
   Search, 
   Truck, 
@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
+import { ProductCardSkeletonGrid } from './ProductCardSkeleton';
 import { SILAO_COLONIAS } from '../data/silaoMarketData';
 import { SilaoLandmarksShowcase } from './SilaoLandmarksShowcase';
 import { checkMerchantOperatingStatus } from '../utils/operatingHours';
@@ -45,17 +46,48 @@ export const Storefront: React.FC = () => {
     setActiveTab
   } = useInventory();
 
-  // Filters
+  // Filters with React 19 Concurrent / Non-blocking Transitions
   const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearchTerm = useDeferredValue(searchTerm);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [onlyColdChain, setOnlyColdChain] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [isPending, startTransition] = useTransition();
   const ITEMS_PER_PAGE = 16;
+
+  // Memoized action handlers to prevent re-renders of child lists
+  const handleSelectCategory = useCallback((cat: string) => {
+    startTransition(() => {
+      setSelectedCategory(cat);
+      setSelectedMerchantId('all');
+    });
+  }, [setSelectedMerchantId]);
+
+  const handleSelectMerchant = useCallback((merchantId: string) => {
+    startTransition(() => {
+      setSelectedMerchantId(selectedMerchantId === merchantId ? 'all' : merchantId);
+    });
+  }, [selectedMerchantId, setSelectedMerchantId]);
+
+  const handleToggleColdChain = useCallback(() => {
+    startTransition(() => {
+      setOnlyColdChain(prev => !prev);
+    });
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    startTransition(() => {
+      setSearchTerm('');
+      setSelectedCategory('all');
+      setSelectedMerchantId('all');
+      setOnlyColdChain(false);
+    });
+  }, [setSelectedMerchantId]);
 
   // Reset pagination when search or filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCategory, selectedMerchantId, onlyColdChain]);
+  }, [deferredSearchTerm, selectedCategory, selectedMerchantId, onlyColdChain]);
 
   // Map of merchants for fast, decoupled property access
   const merchantMap = useMemo(() => {
@@ -128,7 +160,7 @@ export const Storefront: React.FC = () => {
   }, [selectedCategory, merchants]);
 
   const filteredProducts = useMemo(() => {
-    const search = searchTerm.trim().toLowerCase();
+    const search = deferredSearchTerm.trim().toLowerCase();
     return (products || []).filter((p) => {
       if (!p) return false;
 
@@ -163,7 +195,10 @@ export const Storefront: React.FC = () => {
 
       return matchSearch && matchCategory && matchMerchant && matchCold;
     });
-  }, [products, searchTerm, selectedCategory, selectedMerchantId, onlyColdChain, merchantMap]);
+  }, [products, deferredSearchTerm, selectedCategory, selectedMerchantId, onlyColdChain, merchantMap]);
+
+  // Visual skeleton feedback trigger during non-blocking filter transitions
+  const isFiltering = isPending || (deferredSearchTerm !== searchTerm);
 
   // Paginated slice for optimal DOM rendering performance
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE) || 1;
@@ -176,7 +211,7 @@ export const Storefront: React.FC = () => {
     <div className="space-y-8 pb-16">
       
       {/* Header Banner Profesional con Fondos de Cristo Rey y Logo SilaoMarket */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/95 to-emerald-50/50 text-slate-900 py-8 sm:py-12 px-4 sm:px-6 lg:px-8 border-b border-slate-200">
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/95 to-emerald-50/50 text-slate-900 py-5 sm:py-10 px-4 sm:px-6 lg:px-8 border-b border-slate-200">
         
         {/* Fondo sutil de Cristo Rey (Cerro del Cubilete, Silao) */}
         <div 
@@ -189,6 +224,8 @@ export const Storefront: React.FC = () => {
           <img 
             src="/images/silaomarket_logo.jpg" 
             alt="" 
+            loading="lazy"
+            decoding="async"
             className="w-[450px] h-[450px] object-contain rounded-full blur-xs"
           />
         </div>
@@ -196,9 +233,9 @@ export const Storefront: React.FC = () => {
         {/* Ambient Gradient Overlay for text contrast and clarity */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/80 to-emerald-50/80 pointer-events-none" />
 
-        <div className="relative z-10 max-w-6xl mx-auto text-center space-y-4 sm:space-y-5">
+        <div className="relative z-10 max-w-6xl mx-auto text-center space-y-3 sm:space-y-4">
           
-          {/* Logo Principal SilaoMarket con Insignia de Silao */}
+          {/* Logo Principal SilaoMarket con Insignia de Silao (Compacto en móvil) */}
           <div className="flex flex-col items-center justify-center">
             <div 
               className="relative group cursor-pointer inline-block" 
@@ -209,22 +246,24 @@ export const Storefront: React.FC = () => {
               <img 
                 src="/images/silaomarket_logo.jpg" 
                 alt="SILAOMARKET ON LINE Logo Oficial" 
-                className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl object-contain shadow-xl border-2 border-white bg-white p-1 transition-transform duration-300 group-hover:scale-105" 
+                loading="eager"
+                decoding="async"
+                className="relative w-14 h-14 sm:w-22 sm:h-22 md:w-26 md:h-26 rounded-2xl object-contain shadow-lg border-2 border-white bg-white p-1 transition-transform duration-300 group-hover:scale-105" 
               />
-              <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-[10px] sm:text-xs font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-md whitespace-nowrap border border-white">
+              <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-[9px] sm:text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md whitespace-nowrap border border-white">
                 Silao · Gto
               </span>
             </div>
           </div>
 
           {/* Badge de Silao y Hub Central */}
-          <div className="inline-flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-4 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-amber-300 text-slate-800 text-xs font-bold uppercase tracking-wider shadow-xs">
-            <span className="flex items-center gap-1">⛰️ Cerro del Cubilete & Cristo Rey</span>
+          <div className="inline-flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-amber-300 text-slate-800 text-[11px] sm:text-xs font-bold uppercase tracking-wider shadow-xs">
+            <span className="flex items-center gap-1">⛰️ Cristo Rey & Cerro del Cubilete</span>
             <span className="text-amber-500 hidden sm:inline" aria-hidden="true">·</span>
             <span className="text-emerald-800 font-black">Hub Central: Calle 5 de Mayo #45, Silao Centro</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 max-w-4xl mx-auto leading-tight sm:leading-none">
+          <h1 className="text-xl sm:text-3xl md:text-5xl font-black tracking-tight text-slate-900 max-w-4xl mx-auto leading-tight sm:leading-none">
             Todos los Comercios de Silao en <span className="text-emerald-700 underline decoration-amber-400 decoration-wavy decoration-2">un Solo Carrito</span>
           </h1>
 
@@ -233,30 +272,41 @@ export const Storefront: React.FC = () => {
           </p>
 
           {/* Botones de Acción Rápida: Manual de Usuario & Folleto de Afiliación */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-0.5 sm:pt-1">
             <button
               type="button"
               onClick={() => setIsManualModalOpen(true)}
-              className="px-4 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-900/10 transition-all flex items-center gap-2 cursor-pointer hover:scale-105"
+              className="px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-900/10 transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105"
               title="Ver o descargar el Manual Oficial de Usuario y Operaciones en PDF"
             >
-              <BookOpen className="w-4 h-4 text-amber-300" />
-              <span>📖 Descargar Manual de Usuario (PDF)</span>
+              <BookOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
+              <span>📖 Manual de Usuario (PDF)</span>
             </button>
 
             <button
               type="button"
               onClick={() => setIsBrochureModalOpen(true)}
-              className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-emerald-950 text-xs sm:text-sm font-black shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 cursor-pointer hover:scale-105"
+              className="px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl bg-amber-400 hover:bg-amber-300 text-emerald-950 text-xs sm:text-sm font-black shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:scale-105"
               title="Ver Folleto Oficial para Negocios (0% Entrada, 8-18% Comisión)"
             >
-              <FileText className="w-4 h-4 text-emerald-950" />
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-950" />
               <span>📄 Folleto para Negocios (0% Entrada)</span>
             </button>
           </div>
 
-          {/* 3 Pasos del Hub Logístico Limpio */}
-          <div className="pt-3 max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 text-left">
+          {/* Resumen Móvil Ultracompacto del Hub (ahorra ~300px verticales en celulares) */}
+          <div className="sm:hidden pt-1 flex items-center justify-center">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 border border-emerald-200 text-[11px] font-semibold text-slate-700 shadow-2xs">
+              <span className="text-emerald-700 font-bold">1. Carrito Mixto</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-cyan-700 font-bold">2. Hub Cadena Fría</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-amber-700 font-bold">3. 1 Sola Vuelta</span>
+            </div>
+          </div>
+
+          {/* 3 Pasos del Hub Logístico Detallados (visible en tablets y computadoras) */}
+          <div className="hidden sm:grid pt-2 max-w-4xl mx-auto sm:grid-cols-3 gap-3 text-left">
             <div className="bg-white/90 backdrop-blur-xs p-4 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-emerald-300 transition-colors">
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">
@@ -404,7 +454,7 @@ export const Storefront: React.FC = () => {
             {/* Cold Chain Only Toggle Pill */}
             <button
               type="button"
-              onClick={() => setOnlyColdChain(!onlyColdChain)}
+              onClick={handleToggleColdChain}
               className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all border cursor-pointer whitespace-nowrap ${
                 onlyColdChain
                   ? 'bg-cyan-600 text-white border-cyan-600 shadow-sm'
@@ -428,10 +478,7 @@ export const Storefront: React.FC = () => {
                 return (
                   <button
                     key={cat}
-                    onClick={() => {
-                      setSelectedCategory(cat);
-                      setSelectedMerchantId('all');
-                    }}
+                    onClick={() => handleSelectCategory(cat)}
                     className={`py-2 px-3.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all cursor-pointer shrink-0 border ${
                       isSelected
                         ? 'bg-emerald-700 text-white border-emerald-700 shadow-xs font-bold scale-[1.02]'
@@ -458,7 +505,7 @@ export const Storefront: React.FC = () => {
               </div>
               {selectedMerchantId !== 'all' && (
                 <button
-                  onClick={() => setSelectedMerchantId('all')}
+                  onClick={handleResetFilters}
                   className="text-xs text-emerald-700 font-bold hover:underline cursor-pointer"
                 >
                   ✕ Ver todos los productos de la categoría
@@ -479,11 +526,11 @@ export const Storefront: React.FC = () => {
                     role="button"
                     tabIndex={0}
                     aria-pressed={isSelected}
-                    onClick={() => setSelectedMerchantId(isSelected ? 'all' : m.id)}
+                    onClick={() => handleSelectMerchant(m.id)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        setSelectedMerchantId(isSelected ? 'all' : m.id);
+                        handleSelectMerchant(m.id);
                       }
                     }}
                     className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer bg-white flex flex-col justify-between gap-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 ${
@@ -495,7 +542,7 @@ export const Storefront: React.FC = () => {
                     <div className="flex items-start gap-3">
                       <div className="w-11 h-11 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 overflow-hidden">
                         {m.logoUrl ? (
-                          <img src={m.logoUrl} alt={m.name} className="w-full h-full object-cover" />
+                          <img src={m.logoUrl} alt={m.name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-xl">🏪</span>
                         )}
@@ -741,7 +788,11 @@ export const Storefront: React.FC = () => {
             </button>
           </div>
 
-          {filteredProducts.length > 0 ? (
+          {isFiltering ? (
+            <div className="space-y-6">
+              <ProductCardSkeletonGrid count={paginatedProducts.length > 0 ? paginatedProducts.length : 8} />
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {paginatedProducts.map((product) => (
@@ -838,12 +889,7 @@ export const Storefront: React.FC = () => {
               </p>
               <div className="flex items-center justify-center gap-3 pt-2">
                 <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setSelectedCategory('all');
-                    setSelectedMerchantId('all');
-                    setOnlyColdChain(false);
-                  }}
+                  onClick={handleResetFilters}
                   className="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-lg hover:bg-slate-800 cursor-pointer"
                 >
                   Restablecer Filtros

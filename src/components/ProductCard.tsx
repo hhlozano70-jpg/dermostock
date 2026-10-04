@@ -10,7 +10,7 @@ interface ProductCardProps {
   product: Product;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCardComponent: React.FC<ProductCardProps> = ({ product }) => {
   const { 
     merchants,
     addToCart, 
@@ -294,3 +294,5 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     </article>
   );
 };
+
+export const ProductCard = React.memo(ProductCardComponent);

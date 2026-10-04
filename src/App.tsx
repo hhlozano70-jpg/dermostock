@@ -51,6 +51,10 @@ const MainContent: React.FC = () => {
     setIsManualModalOpen,
     isCustomOrderModalOpen,
     isMerchantManagerOpen,
+    isCartOpen,
+    selectedProductForQuickView,
+    isProductModalOpen,
+    isAuthModalOpen,
     setIsAuthModalOpen,
     userRole,
     hasAccessSelected
@@ -107,11 +111,11 @@ const MainContent: React.FC = () => {
         </Suspense>
       </main>
 
-      {/* Persistent lightweight slide-overs and core modals */}
-      <CartDrawer />
-      <ProductQuickView />
-      <ProductEditModal />
-      <AuthModal />
+      {/* Persistent slide-overs and core modals - conditionally mounted to eliminate re-render & hook cost when closed */}
+      {isCartOpen && <CartDrawer />}
+      {Boolean(selectedProductForQuickView) && <ProductQuickView />}
+      {isProductModalOpen && <ProductEditModal />}
+      {isAuthModalOpen && <AuthModal />}
 
       {/* Heavy modals loaded on-demand via Suspense */}
       <Suspense fallback={<ModalFallback />}>

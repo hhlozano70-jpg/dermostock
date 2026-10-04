@@ -116,6 +116,7 @@ export const ProductVisual: React.FC<ProductVisualProps> = ({
             onError={() => setImageError(true)}
             className="w-full h-full object-contain filter drop-shadow-sm transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
             referrerPolicy="no-referrer"
           />
         </div>
