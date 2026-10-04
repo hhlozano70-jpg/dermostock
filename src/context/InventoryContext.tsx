@@ -312,7 +312,20 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [registeredCustomer, setRegisteredCustomer] = useState<RegisteredCustomer | null>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.CUSTOMER);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object' && parsed.phone) {
+          return {
+            id: parsed.id || `cust-${Date.now().toString(36)}`,
+            name: typeof parsed.name === 'string' && parsed.name.trim() ? parsed.name.trim() : 'Cliente Silao',
+            phone: typeof parsed.phone === 'string' ? parsed.phone.trim() : '',
+            email: parsed.email || undefined,
+            address: parsed.address || undefined,
+            colonia: parsed.colonia || undefined,
+            registeredAt: parsed.registeredAt || new Date().toISOString()
+          };
+        }
+      }
     } catch {}
     return null;
   });

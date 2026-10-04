@@ -15,11 +15,12 @@ import {
   MapPin,
   Truck,
   Eye,
-  EyeOff
+  EyeOff,
+  UserCheck
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { UserRole } from '../types/inventory';
-import { SILAO_MERCHANTS } from '../data/silaoMarketData';
+import { SILAO_MERCHANTS, SILAO_COLONIAS } from '../data/silaoMarketData';
 
 export const InitialAccessGate: React.FC = () => {
   const { 
@@ -27,7 +28,10 @@ export const InitialAccessGate: React.FC = () => {
     loginRole, 
     setHasAccessSelected, 
     setActiveTab, 
-    setIsBrochureModalOpen 
+    setIsBrochureModalOpen,
+    registeredCustomer,
+    registerCustomer,
+    loginCustomer
   } = useInventory();
 
   const merchantsList = merchants && merchants.length > 0 ? merchants : SILAO_MERCHANTS;
@@ -41,7 +45,84 @@ export const InitialAccessGate: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleEnterAsClient = () => {
+  // Estados para Registro e Identificación de Cliente
+  const [clientTab, setClientTab] = useState<'registro' | 'login' | 'invitado'>('registro');
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [clientAddress, setClientAddress] = useState('');
+  const [clientColonia, setClientColonia] = useState(SILAO_COLONIAS[0]);
+  const [loginPhone, setLoginPhone] = useState('');
+  const [showSwitchAccount, setShowSwitchAccount] = useState(false);
+  const [clientErrorMessage, setClientErrorMessage] = useState<string | null>(null);
+
+  const handleRegisterClient = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setClientErrorMessage(null);
+
+    const name = clientName.trim();
+    const phone = clientPhone.replace(/\D/g, '').slice(-10);
+
+    if (!name || name.length < 3) {
+      setClientErrorMessage('Por favor ingresa tu nombre completo.');
+      return;
+    }
+    if (!phone || phone.length < 10) {
+      setClientErrorMessage('Por favor ingresa un número de teléfono / WhatsApp válido (10 dígitos).');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      registerCustomer({
+        name,
+        phone,
+        address: clientAddress.trim() || undefined,
+        colonia: clientColonia
+      });
+      const res = loginRole('cliente');
+      if (res.success) {
+        setHasAccessSelected(true);
+        setActiveTab('tienda');
+      }
+    } catch (err: any) {
+      setClientErrorMessage(err?.message || 'Error al registrar cliente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoginExistingClient = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setClientErrorMessage(null);
+
+    const phone = loginPhone.replace(/\D/g, '').slice(-10);
+    if (!phone || phone.length < 8) {
+      setClientErrorMessage('Por favor ingresa los 10 dígitos de tu número de teléfono registrado.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const loginRes = loginCustomer(phone);
+      if (loginRes.success) {
+        const res = loginRole('cliente');
+        if (res.success) {
+          setHasAccessSelected(true);
+          setActiveTab('tienda');
+        }
+      } else {
+        setClientErrorMessage(loginRes.message || 'No se encontró cuenta con este número.');
+      }
+    } catch (err: any) {
+      setClientErrorMessage(err?.message || 'Error al iniciar sesión de cliente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEnterAsGuest = () => {
     setLoading(true);
     const res = loginRole('cliente');
     if (res.success) {
@@ -152,14 +233,14 @@ export const InitialAccessGate: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
           
           {/* PERFIL 1: CLIENTE / COMPRADOR */}
-          <div className="bg-slate-900/80 backdrop-blur-md rounded-3xl border border-emerald-500/30 p-6 flex flex-col justify-between hover:border-emerald-500 transition-all shadow-xl group hover:shadow-emerald-950/50">
+          <div className="bg-slate-900/80 backdrop-blur-md rounded-3xl border border-emerald-500/30 p-5 sm:p-6 flex flex-col justify-between hover:border-emerald-500 transition-all shadow-xl group hover:shadow-emerald-950/50">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 group-hover:scale-105 transition-transform">
-                  <ShoppingBag className="w-7 h-7" />
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 group-hover:scale-105 transition-transform">
+                  <ShoppingBag className="w-6 h-6" />
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-1 rounded-full">
-                  Acceso Público
+                  Acceso Comprador
                 </span>
               </div>
 
@@ -172,46 +253,248 @@ export const InitialAccessGate: React.FC = () => {
                 </p>
               </div>
 
-              {/* Explicit user requirement badge */}
-              <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-[11px] text-emerald-200 space-y-1.5">
-                <div className="flex items-center gap-1.5 font-bold text-emerald-300">
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Modo Consulta y Pedidos:</span>
-                </div>
-                <p className="text-[11px] leading-relaxed">
-                  Los clientes pueden <strong>ver los inventarios y existencias</strong> de todas las tiendas de Silao y <strong>hacer pedidos</strong>.
-                </p>
-                <p className="text-[10px] text-amber-300 font-medium">
-                  🔒 No tienen permisos de edición ni modificación de productos.
-                </p>
-              </div>
+              {/* Si ya hay un perfil de cliente registrado en este dispositivo */}
+              {registeredCustomer && !showSwitchAccount ? (
+                <div className="space-y-3 pt-1">
+                  <div className="p-3.5 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-100 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full shadow-2xs flex items-center gap-1">
+                        <ShieldCheck className="w-3 h-3 text-slate-950" />
+                        <span>Cliente Registrado</span>
+                      </span>
+                      <span className="text-[11px] text-emerald-300 font-mono">
+                        {registeredCustomer.phone}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">{registeredCustomer.name}</h4>
+                      <p className="text-[11px] text-emerald-200/80 mt-0.5">
+                        📍 {registeredCustomer.address || 'Silao Centro'} · {registeredCustomer.colonia || 'Silao, Gto'}
+                      </p>
+                    </div>
+                  </div>
 
-              <ul className="text-xs text-slate-300 space-y-2">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Ver catálogo completo de todas las tiendas de Silao en un solo lugar.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Carrito consolidado con costo de envío accesible ($25 a $40 MXN).</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Rastreo de pedido con código QR y entrega de 8:00 AM a 8:00 PM.</span>
-                </li>
-              </ul>
+                  <button
+                    type="button"
+                    onClick={handleEnterAsGuest}
+                    disabled={loading}
+                    className="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <UserCheck className="w-4 h-4" />
+                    <span>Continuar como {((registeredCustomer.name || 'Cliente').split(' ')[0])}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowSwitchAccount(true)}
+                    className="w-full text-center text-[11px] text-slate-400 hover:text-emerald-300 underline cursor-pointer"
+                  >
+                    Registrar nuevo cliente o cambiar cuenta
+                  </button>
+                </div>
+              ) : (
+                /* Formularios de Registro / Inicio de sesión / Invitado */
+                <div className="space-y-3 pt-1">
+                  {/* Selector de modo cliente */}
+                  <div className="grid grid-cols-3 gap-1 p-1 bg-slate-800/80 rounded-xl border border-slate-700/80 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={() => { setClientTab('registro'); setClientErrorMessage(null); }}
+                      className={`py-1.5 px-1 rounded-lg font-bold transition-all text-center cursor-pointer ${
+                        clientTab === 'registro' 
+                          ? 'bg-emerald-600 text-white shadow-xs' 
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Registrarme
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setClientTab('login'); setClientErrorMessage(null); }}
+                      className={`py-1.5 px-1 rounded-lg font-bold transition-all text-center cursor-pointer ${
+                        clientTab === 'login' 
+                          ? 'bg-emerald-600 text-white shadow-xs' 
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Ya tengo cuenta
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setClientTab('invitado'); setClientErrorMessage(null); }}
+                      className={`py-1.5 px-1 rounded-lg font-bold transition-all text-center cursor-pointer ${
+                        clientTab === 'invitado' 
+                          ? 'bg-emerald-600 text-white shadow-xs' 
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Invitado
+                    </button>
+                  </div>
+
+                  {clientErrorMessage && (
+                    <div className="p-2.5 bg-rose-500/20 border border-rose-500/40 rounded-xl text-rose-200 text-[11px] flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0 text-rose-400" />
+                      <span>{clientErrorMessage}</span>
+                    </div>
+                  )}
+
+                  {/* FORMULARIO 1: REGISTRO CLIENTE NUEVO */}
+                  {clientTab === 'registro' && (
+                    <form onSubmit={handleRegisterClient} className="space-y-2.5">
+                      <div className="p-2 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-[10px] text-emerald-200 flex items-center gap-1.5 font-semibold">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span>Obtén estatus oficial de <strong>Cliente Registrado</strong></span>
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-300 mb-0.5">
+                          Nombre Completo:
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ej. María López"
+                          value={clientName}
+                          onChange={(e) => setClientName(e.target.value)}
+                          className="w-full px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-400"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="block text-[11px] font-bold text-slate-300">
+                            Celular WhatsApp (10 dígitos):
+                          </label>
+                          <span className="text-[10px] text-emerald-400 font-mono">
+                            {clientPhone.replace(/\D/g, '').length}/10
+                          </span>
+                        </div>
+                        <input
+                          type="tel"
+                          required
+                          maxLength={10}
+                          placeholder="Ej. 4721234567"
+                          value={clientPhone}
+                          onChange={(e) => setClientPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="w-full px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-emerald-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-300 mb-0.5">
+                          Dirección de Entrega (Calle y Número):
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ej. Calle Hidalgo #12"
+                          value={clientAddress}
+                          onChange={(e) => setClientAddress(e.target.value)}
+                          className="w-full px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-400"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-300 mb-0.5">
+                          Colonia en Silao:
+                        </label>
+                        <select
+                          value={clientColonia}
+                          onChange={(e) => setClientColonia(e.target.value)}
+                          className="w-full px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-400"
+                        >
+                          {SILAO_COLONIAS.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full mt-2 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <UserCheck className="w-4 h-4" />
+                        <span>Registrarme con Estatus Cliente</span>
+                      </button>
+                    </form>
+                  )}
+
+                  {/* FORMULARIO 2: LOGIN YA REGISTRADO */}
+                  {clientTab === 'login' && (
+                    <form onSubmit={handleLoginExistingClient} className="space-y-3">
+                      <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700 text-[11px] text-slate-300 leading-snug">
+                        Ingresa el celular con el que te registraste para recuperar tus pedidos anteriores y estatus de cliente.
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <label className="block text-[11px] font-bold text-slate-300">
+                            Celular Registrado:
+                          </label>
+                          <span className="text-[10px] text-emerald-400 font-mono">
+                            {loginPhone.replace(/\D/g, '').length}/10
+                          </span>
+                        </div>
+                        <input
+                          type="tel"
+                          required
+                          maxLength={10}
+                          placeholder="Ej. 4721234567"
+                          value={loginPhone}
+                          onChange={(e) => setLoginPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-mono focus:outline-none focus:border-emerald-400"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>Ingresar como Cliente Registrado</span>
+                      </button>
+                    </form>
+                  )}
+
+                  {/* MODO 3: INVITADO */}
+                  {clientTab === 'invitado' && (
+                    <div className="space-y-3">
+                      <div className="p-3 rounded-xl bg-slate-800/60 border border-slate-700 text-xs text-slate-300 leading-relaxed">
+                        Navega como visitante y consulta libremente el catálogo, precios comerciales, mayoreo y cadena fría de todos los comercios afiliados de Silao. Podrás registrarte cuando lo desees.
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleEnterAsGuest}
+                        disabled={loading}
+                        className="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <span>Entrar como Invitado</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+
+                  {registeredCustomer && showSwitchAccount && (
+                    <button
+                      type="button"
+                      onClick={() => setShowSwitchAccount(false)}
+                      className="w-full text-center text-[10px] text-slate-400 hover:text-slate-200 cursor-pointer pt-1"
+                    >
+                      Volver a mi sesión previa ({registeredCustomer.name})
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
-            <div className="pt-6 mt-4 border-t border-white/10">
-              <button
-                type="button"
-                onClick={handleEnterAsClient}
-                disabled={loading}
-                className="w-full py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2 transition-all cursor-pointer group-hover:shadow-emerald-600/30"
-              >
-                <span>Entrar como Cliente</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </button>
+            {/* Disclaimer inferior de permisos de cliente */}
+            <div className="pt-3 mt-3 border-t border-white/10 text-[10px] text-slate-400 flex items-center justify-between">
+              <span>🛍️ Compras & Consulta</span>
+              <span className="text-emerald-400 font-semibold">Hub Silao 5 de Mayo</span>
             </div>
           </div>
 

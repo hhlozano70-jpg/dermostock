@@ -23,6 +23,7 @@ import { MerchantsManager } from './components/MerchantsManager';
 import { HubOrdersManager } from './components/HubOrdersManager';
 import { InitialAccessGate } from './components/InitialAccessGate';
 import { CustomOrderModal } from './components/CustomOrderModal';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const MainContent: React.FC = () => {
   const { 
@@ -53,8 +54,8 @@ const MainContent: React.FC = () => {
       const trackingParam = params.get('rastreo');
       if (trackingParam && orders.length > 0) {
         const found = orders.find(o => 
-          o.trackingCode.toLowerCase() === trackingParam.trim().toLowerCase() ||
-          o.id.toLowerCase() === trackingParam.trim().toLowerCase()
+          (o.trackingCode && o.trackingCode.toLowerCase() === trackingParam.trim().toLowerCase()) ||
+          (o.id && o.id.toLowerCase() === trackingParam.trim().toLowerCase())
         );
         if (found) {
           openTrackingModal(found);
@@ -88,6 +89,8 @@ const MainContent: React.FC = () => {
         {activeTab === 'reportes' && (userRole === 'admin' ? <ReportsDashboard /> : <Storefront />)}
         {activeTab === 'movimientos' && (userRole === 'cliente' ? <Storefront /> : <MovementsHistory />)}
         {activeTab === 'pedidos' && <OrdersHistory />}
+        {/* Router Fallback para evitar pantalla en blanco si no hay coincidencia */}
+        {!['tienda', 'inventario', 'mi_negocio', 'finanzas', 'hub_pedidos', 'reportes', 'movimientos', 'pedidos'].includes(activeTab) && <Storefront />}
       </main>
 
       {/* Persistent slide-overs and modals */}
@@ -191,9 +194,11 @@ const MainContent: React.FC = () => {
 
 export function App() {
   return (
-    <InventoryProvider>
-      <MainContent />
-    </InventoryProvider>
+    <ErrorBoundary>
+      <InventoryProvider>
+        <MainContent />
+      </InventoryProvider>
+    </ErrorBoundary>
   );
 }
 

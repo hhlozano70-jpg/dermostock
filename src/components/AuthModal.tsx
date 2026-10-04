@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { UserRole } from '../types/inventory';
+import { SILAO_COLONIAS } from '../data/silaoMarketData';
 
 export const AuthModal: React.FC = () => {
   const { 
@@ -31,6 +32,7 @@ export const AuthModal: React.FC = () => {
     setIsBrochureModalOpen,
     registeredCustomer,
     loginCustomer,
+    registerCustomer,
     logoutCustomer
   } = useInventory();
 
@@ -40,8 +42,11 @@ export const AuthModal: React.FC = () => {
   );
   const [merchantPin, setMerchantPin] = useState<string>('');
   const [adminPin, setAdminPin] = useState<string>('');
+  const [clientSubTab, setClientSubTab] = useState<'registro' | 'login'>('registro');
   const [clientPhone, setClientPhone] = useState(() => registeredCustomer?.phone || '');
   const [clientName, setClientName] = useState(() => registeredCustomer?.name || '');
+  const [clientAddress, setClientAddress] = useState(() => registeredCustomer?.address || '');
+  const [clientColonia, setClientColonia] = useState(() => registeredCustomer?.colonia || SILAO_COLONIAS[0]);
   const [showMerchantPass, setShowMerchantPass] = useState(false);
   const [showAdminPass, setShowAdminPass] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -55,16 +60,34 @@ export const AuthModal: React.FC = () => {
     setSuccessMessage(null);
 
     if (selectedRole === 'cliente') {
-      if (clientPhone.trim()) {
-        const loginRes = loginCustomer(clientPhone.trim(), clientName.trim());
-        if (!loginRes.success) {
-          setErrorMessage(loginRes.message || 'Error en teléfono.');
+      const cleanPhone = clientPhone.replace(/\D/g, '').slice(-10);
+      if (clientSubTab === 'registro') {
+        if (!clientName.trim() || clientName.trim().length < 3) {
+          setErrorMessage('Por favor ingresa tu nombre completo.');
           return;
+        }
+        if (!cleanPhone || cleanPhone.length < 10) {
+          setErrorMessage('Por favor ingresa un número de teléfono / WhatsApp válido (10 dígitos).');
+          return;
+        }
+        registerCustomer({
+          name: clientName.trim(),
+          phone: cleanPhone,
+          address: clientAddress.trim() || undefined,
+          colonia: clientColonia
+        });
+      } else {
+        if (cleanPhone) {
+          const loginRes = loginCustomer(cleanPhone, clientName.trim());
+          if (!loginRes.success) {
+            setErrorMessage(loginRes.message || 'Error en teléfono.');
+            return;
+          }
         }
       }
       const res = loginRole('cliente');
       if (res.success) {
-        setSuccessMessage(clientPhone.trim() ? '¡Sesión de Cliente iniciada!' : 'Has entrado como Cliente a la Tienda.');
+        setSuccessMessage('¡Estatus de Cliente Registrado confirmado!');
         setTimeout(() => {
           setIsAuthModalOpen(false);
           setActiveTab('tienda');
@@ -258,67 +281,183 @@ export const AuthModal: React.FC = () => {
           {selectedRole === 'cliente' && (
             <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg">
                   🛒
                 </div>
                 <div>
-                  <h4 className="font-bold text-xs text-slate-900">Perfil de Cliente</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Perfil de Cliente Silao</h4>
                   <p className="text-xs text-slate-500">
                     {registeredCustomer 
-                      ? `Identificado como ${registeredCustomer.name} (${registeredCustomer.phone})`
-                      : 'Ingresa tu teléfono para consultar tus pedidos anteriores o comprar.'}
+                      ? `Estatus: 🛡️ Cliente Registrado (${registeredCustomer.name})`
+                      : 'Regístrate o identifícate para activar tu estatus de Cliente Registrado.'}
                   </p>
                 </div>
               </div>
 
               {registeredCustomer ? (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-bold text-emerald-950 block">Sesión activa: {registeredCustomer.name}</span>
-                    <span className="text-emerald-800 text-[11px]">Teléfono: {registeredCustomer.phone}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      logoutCustomer();
-                      setClientPhone('');
-                      setClientName('');
-                    }}
-                    className="text-red-700 hover:text-red-800 font-bold underline cursor-pointer text-xs"
-                  >
-                    Cerrar Sesión Cliente
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-3 pt-1">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Teléfono Celular (WhatsApp)
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="Ej. 472 123 4567"
-                      value={clientPhone}
-                      onChange={(e) => setClientPhone(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 text-slate-900"
-                    />
-                    <span className="text-[10px] text-slate-500 mt-0.5 block">
-                      Requerido para consultar exclusivamente tus pedidos anteriores en "Mis Pedidos".
+                <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-black uppercase tracking-wider bg-emerald-600 text-white px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-2xs">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Estatus: Cliente Registrado</span>
+                    </span>
+                    <span className="text-xs font-mono text-emerald-800 font-bold">
+                      {registeredCustomer.phone}
                     </span>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">
-                      Nombre Completo
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ej. María López"
-                      value={clientName}
-                      onChange={(e) => setClientName(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 text-slate-900"
-                    />
+                    <h4 className="font-bold text-sm text-emerald-950">{registeredCustomer.name}</h4>
+                    <p className="text-xs text-emerald-800 mt-0.5">
+                      📍 {registeredCustomer.address || 'Silao Centro'} · {registeredCustomer.colonia || 'Silao, Gto'}
+                    </p>
                   </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-emerald-200 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsAuthModalOpen(false);
+                        setActiveTab('pedidos');
+                      }}
+                      className="text-emerald-800 font-bold hover:underline cursor-pointer"
+                    >
+                      📦 Ver Mis Pedidos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logoutCustomer();
+                        setClientPhone('');
+                        setClientName('');
+                        setClientAddress('');
+                      }}
+                      className="text-red-700 hover:text-red-800 font-bold underline cursor-pointer"
+                    >
+                      Cerrar Sesión Cliente
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3 pt-1">
+                  {/* Selector Registro vs Ya tengo cuenta */}
+                  <div className="grid grid-cols-2 gap-1 p-1 bg-slate-200/80 rounded-xl text-xs font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setClientSubTab('registro')}
+                      className={`py-1.5 px-2 rounded-lg transition-all cursor-pointer text-center ${
+                        clientSubTab === 'registro'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Registrar Nuevo Cliente
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setClientSubTab('login')}
+                      className={`py-1.5 px-2 rounded-lg transition-all cursor-pointer text-center ${
+                        clientSubTab === 'login'
+                          ? 'bg-emerald-600 text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Ya Estoy Registrado
+                    </button>
+                  </div>
+
+                  {clientSubTab === 'registro' ? (
+                    <div className="space-y-3">
+                      <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-900 font-medium flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span>Al registrarte obtendrás el <strong>Estatus de Cliente Registrado</strong> para rastrear tus pedidos.</span>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Nombre Completo *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Ej. María López"
+                          value={clientName}
+                          onChange={(e) => setClientName(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        />
+                      </div>
+
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-xs font-bold text-slate-700">
+                            Teléfono Celular (WhatsApp) *
+                          </label>
+                          <span className="text-[10px] text-emerald-700 font-mono font-bold">
+                            {clientPhone.replace(/\D/g, '').length}/10 dígitos
+                          </span>
+                        </div>
+                        <input
+                          type="tel"
+                          required
+                          maxLength={10}
+                          placeholder="Ej. 4721234567"
+                          value={clientPhone}
+                          onChange={(e) => setClientPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Dirección de Entrega (Calle y Número)
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Ej. Calle Hidalgo #12"
+                          value={clientAddress}
+                          onChange={(e) => setClientAddress(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Colonia en Silao
+                        </label>
+                        <select
+                          value={clientColonia}
+                          onChange={(e) => setClientColonia(e.target.value)}
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        >
+                          {SILAO_COLONIAS.map((c) => (
+                            <option key={c} value={c}>{c}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-xs font-bold text-slate-700">
+                            Teléfono Celular Registrado *
+                          </label>
+                          <span className="text-[10px] text-emerald-700 font-mono font-bold">
+                            {clientPhone.replace(/\D/g, '').length}/10 dígitos
+                          </span>
+                        </div>
+                        <input
+                          type="tel"
+                          required
+                          maxLength={10}
+                          placeholder="Ej. 4721234567"
+                          value={clientPhone}
+                          onChange={(e) => setClientPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-emerald-500 text-slate-900"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -12,15 +12,16 @@ export interface OperatingHoursStatus {
 /**
  * Formatea una hora en formato HH:mm (24h) a formato legible 12h (ej. "8:30 AM", "1:00 PM").
  */
-export function formatTime12h(timeStr?: string): string {
+export function formatTime12h(timeStr?: string | number | null): string {
   if (!timeStr) return '8:00 AM';
-  const parts = timeStr.split(':');
+  const str = String(timeStr);
+  const parts = str.split(':');
   const h = parseInt(parts[0] || '8', 10);
   const m = parseInt(parts[1] || '0', 10);
   const period = h >= 12 ? 'PM' : 'AM';
   const h12 = h % 12 === 0 ? 12 : h % 12;
-  const mStr = m.toString().padStart(2, '0');
-  return `${h12}:${mStr} ${period}`;
+  const mStr = (isNaN(m) ? 0 : m).toString().padStart(2, '0');
+  return `${isNaN(h12) ? 8 : h12}:${mStr} ${period}`;
 }
 
 export interface MerchantOperatingStatus {
@@ -44,8 +45,8 @@ export function checkMerchantOperatingStatus(
   merchant?: Partial<Merchant> | null,
   customNow?: Date
 ): MerchantOperatingStatus {
-  const openingTime = merchant?.openingTime || '08:00';
-  const closingTime = merchant?.closingTime || '20:00';
+  const openingTime = typeof merchant?.openingTime === 'string' ? merchant.openingTime : '08:00';
+  const closingTime = typeof merchant?.closingTime === 'string' ? merchant.closingTime : '20:00';
 
   const [openH, openM] = openingTime.split(':').map(Number);
   const [closeH, closeM] = closingTime.split(':').map(Number);

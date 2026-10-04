@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   X, 
   Trash2, 
@@ -88,8 +88,8 @@ export const CartDrawer: React.FC = () => {
   // Auto-fill si el cliente inicia sesión o se actualiza
   useEffect(() => {
     if (registeredCustomer) {
-      if (!customerName) setCustomerName(registeredCustomer.name);
-      if (!customerPhone) setCustomerPhone(registeredCustomer.phone);
+      if (!customerName && registeredCustomer.name) setCustomerName(registeredCustomer.name);
+      if (!customerPhone && registeredCustomer.phone) setCustomerPhone(registeredCustomer.phone);
       if (!customerStreet && registeredCustomer.address) setCustomerStreet(registeredCustomer.address);
       if (registeredCustomer.colonia) setSelectedColonia(registeredCustomer.colonia);
     }
@@ -759,7 +759,7 @@ export const CartDrawer: React.FC = () => {
                       <div key={em.merchantId} className="flex items-center justify-between text-[11px] gap-2">
                         <div className="truncate">
                           <strong className="text-slate-800 block truncate">🏪 {em.merchantName}</strong>
-                          <span className="text-[10px] text-slate-500">Horario oficial: {em.scheduleText}</span>
+                          <span className="text-[10px] text-slate-500">Horario oficial: {em.openingTime12h} - {em.closingTime12h}</span>
                         </div>
                         <span className="font-mono font-black text-rose-700 bg-rose-100 px-2 py-0.5 rounded text-[11px] shrink-0 border border-rose-200">
                           Abre a las {em.openingTime12h}

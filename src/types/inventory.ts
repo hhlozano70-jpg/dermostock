@@ -58,7 +58,7 @@ export interface MerchantDocument {
   id: string;
   title: string;
   url: string; // URL o enlace a documento / menú / catálogo
-  type: 'menu' | 'catalogo' | 'lista_precios' | 'pdf' | 'imagen' | 'otro';
+  type: 'menu' | 'catalogo' | 'lista_precios' | 'precios' | 'pdf' | 'imagen' | 'otro';
   description?: string;
 }
 
@@ -180,6 +180,7 @@ export interface Product {
   presentation: string;
   brand: string;
   category: Category;
+  type?: 'Producto' | 'Servicio';
   merchantId: string;
   merchantName: string;
   merchantCategory: MerchantCategory;

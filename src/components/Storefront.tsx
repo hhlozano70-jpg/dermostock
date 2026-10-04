@@ -15,7 +15,10 @@ import {
   CheckCircle2,
   FileEdit,
   MapPin,
-  Tag
+  Tag,
+  ShieldCheck,
+  User,
+  UserCheck
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { ProductCard } from './ProductCard';
@@ -34,7 +37,10 @@ export const Storefront: React.FC = () => {
     setIsBrochureModalOpen,
     setIsAuthModalOpen,
     setIsCustomOrderModalOpen,
-    giros
+    giros,
+    registeredCustomer,
+    userRole,
+    setActiveTab
   } = useInventory();
 
   // Filters
@@ -124,14 +130,23 @@ export const Storefront: React.FC = () => {
   }, [selectedCategory, merchants]);
 
   const filteredProducts = useMemo(() => {
-    return products.filter((p) => {
+    const search = searchTerm.trim().toLowerCase();
+    return (products || []).filter((p) => {
+      if (!p) return false;
+
+      const pName = (p.name || '').toLowerCase();
+      const pPres = (p.presentation || '').toLowerCase();
+      const pMerch = (p.merchantName || '').toLowerCase();
+      const pCat = (p.category || '').toLowerCase();
+      const pBrand = (p.brand || '').toLowerCase();
+
       const matchSearch =
-        !searchTerm.trim() ||
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.presentation.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (p.merchantName && p.merchantName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        p.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.brand.toLowerCase().includes(searchTerm.toLowerCase());
+        !search ||
+        pName.includes(search) ||
+        pPres.includes(search) ||
+        pMerch.includes(search) ||
+        pCat.includes(search) ||
+        pBrand.includes(search);
 
       const matchCategory =
         selectedCategory === 'all' || 
@@ -140,30 +155,30 @@ export const Storefront: React.FC = () => {
         (selectedCategory === 'Supermercados y Ofertas' && (
           p.category === 'Supermercados y Ofertas' || 
           p.merchantCategory === 'Supermercados y Ofertas' ||
-          p.merchantId?.includes('aurrera') ||
+          Boolean(p.merchantId?.includes('aurrera') ||
           p.merchantId?.includes('soriana') ||
           p.merchantId?.includes('tiendas-3b') ||
-          p.merchantId?.includes('super-bara')
+          p.merchantId?.includes('super-bara'))
         )) ||
         (selectedCategory === 'Cuidado Personal y Belleza' && (
           p.merchantId === 'merch-maret-silao' || 
-          p.category.includes('Belleza') || 
-          p.category.includes('Cuidado Personal')
+          (p.category && p.category.includes('Belleza')) ||
+          (p.category && p.category.includes('Cuidado Personal'))
         )) ||
         (selectedCategory === 'Servicios Personalizados' && (
           p.type === 'Servicio' ||
-          p.category.includes('Servicio') ||
-          p.category.includes('Cerrajería') ||
-          p.category.includes('Tintorería') ||
-          p.category.includes('Lavandería') ||
-          p.category.includes('Trámites') ||
-          p.category.includes('Impresiones') ||
-          p.merchantCategory?.includes('Servicio') ||
-          p.merchantCategory?.includes('Cerrajería') ||
-          p.merchantCategory?.includes('Tintorería') ||
-          p.merchantCategory?.includes('Lavandería') ||
-          p.merchantCategory?.includes('Trámites') ||
-          p.merchantCategory?.includes('Impresiones') ||
+          (p.category && p.category.includes('Servicio')) ||
+          (p.category && p.category.includes('Cerrajería')) ||
+          (p.category && p.category.includes('Tintorería')) ||
+          (p.category && p.category.includes('Lavandería')) ||
+          (p.category && p.category.includes('Trámites')) ||
+          (p.category && p.category.includes('Impresiones')) ||
+          (p.merchantCategory && p.merchantCategory.includes('Servicio')) ||
+          (p.merchantCategory && p.merchantCategory.includes('Cerrajería')) ||
+          (p.merchantCategory && p.merchantCategory.includes('Tintorería')) ||
+          (p.merchantCategory && p.merchantCategory.includes('Lavandería')) ||
+          (p.merchantCategory && p.merchantCategory.includes('Trámites')) ||
+          (p.merchantCategory && p.merchantCategory.includes('Impresiones')) ||
           p.merchantId === 'merch-cerrajeria-silao' ||
           p.merchantId === 'merch-tintoreria-silao' ||
           p.merchantId === 'merch-lavanderia-silao' ||
@@ -173,8 +188,8 @@ export const Storefront: React.FC = () => {
         )) ||
         (selectedCategory === 'Cadena Fría (Aguas, Paletas, Cervezas)' && (
           p.isColdChain || 
-          p.category.includes('Cadena Fría') || 
-          p.merchantCategory?.includes('Cadena Fría') ||
+          (p.category && p.category.includes('Cadena Fría')) || 
+          (p.merchantCategory && p.merchantCategory.includes('Cadena Fría')) ||
           p.merchantId === 'merch-cadena-fria' ||
           p.merchantId === 'merch-cerveceria'
         ));
@@ -275,7 +290,76 @@ export const Storefront: React.FC = () => {
       </section>
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+
+        {/* ESTATUS DE CLIENTE: REGISTRADO vs INVITADO */}
+        {userRole === 'cliente' && (
+          registeredCustomer ? (
+            <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-md border border-emerald-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+              <div className="flex items-start sm:items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 flex items-center justify-center shrink-0 shadow-inner">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[11px] font-black uppercase tracking-wider bg-emerald-500 text-slate-950 px-2 py-0.5 rounded-full shadow-2xs">
+                      🛡️ Estatus: Cliente Registrado
+                    </span>
+                    <span className="text-xs text-amber-300 font-bold">
+                      ¡Bienvenido(a), {registeredCustomer.name}!
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 flex items-center gap-2 flex-wrap">
+                    <span>📱 WhatsApp: <strong className="text-white font-mono">{registeredCustomer.phone}</strong></span>
+                    <span>•</span>
+                    <span>📍 Entrega: <strong className="text-white">{registeredCustomer.address || 'Silao Centro'}</strong> ({registeredCustomer.colonia || 'Silao, Gto'})</span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('pedidos')}
+                  className="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>Mis Pedidos</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-200 text-xs font-semibold border border-white/15 transition-all cursor-pointer"
+                  title="Ver o actualizar mis datos de cliente"
+                >
+                  <span>Mi Perfil</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-amber-50 border border-amber-300/80 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-amber-950 shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-200/80 text-amber-900 flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="font-bold text-amber-900">
+                    Estás navegando en modo Invitado
+                  </p>
+                  <p className="text-[11px] text-amber-800">
+                    Puedes consultar inventarios y armar tu carrito. Regístrate para guardar tu dirección y obtener el <strong>Estatus de Cliente Registrado</strong>.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shrink-0 shadow-xs transition-all cursor-pointer text-center"
+              >
+                Registrarme como Cliente
+              </button>
+            </div>
+          )
+        )}
 
         {/* SECTION: Search & Store Filters */}
         <section className="space-y-4 pt-1">

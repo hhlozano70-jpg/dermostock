@@ -48,7 +48,8 @@ export const Navbar: React.FC = () => {
     setIsBrochureModalOpen,
     setIsMerchantManagerOpen,
     logoutRole,
-    registeredCustomer
+    registeredCustomer,
+    logoutCustomer
   } = useInventory();
 
   return (
@@ -278,14 +279,33 @@ export const Navbar: React.FC = () => {
               </button>
             ) : (
               <div className="flex items-center gap-1.5">
-                {registeredCustomer && (
+                {registeredCustomer ? (
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setActiveTab('pedidos')}
+                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                      title={`Cliente Registrado: ${registeredCustomer.name || 'Cliente'} (${registeredCustomer.phone || ''}). Clic para ver tus pedidos.`}
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
+                      <span className="hidden sm:inline font-extrabold text-emerald-800">Registrado:</span>
+                      <span className="max-w-[100px] truncate">{((registeredCustomer.name || 'Cliente').split(' ')[0])}</span>
+                    </button>
+                    <button
+                      onClick={() => logoutCustomer()}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Cerrar sesión de cliente"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => setActiveTab('pedidos')}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-900 text-xs font-bold transition-all shadow-2xs cursor-pointer"
-                    title={`Cliente: ${registeredCustomer.name} (${registeredCustomer.phone}). Clic para ver tus pedidos.`}
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-950 text-xs font-bold transition-all shadow-2xs cursor-pointer"
+                    title="Regístrate para obtener estatus de Cliente Registrado y rastrear pedidos"
                   >
-                    <User className="w-3.5 h-3.5 text-emerald-700" />
-                    <span className="hidden sm:inline max-w-[110px] truncate">{registeredCustomer.name.split(' ')[0]}</span>
+                    <User className="w-3.5 h-3.5 text-amber-700" />
+                    <span className="hidden sm:inline">Registrarme</span>
                   </button>
                 )}
                 {/* Enlace discreto para comercios que deseen iniciar sesión sin saturar la barra del cliente */}
