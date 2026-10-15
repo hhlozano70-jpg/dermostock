@@ -675,10 +675,18 @@ export const Storefront: React.FC = () => {
                           href={selMerchant.catalogPdfUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs shadow-xs transition-colors cursor-pointer ${
+                            selMerchant.id === 'merch-tramites-cv-silao'
+                              ? 'bg-blue-600 hover:bg-blue-700 text-white ring-2 ring-blue-400/40'
+                              : 'bg-purple-700 hover:bg-purple-800 text-white'
+                          }`}
                         >
                           <FileText className="w-3.5 h-3.5" />
-                          <span>Ver Catálogo / Menú Digital Completo</span>
+                          <span>
+                            {selMerchant.id === 'merch-tramites-cv-silao'
+                              ? '🚀 Abrir Creador Web de CV y Solicitud (Uso Libre)'
+                              : 'Ver Catálogo / Menú Digital Completo'}
+                          </span>
                           <ExternalLink className="w-3 h-3 ml-0.5 opacity-80" />
                         </a>
                       )}
@@ -731,6 +739,45 @@ export const Storefront: React.FC = () => {
             </div>
           );
         })()}
+
+        {/* Banner Especial de Servicios Personalizados: Creador de CV y Solicitud de Empleo */}
+        {(selectedCategory === 'Servicios Personalizados' || selectedMerchantId === 'merch-tramites-cv-silao') && (
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-blue-950 via-indigo-900 to-slate-900 text-white flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg border border-cyan-400/30 animate-in fade-in duration-300">
+            <div className="flex items-start sm:items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-blue-500/20 border border-blue-400/40 text-blue-300 flex items-center justify-center shrink-0 shadow-inner">
+                <FileText className="w-7 h-7 text-cyan-300" />
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-cyan-400 text-slate-950 px-2 py-0.5 rounded-full shadow-2xs">
+                    ⚡ Servicio Oficial Silao
+                  </span>
+                  <span className="text-xs text-amber-300 font-bold">
+                    100% Gratuito en Línea · Impresión Láser Opcional
+                  </span>
+                </div>
+                <h4 className="text-sm sm:text-base font-bold text-white leading-snug">
+                  Creador Web de Curriculum Vitae (ATS) y Solicitud de Empleo Digital Oficial
+                </h4>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-2xl">
+                  Diseña en minutos tu CV profesional para empresas de Puerto Interior, FIPASI y Las Colinas, o llena tu Solicitud de Empleo mexicana con 6 estilos oficiales con foto y firma. Puedes descargarlo gratis en PDF o solicitar tus juegos impresos en láser a domicilio con tu pedido de Silaomarket.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0 w-full md:w-auto">
+              <a
+                href="/tramites/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-400 hover:from-cyan-300 hover:to-blue-300 text-slate-950 font-black text-xs sm:text-sm text-center shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-4 h-4 text-blue-900" />
+                <span>Abrir Creador Online Gratis</span>
+                <ExternalLink className="w-3.5 h-3.5 text-blue-900" />
+              </a>
+            </div>
+          </div>
+        )}
 
         {/* Banner para Pedido por Encargo / Formato Fuera de Catálogo */}
         <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">

@@ -29,6 +29,7 @@ export interface GiroCommissionRate {
 }
 
 export const BROCHURE_COMMISSIONS: GiroCommissionRate[] = [
+  { giro: 'Servicios Personalizados', category: 'Servicios Personalizados', commission: 10, rate: 10, type: 'Servicio', canAccompanyOrders: true, description: 'Trámites laborales, creador de CV profesional, solicitudes de empleo oficiales e impresiones a domicilio' },
   { giro: 'Impresiones y trámites oficiales', category: 'Impresiones y trámites oficiales', commission: 10, rate: 10, type: 'Servicio', canAccompanyOrders: true, description: 'Copias, impresiones urgentes, actas de nacimiento, CURP, RFC y documentos oficiales que viajan con los pedidos' },
   { giro: 'Venta de cosas usadas y bazar', category: 'Venta de cosas usadas y bazar', commission: 12, rate: 12, type: 'Producto', canAccompanyOrders: true, description: 'Artículos de segunda mano garantizados, ropa de bazar, antigüedades y oportunidades de ocasión' },
   { giro: 'Páginas web y aplicaciones', category: 'Páginas web y aplicaciones', commission: 15, rate: 15, type: 'Servicio', canAccompanyOrders: false, description: 'Desarrollo de sitios web, menús con código QR, tiendas en línea y aplicaciones para negocios locales' },

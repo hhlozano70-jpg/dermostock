@@ -218,15 +218,17 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length >= INITIAL_PRODUCTS.length) return parsed;
         if (Array.isArray(parsed)) {
           const existingIds = new Set(parsed.map(p => p.id));
           const missing = INITIAL_PRODUCTS.filter(p => !existingIds.has(p.id));
-          const merged = [...parsed, ...missing];
-          try {
-            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(merged));
-          } catch {}
-          return merged;
+          if (missing.length > 0) {
+            const merged = [...parsed, ...missing];
+            try {
+              localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          }
+          return parsed;
         }
       }
     } catch (e) {
