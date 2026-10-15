@@ -1004,6 +1004,49 @@ export const CartDrawer: React.FC = () => {
                     <option value="tarjeta">💳 Tarjeta Débito / Crédito al entregar</option>
                     <option value="contra_entrega">🤝 Pago Contra Entrega</option>
                   </select>
+
+                  {paymentMethod === 'transferencia' && (
+                    <div className="mt-2.5 p-3 bg-blue-50/90 border border-blue-200 rounded-xl text-xs space-y-2 animate-in fade-in">
+                      <div className="flex items-center justify-between font-bold text-blue-900 border-b border-blue-200 pb-1.5">
+                        <span className="flex items-center gap-1.5">
+                          <Building2 className="w-3.5 h-3.5 text-blue-700" />
+                          <span>Línea Central de Pago (Hub Silao):</span>
+                        </span>
+                        <span className="text-[10px] bg-blue-200 text-blue-950 font-extrabold px-1.5 py-0.5 rounded">
+                          Válido para Todas las Tiendas
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-700 space-y-1">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Beneficiario:</span>
+                          <strong className="text-slate-900">{settings.paymentBeneficiaryName || 'Lic. Roberto González M. (Silaomarket Hub)'}</strong>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Banco Receptor:</span>
+                          <strong className="text-slate-900">{settings.paymentBankName || 'BBVA México / STP'}</strong>
+                        </div>
+                        <div className="flex justify-between items-center bg-white p-2 rounded-lg border border-blue-200">
+                          <div>
+                            <span className="text-[10px] text-slate-500 block font-bold">CLABE Interbancaria:</span>
+                            <span className="font-mono font-black text-blue-700 text-xs">{settings.paymentClabe || '646180123456789012'}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(settings.paymentClabe || '646180123456789012');
+                              alert('¡CLABE interbancaria copiada al portapapeles!');
+                            }}
+                            className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold rounded-md border border-blue-200 cursor-pointer"
+                          >
+                            Copiar CLABE
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-[10px] text-slate-500">
+                        Realiza un solo depósito para todos los comercios de tu carrito. Envía el comprobante de pago al confirmar por WhatsApp.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Tiempo de Recolección en Comercios (1h a 2h) */}

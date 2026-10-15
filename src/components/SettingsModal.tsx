@@ -12,7 +12,8 @@ import {
   Truck,
   Snowflake,
   Clock,
-  Gauge
+  Gauge,
+  CreditCard
 } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 
@@ -34,6 +35,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const [maxOrdersPerHour, setMaxOrdersPerHour] = useState<number>(settings.maxOrdersPerHour ?? 12);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
+  // Datos Bancarios y Línea de Cobro Central (Hub Silao)
+  const [paymentBeneficiaryName, setPaymentBeneficiaryName] = useState(settings.paymentBeneficiaryName || 'Lic. Roberto González M. (Silaomarket Hub)');
+  const [paymentBankName, setPaymentBankName] = useState(settings.paymentBankName || 'BBVA México / STP');
+  const [paymentClabe, setPaymentClabe] = useState(settings.paymentClabe || '646180123456789012');
+  const [paymentWhatsappNumber, setPaymentWhatsappNumber] = useState(settings.paymentWhatsappNumber || '524721053399');
+  const [paymentBusinessName, setPaymentBusinessName] = useState(settings.paymentBusinessName || 'Trámites y Envíos Silao / Silaomarket Hub');
+  const [paymentOxxoReference, setPaymentOxxoReference] = useState(settings.paymentOxxoReference || '9823 4819 0284 12');
+  const [paymentInstructions, setPaymentInstructions] = useState(settings.paymentInstructions || '1 solo pago para todos los comercios del pedido con entrega consolidada.');
+
   useEffect(() => {
     if (isOpen) {
       setWhatsappNumber(settings.whatsappNumber || '524721234567');
@@ -44,6 +54,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       setOrderStartTime(settings.orderStartTime || '08:00');
       setOrderEndTime(settings.orderEndTime || '20:00');
       setMaxOrdersPerHour(settings.maxOrdersPerHour ?? 12);
+      setPaymentBeneficiaryName(settings.paymentBeneficiaryName || 'Lic. Roberto González M. (Silaomarket Hub)');
+      setPaymentBankName(settings.paymentBankName || 'BBVA México / STP');
+      setPaymentClabe(settings.paymentClabe || '646180123456789012');
+      setPaymentWhatsappNumber(settings.paymentWhatsappNumber || '524721053399');
+      setPaymentBusinessName(settings.paymentBusinessName || 'Trámites y Envíos Silao / Silaomarket Hub');
+      setPaymentOxxoReference(settings.paymentOxxoReference || '9823 4819 0284 12');
+      setPaymentInstructions(settings.paymentInstructions || '1 solo pago para todos los comercios del pedido con entrega consolidada.');
       setSavedSuccess(false);
     }
   }, [isOpen, settings]);
@@ -87,6 +104,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
       maxOrdersPerHour: Number(maxOrdersPerHour) || 12,
       city: 'Silao',
       state: 'Guanajuato',
+      paymentBeneficiaryName: paymentBeneficiaryName.trim(),
+      paymentBankName: paymentBankName.trim(),
+      paymentClabe: paymentClabe.replace(/\s/g, '').trim(),
+      paymentWhatsappNumber: paymentWhatsappNumber.replace(/\D/g, '').trim(),
+      paymentBusinessName: paymentBusinessName.trim(),
+      paymentOxxoReference: paymentOxxoReference.trim(),
+      paymentInstructions: paymentInstructions.trim(),
     });
     setSavedSuccess(true);
     setTimeout(() => {
@@ -306,6 +330,119 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <p className="text-[10px] text-amber-800">
               Si la cantidad de pedidos en la hora en curso alcanza este tope, la app informa al cliente sobre saturación y agenda el pedido para el siguiente bloque de entrega disponible.
             </p>
+          </div>
+
+          {/* LÍNEA DE COBRO Y DATOS BANCARIOS CENTRALES (PARA TODAS LAS TIENDAS) */}
+          <div className="space-y-3 p-4 bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-slate-50 border border-blue-200 rounded-2xl shadow-2xs">
+            <div className="flex items-center justify-between border-b border-blue-200/80 pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shadow-xs shrink-0">
+                  <CreditCard className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
+                    <span>Línea Central de Cobro & Cuentas Bancarias</span>
+                    <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.2 rounded-full font-bold">
+                      Todas las Tiendas de Silao
+                    </span>
+                  </h4>
+                  <p className="text-[10px] text-slate-500">
+                    Aparece al cliente en transferencias SPEI, carrito general y creador de CV/trámites
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Beneficiario / Titular de la Cuenta *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. Lic. Roberto González M. (Silaomarket Hub)"
+                  value={paymentBeneficiaryName}
+                  onChange={(e) => setPaymentBeneficiaryName(e.target.value)}
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Banco Receptor *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej. BBVA México / STP"
+                  value={paymentBankName}
+                  onChange={(e) => setPaymentBankName(e.target.value)}
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  CLABE Interbancaria (18 dígitos) *
+                </label>
+                <input
+                  type="text"
+                  required
+                  maxLength={18}
+                  placeholder="Ej. 646180123456789012"
+                  value={paymentClabe}
+                  onChange={(e) => setPaymentClabe(e.target.value)}
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  WhatsApp Receptor de Comprobantes *
+                </label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="Ej. 524721053399"
+                  value={paymentWhatsappNumber}
+                  onChange={(e) => setPaymentWhatsappNumber(e.target.value)}
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Razón Social / Nombre Comercial
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej. Trámites y Envíos Silao / Silaomarket Hub"
+                  value={paymentBusinessName}
+                  onChange={(e) => setPaymentBusinessName(e.target.value)}
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Referencia OXXO Pay
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ej. 9823 4819 0284 12"
+                  value={paymentOxxoReference}
+                  onChange={(e) => setPaymentOxxoReference(e.target.value)}
+                  className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="p-2.5 bg-blue-100/60 rounded-xl border border-blue-200 text-[11px] text-blue-900 flex items-center justify-between">
+              <span>
+                💡 Al guardar aquí, todas las tiendas de Silao Market y el módulo de trámites usarán esta cuenta para pagos por SPEI y validación de pedidos.
+              </span>
+            </div>
           </div>
 
           {/* Model Explanatory Box */}

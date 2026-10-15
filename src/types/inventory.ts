@@ -172,6 +172,15 @@ export interface StoreSettings {
   orderStartTime?: string; // "08:00"
   orderEndTime?: string;   // "20:00"
   maxOrdersPerHour?: number; // ej. 12
+
+  // Línea Central de Cobro para todas las tiendas en Silaomarket
+  paymentBeneficiaryName?: string; // Beneficiario oficial / titular (ej. "Lic. Roberto González M. (Silaomarket Hub)")
+  paymentBankName?: string;        // Banco receptor (ej. "BBVA México / STP")
+  paymentClabe?: string;           // CLABE interbancaria (18 dígitos)
+  paymentWhatsappNumber?: string;  // WhatsApp receptor de comprobantes y pagos
+  paymentBusinessName?: string;    // Razón social o nombre comercial
+  paymentOxxoReference?: string;   // Referencia OXXO Pay
+  paymentInstructions?: string;    // Instrucciones adicionales de pago
 }
 
 export interface Product {

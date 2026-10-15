@@ -35,6 +35,13 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   orderStartTime: '08:00',
   orderEndTime: '20:00',
   maxOrdersPerHour: 12,
+  paymentBeneficiaryName: 'Lic. Roberto González M. (Silaomarket Hub)',
+  paymentBankName: 'BBVA México / STP',
+  paymentClabe: '646180123456789012',
+  paymentWhatsappNumber: '524721053399',
+  paymentBusinessName: 'Trámites y Envíos Silao / Silaomarket Hub',
+  paymentOxxoReference: '9823 4819 0284 12',
+  paymentInstructions: '1 solo pago centralizado para pedidos de cualquier comercio de Silao.',
 };
 
 interface InventoryContextType {
