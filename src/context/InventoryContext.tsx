@@ -965,6 +965,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [syncStatus, setSyncStatus] = useState<'synced' | 'syncing' | 'offline' | 'error'>('syncing');
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const isInitialLoadDoneRef = React.useRef(false);
+  const isRemoteUpdateRef = React.useRef(false);
   const lastServerTimestampRef = React.useRef<string>('');
   const isSavingRef = React.useRef(false);
 
@@ -1027,6 +1028,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       if (data && Array.isArray(data.products) && data.products.length >= INITIAL_PRODUCTS.length) {
         if (force || !isInitialLoadDoneRef.current || (data.lastUpdated && data.lastUpdated !== lastServerTimestampRef.current)) {
           lastServerTimestampRef.current = data.lastUpdated || new Date().toISOString();
+          isRemoteUpdateRef.current = true;
           setProducts(data.products);
           if (Array.isArray(data.movements)) setMovements(data.movements);
           if (Array.isArray(data.orders)) {
@@ -1165,6 +1167,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   // Sync changes to server and localStorage whenever state updates
   useEffect(() => {
     if (!isInitialLoadDoneRef.current) return;
+
+    if (isRemoteUpdateRef.current) {
+      isRemoteUpdateRef.current = false;
+      return;
+    }
 
     try {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
